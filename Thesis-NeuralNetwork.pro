@@ -16,14 +16,14 @@ SOURCES += app/main.cpp \
     src/mainwindow.cpp \
     src/csvreader.cpp \
     src/dataentry.cpp \
-    src/network.cpp \
-    src/neuron.cpp
+#    src/network.cpp \
+#    src/neuron.cpp
 
 HEADERS  += include/mainwindow.h \
     include/csvreader.h \
     include/dataentry.h \
-    include/network.h \
-    include/neuron.h \
+#    include/network.h \
+#    include/neuron.h \
     include/exercise.h
 
 FORMS    += res/layout/mainwindow.ui

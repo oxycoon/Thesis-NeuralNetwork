@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 
-
+#include <boost/regex.hpp>
 
 //================================================
 //                      DataSet
@@ -57,19 +57,24 @@ DataSet *CSVReader::getDataSet()
 /**
  * @brief CSVReader::readCSVFile
  * @param path
- * @param numberInput
- * @param numberOutput
+ *      Path for file
+ * @param e
+ *      Exercise for this file.
+ * @param entries
+ *      Number of entries in a line
+ * @param separator
+ *      Separator used in the .csv file
  * @return
+ *      Success or failure of the parsing
  *
  *  Reads a .csv file with {numberInput} input variables and {numberOutput} output variables.
  */
-bool CSVReader::readCSVFile(const char *path, int numberInput, int numberOutput, char* separator)
+bool CSVReader::readCSVFile(const char *path, Exercise e, int entries, char* separator)
 {
     clearData();
 
-    _numberInput = numberInput;
-    _numberOutput = numberOutput;
     _separator = separator;
+    _numEntries = entries;
 
     _numberDataSet = 1;
 
@@ -157,10 +162,9 @@ void CSVReader::clearData()
  */
 void CSVReader::readLine(const std::string &line)
 {
-    std::vector<double> pattern(_numberInput);
-    std::vector<double> target(_numberOutput);
-    //std::vector<double> target(5);  // Spesific for this task, hack to make
-                                    // system work
+    std::vector<double> pattern(_numEntries);
+    std::vector<DataType> type(_numEntries);
+    long timestamp;
 
     char* cstr = new char[line.size() + 1];
     char* token;
@@ -170,18 +174,38 @@ void CSVReader::readLine(const std::string &line)
     int i = 0;
     token = std::strtok(cstr, _separator);
 
-    while(token != NULL && i < (_numberInput + _numberOutput))
+    while(token != NULL && i < _numEntries)
     {
-        if(i < _numberInput)
+        DataType tempTy;
+        if(i == 0)
         {
-            pattern[i] = std::atof(token);
+            timestamp = std::atof(token);
         }
         else
         {
-            target[i - _numberInput] = std::atof(token);
-            //target[std::atof(token)] = 1.0;
-        }
+            std::string temp = token;
+            boost::regex expression{"AX|AY|AZ|GX|GY|GZ|CX|CY|CZ|UK"};
+            boost::smatch match;
 
+
+            if(boost::regex_search(temp, match, expression))
+            {
+                //std::cout << match[0] << std::endl; //debug
+                if(match[0] == "AX")        tempTy = DataType::ACCEL_X;
+                else if(match[0] == "AY")   tempTy = DataType::ACCEL_Y;
+                else if(match[0] == "AZ")   tempTy = DataType::ACCEL_Z;
+                else if(match[0] == "GX")   tempTy = DataType::GYR_X;
+                else if(match[0] == "GY")   tempTy = DataType::GYR_Y;
+                else if(match[0] == "GZ")   tempTy = DataType::GYR_Z;
+                else if(match[0] == "CX")   tempTy = DataType::COM_X;
+                else if(match[0] == "CY")   tempTy = DataType::COM_Y;
+                else if(match[0] == "CZ")   tempTy = DataType::COM_Z;
+                else if(match[0] == "BAR")  tempTy = DataType::BAR;
+                else                        tempTy = DataType::NO_DATA;
+            }
+            type[i] = tempTy;
+            pattern[i] = std::atof(token);
+        }
         //Move forward
         token = std::strtok(NULL, _separator);
         i++;
@@ -189,20 +213,20 @@ void CSVReader::readLine(const std::string &line)
 
     //PRINT FOR DEBUGGING
     std::cout << "pattern: [";
-    for (int i=0; i < _numberInput; i++)
+    for (int i=0; i < pattern.size(); i++)
     {
         std::cout << pattern[i] << ",";
     }
 
-    std::cout << "] target: [";
+    /*std::cout << "] target: [";
     for (int i = 0; i < _numberOutput; i++)
     {
         std::cout << target[i] << ",";
-    }
+    }*/
     std::cout << "]" << std::endl;
 
 
-    _data.push_back(new DataEntry(pattern, target));
+    //_data.push_back(new DataEntry(pattern, target));
 }
 
 

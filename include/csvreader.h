@@ -6,6 +6,7 @@
 
 
 #include "dataentry.h"
+#include "exercise.h"
 
 /**
  * @brief The DataSet class
@@ -27,11 +28,7 @@ public:
 /**
  * @brief The CSVReader class
  *
- *  Class to read a CSV file with patterns and targets. .csv file format:
- *
- *      Input values | Result values
- *
- *  Specify the amount of input values, output values and the seperator in constructor.
+ *  Class to read a CSV file
  */
 class CSVReader
 {
@@ -42,18 +39,17 @@ public:
     int getNumberDataSet() const;
     DataSet* getDataSet();
 
-    bool readCSVFile(const char* path, int numberInput, int numberOutput, char* separator);
+    bool readCSVFile(const char* path, Exercise e, int entries, char* separator);
     void clearData();
 
 private:
     std::vector<DataEntry*> _data;
     DataSet _dataSet;
 
-    int _numberInput;
-    int _numberOutput;
     int _numberDataSet;
 
     int _trainingDataEnd;
+    int _numEntries;
 
     char* _separator;
 
