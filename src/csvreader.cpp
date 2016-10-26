@@ -162,8 +162,8 @@ void CSVReader::clearData()
  */
 void CSVReader::readLine(const std::string &line)
 {
-    std::vector<double> pattern(_numEntries);
-    std::vector<DataType> type(_numEntries);
+    std::vector<double> pattern(_numEntries-1);
+    std::vector<DataType> type(_numEntries-1);
     long timestamp;
 
     char* cstr = new char[line.size() + 1];
@@ -200,11 +200,11 @@ void CSVReader::readLine(const std::string &line)
                 else if(match[0] == "CX")   tempTy = DataType::COM_X;
                 else if(match[0] == "CY")   tempTy = DataType::COM_Y;
                 else if(match[0] == "CZ")   tempTy = DataType::COM_Z;
-                else if(match[0] == "BAR")  tempTy = DataType::BAR;
+                else if(match[0] == "BA")  tempTy = DataType::BAR;
                 else                        tempTy = DataType::NO_DATA;
             }
-            type[i] = tempTy;
-            pattern[i] = std::atof(token);
+            type[i-1] = tempTy;
+            pattern[i-1] = std::atof(token);
         }
         //Move forward
         token = std::strtok(NULL, _separator);
@@ -218,11 +218,11 @@ void CSVReader::readLine(const std::string &line)
         std::cout << pattern[i] << ",";
     }
 
-    /*std::cout << "] target: [";
-    for (int i = 0; i < _numberOutput; i++)
+    std::cout << "] types: [";
+    for (int i = 0; i < type.size(); i++)
     {
-        std::cout << target[i] << ",";
-    }*/
+        std::cout << type[i] << ",";
+    }
     std::cout << "]" << std::endl;
 
 
