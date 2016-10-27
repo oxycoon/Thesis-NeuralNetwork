@@ -165,7 +165,7 @@ void CSVReader::readLine(const std::string &line)
 {
     std::vector<double> pattern(_numEntries);
     std::vector<DataType> type(_numEntries);
-    unsigned int timestamp = 0;
+    unsigned long timestamp = 0;
 
     char* cstr = new char[line.size() + 1];
     char* token;
@@ -180,8 +180,9 @@ void CSVReader::readLine(const std::string &line)
         DataType tempTy = DataType::NO_DATA;
         if(i == 0)
         {
+            //TODO: FIX PARSING
             std::string temp = token;
-            timestamp = std::stoul(temp.c_str());
+            timestamp = std::atoll(temp.c_str());
             std::cout << timestamp << std::endl;
         }
         else
