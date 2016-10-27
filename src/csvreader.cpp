@@ -37,6 +37,7 @@ void DataSet::clear()
 
 CSVReader::CSVReader()
 {
+
 }
 
 CSVReader::~CSVReader()
@@ -162,9 +163,9 @@ void CSVReader::clearData()
  */
 void CSVReader::readLine(const std::string &line)
 {
-    std::vector<double> pattern(_numEntries-1);
-    std::vector<DataType> type(_numEntries-1);
-    long timestamp;
+    std::vector<double> pattern(_numEntries);
+    std::vector<DataType> type(_numEntries);
+    unsigned int timestamp = 0;
 
     char* cstr = new char[line.size() + 1];
     char* token;
@@ -174,12 +175,14 @@ void CSVReader::readLine(const std::string &line)
     int i = 0;
     token = std::strtok(cstr, _separator);
 
-    while(token != NULL && i < _numEntries)
+    while(token != NULL && i < _numEntries+1)
     {
-        DataType tempTy;
+        DataType tempTy = DataType::NO_DATA;
         if(i == 0)
         {
-            timestamp = std::atof(token);
+            std::string temp = token;
+            timestamp = std::stoul(temp.c_str());
+            std::cout << timestamp << std::endl;
         }
         else
         {
@@ -191,20 +194,20 @@ void CSVReader::readLine(const std::string &line)
             if(boost::regex_search(temp, match, expression))
             {
                 //std::cout << match[0] << std::endl; //debug
-                if(match[0] == "AX")        tempTy = DataType::ACCEL_X;
-                else if(match[0] == "AY")   tempTy = DataType::ACCEL_Y;
-                else if(match[0] == "AZ")   tempTy = DataType::ACCEL_Z;
-                else if(match[0] == "GX")   tempTy = DataType::GYR_X;
-                else if(match[0] == "GY")   tempTy = DataType::GYR_Y;
-                else if(match[0] == "GZ")   tempTy = DataType::GYR_Z;
-                else if(match[0] == "CX")   tempTy = DataType::COM_X;
-                else if(match[0] == "CY")   tempTy = DataType::COM_Y;
-                else if(match[0] == "CZ")   tempTy = DataType::COM_Z;
-                else if(match[0] == "BA")  tempTy = DataType::BAR;
-                else                        tempTy = DataType::NO_DATA;
+                if(match[0] == "AX")        {tempTy = DataType::ACCEL_X; temp.erase(temp.size()-2, temp.size());}
+                else if(match[0] == "AY")   {tempTy = DataType::ACCEL_Y; temp.erase(temp.size()-2, temp.size());}
+                else if(match[0] == "AZ")   {tempTy = DataType::ACCEL_Z; temp.erase(temp.size()-2, temp.size());}
+                else if(match[0] == "GX")   {tempTy = DataType::GYR_X; temp.erase(temp.size()-2, temp.size());}
+                else if(match[0] == "GY")   {tempTy = DataType::GYR_Y; temp.erase(temp.size()-2, temp.size());}
+                else if(match[0] == "GZ")   {tempTy = DataType::GYR_Z; temp.erase(temp.size()-2, temp.size());}
+                else if(match[0] == "CX")   {tempTy = DataType::COM_X; temp.erase(temp.size()-2, temp.size());}
+                else if(match[0] == "CY")   {tempTy = DataType::COM_Y; temp.erase(temp.size()-2, temp.size());}
+                else if(match[0] == "CZ")   {tempTy = DataType::COM_Z; temp.erase(temp.size()-2, temp.size());}
+                else if(match[0] == "BAR")  {tempTy = DataType::BAR; temp.erase(temp.size()-3, temp.size());}
+                else if(match[0] == "UK")   {tempTy = DataType::NO_DATA;}
             }
             type[i-1] = tempTy;
-            pattern[i-1] = std::atof(token);
+            pattern[i-1] = std::stod(temp);
         }
         //Move forward
         token = std::strtok(NULL, _separator);
@@ -212,7 +215,7 @@ void CSVReader::readLine(const std::string &line)
     }
 
     //PRINT FOR DEBUGGING
-    std::cout << "pattern: [";
+    /*std::cout << "Time: [" << timestamp << "] pattern: [";
     for (int i=0; i < pattern.size(); i++)
     {
         std::cout << pattern[i] << ",";
@@ -223,7 +226,7 @@ void CSVReader::readLine(const std::string &line)
     {
         std::cout << type[i] << ",";
     }
-    std::cout << "]" << std::endl;
+    std::cout << "]" << std::endl;*/
 
 
     //_data.push_back(new DataEntry(pattern, target));
