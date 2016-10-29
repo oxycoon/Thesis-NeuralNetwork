@@ -7,6 +7,7 @@
 
 #include "dataentry.h"
 #include "exercise.h"
+#include "datacollection.h"
 
 /**
  * @brief The DataSet class
@@ -40,6 +41,7 @@ public:
     DataSet* getDataSet();
 
     bool readCSVFile(const char* path, Exercise e, int entries, char* separator);
+    bool readCSVFile(const char* path, Exercise e, int entries, char* separator, DataCollection &output);
     void clearData();
 
 private:
@@ -53,7 +55,7 @@ private:
 
     char* _separator;
 
-    void readLine(const std::string &line);
+    DataEntry* readLine(const std::string &line);
 };
 
 #endif // CSVREADER_H

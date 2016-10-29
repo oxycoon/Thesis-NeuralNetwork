@@ -140,6 +140,61 @@ bool CSVReader::readCSVFile(const char *path, Exercise e, int entries, char* sep
 }
 
 /**
+ * @brief CSVReader::readCSVFile
+ * @param path
+ *      Path for file
+ * @param e
+ *      Exercise for this file.
+ * @param entries
+ *      Number of entries in a line
+ * @param separator
+ *      Separator used in the .csv file
+ * @param output
+ *      Output reference to put the results
+ * @return
+ *      Success or failure of the parsing
+ *
+ *  Reads a .csv file with {numberInput} input variables and {numberOutput} output variables.
+ */
+bool CSVReader::readCSVFile(const char *path, Exercise e, int entries, char* separator, DataCollection &output)
+{
+    _separator = separator;
+    _numEntries = entries;
+
+    _numberDataSet = 1;
+
+    std::fstream file;
+    file.open(path, std::ios::in);
+
+    if(file.is_open())
+    {
+        std::string line = "";
+
+        while(!file.eof())
+        {
+            std::getline(file, line);
+
+            if(line.length() > 2)
+            {
+                if(line.at(0) == '#') //Checks if the line is a comment.
+                {
+                    continue;
+                }
+                else
+                {
+                    output.addToCollection(readLine(line));
+                }
+            }
+        }
+        file.close();
+
+        return true;
+    }
+    else
+        return false;
+}
+
+/**
  * @brief CSVReader::clearData
  *
  *  Clears any existing data.
@@ -161,7 +216,7 @@ void CSVReader::clearData()
  *  Reads the line and pushes the resulting data entry into the
  *  data set.
  */
-void CSVReader::readLine(const std::string &line)
+DataEntry* CSVReader::readLine(const std::string &line)
 {
     std::vector<double> pattern(_numEntries);
     std::vector<DataType> type(_numEntries);
@@ -180,10 +235,7 @@ void CSVReader::readLine(const std::string &line)
         DataType tempTy = DataType::NO_DATA;
         if(i == 0)
         {
-            //TODO: FIX PARSING
-            std::string temp = token;
-            timestamp = std::atoll(temp.c_str());
-            std::cout << timestamp << std::endl;
+            timestamp = std::atoll(token);
         }
         else
         {
@@ -231,6 +283,7 @@ void CSVReader::readLine(const std::string &line)
 
 
     //_data.push_back(new DataEntry(pattern, target));
+    return new DataEntry(pattern, type);
 }
 
 
