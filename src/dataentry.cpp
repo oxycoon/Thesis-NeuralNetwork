@@ -50,7 +50,7 @@ void DataEntry::initializeEntries()
 {
     for(int i = 0; i < _size; i++)
     {
-        _entries.push_back(0);
+        _entries.push_back(0.0);
     }
 }
 

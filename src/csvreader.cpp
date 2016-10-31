@@ -59,8 +59,6 @@ DataSet *CSVReader::getDataSet()
  * @brief CSVReader::readCSVFile
  * @param path
  *      Path for file
- * @param e
- *      Exercise for this file.
  * @param entries
  *      Number of entries in a line
  * @param separator
@@ -70,7 +68,7 @@ DataSet *CSVReader::getDataSet()
  *
  *  Reads a .csv file with {numberInput} input variables and {numberOutput} output variables.
  */
-bool CSVReader::readCSVFile(const char *path, Exercise e, int entries, char* separator)
+bool CSVReader::readCSVFile(const char *path, int entries, char* separator)
 {
     clearData();
 
@@ -143,8 +141,6 @@ bool CSVReader::readCSVFile(const char *path, Exercise e, int entries, char* sep
  * @brief CSVReader::readCSVFile
  * @param path
  *      Path for file
- * @param e
- *      Exercise for this file.
  * @param entries
  *      Number of entries in a line
  * @param separator
@@ -156,7 +152,8 @@ bool CSVReader::readCSVFile(const char *path, Exercise e, int entries, char* sep
  *
  *  Reads a .csv file with {numberInput} input variables and {numberOutput} output variables.
  */
-bool CSVReader::readCSVFile(const char *path, Exercise e, int entries, char* separator, DataCollection &output)
+bool CSVReader::readCSVFile(const char *path, int entries,
+                            char* separator, DataCollection &output)
 {
     _separator = separator;
     _numEntries = entries;

@@ -40,8 +40,8 @@ public:
     int getNumberDataSet() const;
     DataSet* getDataSet();
 
-    bool readCSVFile(const char* path, Exercise e, int entries, char* separator);
-    bool readCSVFile(const char* path, Exercise e, int entries, char* separator, DataCollection &output);
+    bool readCSVFile(const char* path, int entries, char* separator);
+    bool readCSVFile(const char* path, int entries, char* separator, DataCollection &output);
     void clearData();
 
 private:

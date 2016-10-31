@@ -12,3 +12,8 @@ MainWindow::~MainWindow()
 {
     delete _ui;
 }
+
+void MainWindow::onButtonPress()
+{
+    //TODO: Do stuffs
+}

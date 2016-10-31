@@ -1,12 +1,12 @@
 #include "../include/datacollection.h"
 
-DataCollection::DataCollection(Exercise ex):
+DataCollection::DataCollection(Exercise ex = Exercise::UNKNOWN):
     _exercise(ex)
 {
 
 }
 
-DataEntry *DataCollection::getEntry(int index) const
+DataEntry *DataCollection::getEntry(const int index) const
 {
     return _collection[index];
 }
@@ -19,6 +19,11 @@ int DataCollection::getCollectionSize() const
 Exercise DataCollection::getExercise() const
 {
     return _exercise;
+}
+
+void DataCollection::setExercise(const Exercise ex)
+{
+    _exercise = ex;
 }
 
 void DataCollection::addToCollection(DataEntry *data)
@@ -34,7 +39,6 @@ bool DataCollection::getDataSegment(int startIndex, int size, std::vector<DataEn
         {
             output.push_back(_collection.at(i));
         }
-
         return true;
     }
     else

@@ -13,7 +13,7 @@ TEMPLATE = app
 
 
 SOURCES += app/main.cpp \
-#    src/mainwindow.cpp \
+    src/mainwindow.cpp \
     src/csvreader.cpp \
     src/dataentry.cpp \
 #    src/network.cpp \
@@ -21,7 +21,7 @@ SOURCES += app/main.cpp \
     src/datacollection.cpp
 
 HEADERS  += include/csvreader.h \
-    #include/mainwindow.h \
+    include/mainwindow.h \
     include/dataentry.h \
 #    include/network.h \
 #    include/neuron.h \
