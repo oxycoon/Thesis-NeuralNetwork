@@ -23,8 +23,12 @@ private:
     Network*            _network;
     CSVReader*          _reader;
 
+    std::vector<DataCollection>     _collections;
+    std::vector<std::string>        _fileNames;
+
 
     void            initializeNetwork();
+    void            findAllFiles();
 
 public slots:
 

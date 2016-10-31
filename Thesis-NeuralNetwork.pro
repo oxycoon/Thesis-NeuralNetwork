@@ -16,15 +16,15 @@ SOURCES += app/main.cpp \
     src/mainwindow.cpp \
     src/csvreader.cpp \
     src/dataentry.cpp \
-#    src/network.cpp \
-#    src/neuron.cpp
+    src/network.cpp \
+    src/neuron.cpp
     src/datacollection.cpp
 
 HEADERS  += include/csvreader.h \
     include/mainwindow.h \
     include/dataentry.h \
-#    include/network.h \
-#    include/neuron.h \
+    include/network.h \
+    include/neuron.h \
     include/exercise.h \
     include/datacollection.h
 
