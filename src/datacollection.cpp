@@ -44,3 +44,8 @@ bool DataCollection::getDataSegment(int startIndex, int size, std::vector<DataEn
     else
         return false;
 }
+
+void DataCollection::addToCollection(DataEntry *data)
+{
+    _collection.push_back(data);
+}

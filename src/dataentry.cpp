@@ -11,7 +11,14 @@ DataEntry::DataEntry(int size = 10):
 DataEntry::DataEntry(std::vector<double> &e, std::vector<DataType> &type):
     _entries(e), _size(e.size()), _types(type)
 {
-
+    //Failsafe if there are more data nodes than we know the data types of
+    if(_size > type.size())
+    {
+        for(int i = type.size(); i < _size; i++)
+        {
+            _types.push_back(DataType::UK);
+        }
+    }
 }
 
 DataEntry::~DataEntry()
@@ -23,6 +30,47 @@ DataEntry::~DataEntry()
 std::vector<double> DataEntry::getEntries() const
 {
     return _entries;
+}
+
+std::vector<double> DataEntry::getEntriesOfDataType(DataType type) const
+{
+    if(type == DataType::UK)
+    {
+        return _entries;
+    }
+
+    std::vector<double> returnVector;
+
+    for(int i = 0; i < _types.size(); i++)
+    {
+        if(type == DataType::ACCELEROMETER)
+        {
+            if(_types[i] == DataType::ACCEL_X ||
+                _types[i] == DataType::ACCEL_Y ||
+                _types[i] == DataType::ACCEL_Z)
+                    returnVector.push_back(_entries[i]);
+        }
+        else if(type == DataType::COMPASS)
+        {
+            if(_types[i] == DataType::COM_X ||
+                _types[i] == DataType::COM_Y ||
+                _types[i] == DataType::COM_Z)
+                    returnVector.push_back(_entries[i]);
+        }
+        else if(type == DataType::GYRO)
+        {
+            if(_types[i] == DataType::GYR_X ||
+                _types[i] == DataType::GYR_Y ||
+                _types[i] == DataType::GYR_Z)
+                    returnVector.push_back(_entries[i]);
+        }
+        else if(type == DataType::BAROMETER)
+        {
+            if(_types[i] == DataType::BAR)
+                 returnVector.push_back(_entries[i]);
+        }
+    }
+    return returnVector;
 }
 
 double DataEntry::getEntry(const int index) const

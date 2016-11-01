@@ -9,7 +9,8 @@
 //              Constructor/Destructor
 //================================================
 
-Network::Network(int in, int hidden, int out): _countInput(in), _countHidden(hidden), _countOutput(out),
+Network::Network(int in, int hidden, int out, DataType networkType = DataType::UK):
+    _countInput(in), _countHidden(hidden), _countOutput(out), _networkType(networkType),
     _trainingSetAccuracy(0), _testingSetAccuracy(0), _validationSetAccuracy(0),
     _trainingSetError(0), _testingSetError(100), _validationSetError(0), _epoch(0)
 {
@@ -31,7 +32,7 @@ Network::Network(int in, int hidden, int out): _countInput(in), _countHidden(hid
 
 Network::~Network()
 {
-    /*for(auto it = _input.begin(); it != _input.end(); it++)
+    for(auto it = _input.begin(); it != _input.end(); it++)
     {
         delete *it;
     }
@@ -50,7 +51,7 @@ Network::~Network()
     _output.clear();
 
     _hiddenErrorGradient.clear();
-    _outputErrorGradient.clear();*/
+    _outputErrorGradient.clear();
 
     /*delete[] _hidden;
     delete[] _output;
@@ -133,7 +134,7 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
         double oldTSMSE = _testingSetError;
 
         //Train the network with the training set
-        runTrainingEpoch(trainingSet);
+        //runTrainingEpoch(trainingSet);
 
         //Gets the generalized set accuracy and MSE
         _testingSetAccuracy = getSetAccuracy(testSet);
@@ -166,6 +167,11 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
     std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
     std::cout << " Validation Set MSE: " << _validationSetError << std::endl << std::endl;
     std::cout << "Closing system." << std::endl;
+}
+
+void Network::runTraining(const DataCollection &trainingSet, const DataCollection &generalizedSet, const DataCollection &validationSet)
+{
+
 }
 
 //================================================
@@ -284,7 +290,7 @@ void Network::initWeights()
  *
  *  Runs a training epoch on the given set.
  */
-void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
+/*void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
 {
     double incorrectPatterns = 0;
     double meanSquaredError = 0;
@@ -328,6 +334,58 @@ void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
     //update training accuracy and MSE
     _trainingSetAccuracy = 100 - (incorrectPatterns / set.size() * 100);
     _trainingSetError = meanSquaredError / (_countOutput * set.size());
+}*/
+
+/**
+ * @brief Network::runTrainingEpoch
+ * @param set
+ *
+ *  Runs a training epoch on the given set.
+ */
+void Network::runTrainingEpoch(const DataCollection &set)
+{
+    double incorrectPatterns = 0;
+    double meanSquaredError = 0;
+
+    //Runs training for every pattern
+    /*for(int i = 0; i < set.getCollectionSize(); i++)
+    {
+        feedForward(set[i]->_pattern);
+        feedBackward(set[i]->_target);
+
+        bool patternCorrect = true;
+
+        for(int j = 0; j < _countOutput; j++)
+        {
+            //Checks if the output value matches the target
+            std::cout << "Training set #" << i << ", output #" << j <<" - Target: " << set[i]->_target[j] << " | Rounded: " << roundOutput(_output[j]->getValue()) <<
+                         "| Pure: " << _output[j]->getValue() << std::endl;
+
+            if(roundOutput(_output[j]->getValue() ) != set[i]->_target[j] )
+            {
+                patternCorrect = false;
+            }
+
+            //Calculates mean square error
+            meanSquaredError += std::pow((_output[j]->getValue() - set[i]->_target[j]), 2);
+        }
+        std::cout << std::endl;
+
+        //If pattern does not match, add to sum of incorrect.
+        if(!patternCorrect)
+        {
+            incorrectPatterns++;
+        }
+    }*/
+    //Updates weights here if batch learning is used.
+    if(_useBatch)
+    {
+        updateWeights();
+    }
+
+    //update training accuracy and MSE
+    //_trainingSetAccuracy = 100 - (incorrectPatterns / set.size() * 100);
+    //_trainingSetError = meanSquaredError / (_countOutput * set.size());
 }
 
 /**
@@ -336,7 +394,7 @@ void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
  *
  *  Feeds the input forward for an output
  */
-void Network::feedForward(std::vector<double> input)
+/*void Network::feedForward(std::vector<double> input)
 {
     //Sets input neurons to input values
     for(int i = 0; i < _countInput; i++)
@@ -373,7 +431,32 @@ void Network::feedForward(std::vector<double> input)
         //Set to sigmoid result
         _output[i]->setValue(activationFunction(_output[i]->getValue()));
     }
+}*/
 
+void Network::feedForward(DataEntry input)
+{
+    //Sets inputneuros to input values
+    std::vector<double> inputVectors = input.getEntriesOfDataType(_networkType);
+
+    for(int i = 0; i < inputVectors.size(); i++)
+    {
+        _input[i]->setValue(inputVectors[i]);
+    }
+
+    //Calculates hidden layer
+    for(int i = 0; i < _countHidden; i++)
+    {
+        //Reset value
+        _hidden[i]->setValue(0.0);
+
+        //Calculate weighted sum of inputs, including bias neuron
+        for(int j = 0; j <= _countInput; i++)
+        {
+            _hidden[i]->addToValue(_input[j]->getValue() * _input[j]->getWeight(i));
+        }
+        //Set sigmoid result
+        _hidden[i]->setValue(activationFunction(_hidden[i]->getValue()));
+    }
 }
 
 /**
@@ -382,7 +465,7 @@ void Network::feedForward(std::vector<double> input)
  *
  *  Feeds backwards, adjust deltas and calculate the error gradients.
  */
-void Network::feedBackward(std::vector<double> targets)
+/*void Network::feedBackward(std::vector<double> targets)
 {
     //Modify deltas between hidden and output
     for(int i = 0; i < _countOutput; i++)
@@ -428,7 +511,7 @@ void Network::feedBackward(std::vector<double> targets)
     {
         updateWeights();
     }
-}
+}*/
 
 /**
  * @brief Network::updateWeights
@@ -467,6 +550,7 @@ void Network::updateWeights()
         }
     }
 }
+
 
 double Network::activationFunction(double x)
 {
@@ -544,7 +628,7 @@ int Network::roundOutput(double output)
  */
 double Network::getSetAccuracy(const std::vector<DataEntry *> &set)
 {
-    double errors = 0;
+    /*double errors = 0;
 
     for(int i = 0; i < (int)set.size(); i++)
     {
@@ -560,7 +644,8 @@ double Network::getSetAccuracy(const std::vector<DataEntry *> &set)
         if(!isCorrect)
             errors++;
     }
-    return 100.0 - (errors/set.size() * 100.0);
+    return 100.0 - (errors/set.size() * 100.0);*/
+    return 0.0;
 }
 
 /**
@@ -572,7 +657,7 @@ double Network::getSetAccuracy(const std::vector<DataEntry *> &set)
  */
 double Network::getSetMSE(const std::vector<DataEntry *> &set)
 {
-    double mse = 0;
+    /*double mse = 0;
 
     for(int i = 0; i < (int)set.size(); i++)
     {
@@ -584,5 +669,7 @@ double Network::getSetMSE(const std::vector<DataEntry *> &set)
         }
     }
 
-    return mse / ( _countOutput * set.size() );
+    return mse / ( _countOutput * set.size() );*/
+    return 0.0;
 }
+

@@ -3,6 +3,7 @@
 
 #include "neuron.h"
 #include "dataentry.h"
+#include "datacollection.h"
 
 #include <vector>
 
@@ -17,7 +18,7 @@
 class Network
 {
 public:
-    Network(int in, int hidden, int out);
+    Network(int in, int hidden, int out, DataType networkType);
     ~Network();
 
     void setLearningParameters(double learningRate, double momentum);
@@ -30,11 +31,15 @@ public:
     void resetNetwork();
 
     void runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet);
+    void runTraining(const DataCollection &trainingSet, const DataCollection &generalizedSet, const DataCollection &validationSet);
 
-
+    /*std::vector<Neuron*>    getOutputNeurons();
+    void                    setInputNeurons(std::vector<Neuron*> &input);*/
 
 private:
     int _countInput, _countHidden, _countOutput;
+
+    DataType _networkType;
 
     std::vector<Neuron*> _input;
     std::vector<Neuron*>  _hidden;
@@ -68,8 +73,10 @@ private:
     void initWeights();
 
     //Epoch training related functions
-    void runTrainingEpoch(const std::vector<DataEntry*> &set);
-    void feedForward(std::vector<double> inputs);
+    //void runTrainingEpoch(const std::vector<DataEntry*> &set);
+    void runTrainingEpoch(const DataCollection &set);
+    //void feedForward(std::vector<double> inputs);
+    void feedForward(DataEntry input);
     void feedBackward(std::vector<double> targets);
     void updateWeights();
 

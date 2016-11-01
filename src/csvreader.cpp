@@ -237,7 +237,7 @@ DataEntry* CSVReader::readLine(const std::string &line)
         else
         {
             std::string temp = token;
-            boost::regex expression{"AX|AY|AZ|GX|GY|GZ|CX|CY|CZ|UK"};
+            boost::regex expression{"AX|AY|AZ|GX|GY|GZ|CX|CY|CZ|UK|BAR"};
             boost::smatch match;
 
 

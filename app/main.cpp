@@ -8,10 +8,4 @@ int main(int argc, char *argv[])
     w.show();
 
     return a.exec();
-
-    /*CSVReader r;
-
-    r.readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",");
-
-    return 0;*/
 }

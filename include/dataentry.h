@@ -16,7 +16,12 @@ enum DataType
     GYR_Y,
     GYR_Z,
     BAR,
-    NO_DATA
+    NO_DATA,
+    UK,
+    GYRO,
+    ACCELEROMETER,
+    BAROMETER,
+    COMPASS
 };
 
 class DataEntry
@@ -27,6 +32,7 @@ public:
     ~DataEntry();
 
     std::vector<double>     getEntries() const;
+    std::vector<double>     getEntriesOfDataType(DataType type) const;
     double                  getEntry(const int index) const;
     int                     getSize() const;
 
