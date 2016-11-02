@@ -1,5 +1,7 @@
 #include "../include/dataentry.h"
 
+#include <sstream>
+
 DataEntry::DataEntry(int size = 10):
     _size(size)
 {
@@ -78,6 +80,11 @@ double DataEntry::getEntry(const int index) const
     return _entries[index];
 }
 
+DataType DataEntry::getDataType(const int index) const
+{
+    return _types[index];
+}
+
 int DataEntry::getSize() const
 {
     return _size;
@@ -92,6 +99,20 @@ void DataEntry::modifyEntry(double entry, DataType type, const int index)
 void DataEntry::setTimestamp(long time)
 {
     _timestamp = time;
+}
+
+std::string DataEntry::toString()
+{
+    std::string result = "";
+
+    for(int i = 0; i < _entries.size(); i++)
+    {
+        result += std::to_string(_entries[i]);
+        if(i != (_entries.size() - 1))
+            result += ",";
+    }
+
+    return result;
 }
 
 void DataEntry::initializeEntries()

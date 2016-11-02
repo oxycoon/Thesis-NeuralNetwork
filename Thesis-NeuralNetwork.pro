@@ -17,8 +17,9 @@ SOURCES += app/main.cpp \
     src/csvreader.cpp \
     src/dataentry.cpp \
     src/network.cpp \
-    src/neuron.cpp
-    src/datacollection.cpp
+    src/neuron.cpp \
+    src/datacollection.cpp \
+    src/dataentrytotal.cpp
 
 HEADERS  += include/csvreader.h \
     include/mainwindow.h \
@@ -26,12 +27,13 @@ HEADERS  += include/csvreader.h \
     include/network.h \
     include/neuron.h \
     include/exercise.h \
-    include/datacollection.h
+    include/datacollection.h \
+    include/dataentrytotal.h
 
 FORMS    += res/layout/mainwindow.ui
 
-#win32 {
+win32 {
     INCLUDEPATH += C:/boost_1_62_0_msvc
     LIBS += -LC:/boost_1_62_0_msvc/lib64-msvc-12.0 \
             -lboost_regex-vc120-mt-gd-1_62
-#}
+}

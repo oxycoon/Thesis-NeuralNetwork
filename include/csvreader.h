@@ -39,6 +39,7 @@ public:
 
     int getNumberDataSet() const;
     DataSet* getDataSet();
+    void        enableBarometer(bool enable);
 
     bool readCSVFile(const char* path, int entries, char* separator);
     bool readCSVFile(const char* path, int entries, char* separator, DataCollection &output);
@@ -52,6 +53,8 @@ private:
 
     int _trainingDataEnd;
     int _numEntries;
+
+    bool _enableBarometer; //disabled by defalt
 
     char* _separator;
 

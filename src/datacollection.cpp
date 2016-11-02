@@ -1,9 +1,20 @@
 #include "../include/datacollection.h"
 
+#include <iostream>
+
 DataCollection::DataCollection(Exercise ex = Exercise::UNKNOWN):
     _exercise(ex)
 {
 
+}
+
+DataCollection::~DataCollection()
+{
+    for(int i = 0; i < _collection.size(); i++)
+    {
+        delete _collection[i];
+    }
+    _collection.clear();
 }
 
 DataEntry *DataCollection::getEntry(const int index) const
@@ -26,6 +37,14 @@ void DataCollection::setExercise(const Exercise ex)
     _exercise = ex;
 }
 
+void DataCollection::printCollection()
+{
+    for(int i = 0; i < _collection.size(); i++)
+    {
+        std::cout << _collection[i]->toString().c_str() << std::endl;
+    }
+}
+
 void DataCollection::addToCollection(DataEntry *data)
 {
     _collection.push_back(data);
@@ -43,9 +62,4 @@ bool DataCollection::getDataSegment(int startIndex, int size, std::vector<DataEn
     }
     else
         return false;
-}
-
-void DataCollection::addToCollection(DataEntry *data)
-{
-    _collection.push_back(data);
 }

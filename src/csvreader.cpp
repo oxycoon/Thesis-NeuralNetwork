@@ -35,7 +35,7 @@ void DataSet::clear()
 //                      CSVReader
 //================================================
 
-CSVReader::CSVReader()
+CSVReader::CSVReader(): _enableBarometer(false)
 {
 
 }
@@ -53,6 +53,11 @@ int CSVReader::getNumberDataSet() const
 DataSet *CSVReader::getDataSet()
 {
     return &_dataSet;
+}
+
+void CSVReader::enableBarometer(bool enable)
+{
+    _enableBarometer = enable;
 }
 
 /**
@@ -179,16 +184,34 @@ bool CSVReader::readCSVFile(const char *path, int entries,
                 }
                 else
                 {
-                    output.addToCollection(readLine(line));
+                    DataEntry* temp = readLine(line);
+
+                    if(_enableBarometer)
+                    {
+                        output.addToCollection(temp);
+                    }
+                    else
+                    {
+                        if(temp->getDataType(9) != DataType::BAR)
+                        {
+                            output.addToCollection(temp);
+                        }
+                        else
+                        {
+                            delete temp;
+                        }
+                    }
+                    //output.addToCollection(readLine(line));
                 }
             }
         }
         file.close();
-
         return true;
     }
     else
+    {
         return false;
+    }
 }
 
 /**

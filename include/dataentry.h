@@ -34,10 +34,13 @@ public:
     std::vector<double>     getEntries() const;
     std::vector<double>     getEntriesOfDataType(DataType type) const;
     double                  getEntry(const int index) const;
+    DataType                getDataType(const int index) const;
     int                     getSize() const;
 
     void                    modifyEntry(double entry, DataType type, const int index);
     void                    setTimestamp(long time);
+
+    std::string             toString();
 
 private:
     std::vector<double>     _entries;
