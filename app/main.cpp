@@ -1,8 +1,8 @@
 #include "include/mainwindow.h"
 #include <QApplication>
 
-#include "../include/dataentrytotal.h"
-#include <iostream>
+/*#include "../include/dataentrytotal.h"
+#include <iostream>*/
 
 int main(int argc, char *argv[])
 {

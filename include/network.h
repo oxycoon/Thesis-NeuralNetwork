@@ -18,7 +18,8 @@
 class Network
 {
 public:
-    Network(int in, int hidden, int out, DataType networkType);
+    Network(int in, int out, int hidden, DataType networkType);
+    Network(int in, int out, std::vector<int> hidden, DataType networkType);
     ~Network();
 
     void setLearningParameters(double learningRate, double momentum);
@@ -37,16 +38,18 @@ public:
     void                    setInputNeurons(std::vector<Neuron*> &input);*/
 
 private:
-    int _countInput, _countHidden, _countOutput;
+    int _countInput, _countOutput;
+    std::vector<int> _countHidden;
+    int _numHiddenLayers;
 
     DataType _networkType;
 
-    std::vector<Neuron*> _input;
-    std::vector<Neuron*>  _hidden;
-    std::vector<Neuron*>  _output;
+    std::vector<Neuron*>                _input;
+    std::vector<std::vector<Neuron*>>   _hidden;
+    std::vector<Neuron*>                _output;
 
-    std::vector<double>  _hiddenErrorGradient;
-    std::vector<double>  _outputErrorGradient;
+    std::vector<std::vector<double>>    _hiddenErrorGradient;
+    std::vector<double>                 _outputErrorGradient;
 
     unsigned int _epoch;
     unsigned int _maxEpochs;
@@ -74,9 +77,9 @@ private:
 
     //Epoch training related functions
     //void runTrainingEpoch(const std::vector<DataEntry*> &set);
-    void runTrainingEpoch(const DataCollection &set);
-    //void feedForward(std::vector<double> inputs);
-    void feedForward(DataEntry input);
+    void runTrainingEpoch(const DataCollection &set, int setSize);
+    void feedForward(std::vector<double> inputs);
+    //void feedForward(DataEntry* input);
     void feedBackward(std::vector<double> targets);
     void updateWeights();
 

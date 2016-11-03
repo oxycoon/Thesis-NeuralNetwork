@@ -50,7 +50,7 @@ void DataCollection::addToCollection(DataEntry *data)
     _collection.push_back(data);
 }
 
-bool DataCollection::getDataSegment(int startIndex, int size, std::vector<DataEntry*> &output)
+bool DataCollection::getDataSegment(int startIndex, int size, std::vector<DataEntry*> &output) const
 {
     if((startIndex + size < _collection.size()) && size != 0)
     {

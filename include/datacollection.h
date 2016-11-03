@@ -21,7 +21,7 @@ public:
     void                        printCollection();
 
     void                        addToCollection(DataEntry* data);
-    bool                        getDataSegment(int startIndex, int size, std::vector<DataEntry*> &output);
+    bool                        getDataSegment(int startIndex, int size, std::vector<DataEntry*> &output) const;
 private:
     std::vector<DataEntry*>     _collection;
     Exercise                    _exercise;

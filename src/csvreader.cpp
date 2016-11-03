@@ -201,7 +201,6 @@ bool CSVReader::readCSVFile(const char *path, int entries,
                             delete temp;
                         }
                     }
-                    //output.addToCollection(readLine(line));
                 }
             }
         }
@@ -300,9 +299,6 @@ DataEntry* CSVReader::readLine(const std::string &line)
         std::cout << type[i] << ",";
     }
     std::cout << "]" << std::endl;*/
-
-
-    //_data.push_back(new DataEntry(pattern, target));
     return new DataEntry(pattern, type);
 }
 
