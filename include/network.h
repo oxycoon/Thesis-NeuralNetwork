@@ -85,7 +85,7 @@ private:
 
     double activationFunction(double x);
     double calculateOutputErrorGradient(double target, double actual);
-    double calculateHiddenErrorGradient(int index);
+    double calculateHiddenErrorGradient(int layer, int index);
 
     int roundOutput(double output);
 

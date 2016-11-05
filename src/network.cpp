@@ -573,39 +573,65 @@ void Network::feedBackward(std::vector<double> targets)
     for(int i = 0; i < _countOutput; i++)
     {
         _outputErrorGradient[i] = calculateOutputErrorGradient(targets[i], _output[i]->getValue());
-
-        for(int j = 0; j < _countHidden; j++)
+        for(int j = 0; j < _countHidden[_numHiddenLayers-1]; j++)
         {
             if(!_useBatch)
             {
-                _hidden[j]->setDelta(i, _learningRate * _hidden[j]->getValue() *
-                                     _outputErrorGradient[i] + _momentum * _hidden[j]->getDelta(i));
+                _hidden[_numHiddenLayers-1][j]->setDelta(i, _learningRate * _hidden[_numHiddenLayers-1][j]->getValue() *
+                                     _outputErrorGradient[i] + _momentum * _hidden[_numHiddenLayers-1][j]->getDelta(i));
             }
             else
             {
-                _hidden[j]->addToDelta(i, _learningRate * _hidden[j]->getValue() *
-                                       _outputErrorGradient[i]);
+                _hidden[_numHiddenLayers-1][j]->addToDelta(i, _learningRate * _hidden[_numHiddenLayers-1][j]->getValue() *
+                                           _outputErrorGradient[i]);
             }
         }
     }
-    //Modify deltas between input and hidden
-    for(int i = 0; i < _countHidden; i++)
+    //Modify deltas between hidden layers
+    if(_numHiddenLayers > 1)
     {
-        _hiddenErrorGradient[i] = calculateHiddenErrorGradient(i);
+        for(int i = _numHiddenLayers-1; i >= 1; i--)
+        {
+            for(int j = 0; j < _countHidden[i]; j++)
+            {
+                _hiddenErrorGradient[i][j] = calculateHiddenErrorGradient(i,j);
+
+                for(int k = 0; k < _countHidden[i-1]; k++)
+                {
+                    if(!_useBatch)
+                    {
+                        _hidden[i][k]->setDelta(j, _learningRate * _hidden[i][k]->getValue() *
+                                                _hiddenErrorGradient[i][j] + _momentum * _hidden[i][j]->getDelta(j));
+                    }
+                    else
+                    {
+                        _hidden[i][k]->setDelta(j, _learningRate * _hidden[i][k]->getValue() *
+                                                _hiddenErrorGradient[i][j]);
+                    }
+                }
+            }
+        }
+    }
+
+    //Modify deltas between input and hidden
+    for(int i = 0; i < _countHidden[0]; i++)
+    {
+        _hiddenErrorGradient[0][i] = calculateHiddenErrorGradient(0, i);
 
         for(int j = 0; j < _countInput; j++)
         {
             if(!_useBatch)
             {
                 _input[j]->setDelta(i, _learningRate * _input[j]->getValue() *
-                                    _hiddenErrorGradient[i] + _momentum * _input[j]->getDelta(i));
+                                    _hiddenErrorGradient[0][i] + _momentum * _input[j]->getDelta(i));
             }
             else
             {
                 _input[j]->addToDelta(i, _learningRate * _input[j]->getValue() *
-                                      _hiddenErrorGradient[i]);
+                                      _hiddenErrorGradient[0][i]);
             }
         }
+
     }
 
     //If using stochastic learning, update weights now
@@ -682,16 +708,26 @@ double Network::calculateOutputErrorGradient(double target, double actual)
  *  Calculates the error gradient at the hidden node at index between the hidden layer
  *  and input layer.
  */
-double Network::calculateHiddenErrorGradient(int index)
+double Network::calculateHiddenErrorGradient(int layer, int index)
 {
     double weightSum = 0;
 
-    for(int i = 0; i < _countOutput; i++)
+    if(layer == (_numHiddenLayers - 1)) // calculates between the output layer and hidden layer
     {
-        weightSum += _hidden[index]->getWeight(i) * _outputErrorGradient[i];
+        for(int i = 0; i < _countOutput; i++)
+        {
+            weightSum += _hidden[layer][index]->getWeight(i) * _outputErrorGradient[i];
+        }
+    }
+    else
+    {
+        for(int i = 0; i < _countHidden[layer+1]; i++)
+        {
+            weightSum += _hidden[layer][index]->getWeight(i) * _hiddenErrorGradient[layer+1][i];
+        }
     }
 
-    return _hidden[index]->getValue() * (1 - _hidden[index]->getValue()) * weightSum;
+    return _hidden[layer][index]->getValue() * (1 - _hidden[layer][index]->getValue()) * weightSum;
 }
 
 /**
