@@ -17,6 +17,7 @@ public:
     int                         getCollectionSize() const;
     Exercise                    getExercise() const;
     void                        setExercise(const Exercise ex);
+    std::vector<double>         getTarget() const;
 
     void                        printCollection();
 

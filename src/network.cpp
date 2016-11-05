@@ -293,7 +293,7 @@ void Network::initWeights()
     //Weights and deltas between input and hidden layer
     for(int i = 0; i <= _countInput; i++)
     {
-        for(int j = 0; j < _countHidden; j++)
+        for(int j = 0; j < _countHidden[0]; j++)
         {
             //Random weights
             double random = (double)std::rand() / (RAND_MAX);
@@ -302,14 +302,31 @@ void Network::initWeights()
         }
     }
 
+    //Weights and deltas between hidden layers if there are more than 1 hidden
+    //layeres
+    if(_numHiddenLayers > 1)
+    {
+        for(int i = 0; i < _numHiddenLayers-1; i++)
+        {
+            for(int j = 0; j <= _countHidden[i]; j++)
+            {
+                for(int k = 0; k < _countHidden[i+1]; k++)
+                {
+                    _hidden[i][j]->setWeight(k, ( (double)std::rand() / (RAND_MAX + 1) + 0.5) );
+                    _hidden[i][j]->setDelta(k, 0.0);
+                }
+            }
+        }
+    }
+
     //Weights and deltas between hidden and output layer
-    for(int i = 0; i <= _countHidden; i++)
+    for(int i = 0; i <= _countHidden[_numHiddenLayers-1]; i++)
     {
         for(int j = 0; j < _countOutput; j++)
         {
             //Random weights
-            _hidden[i]->setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) + 0.5) ) ;
-            _hidden[i]->setDelta(j, 0.0);
+            _hidden[_numHiddenLayers-1][i]->setWeight(j, ( (double)std::rand() / (RAND_MAX + 1) + 0.5) ) ;
+            _hidden[_numHiddenLayers-1][i]->setDelta(j, 0.0);
         }
     }
 }
@@ -445,14 +462,15 @@ void Network::runTrainingEpoch(const DataCollection &set, int setSize = 1)
 
         }
         feedForward(inputDataVector);
-        feedBackward(set.getExercise());
+        feedBackward(set.getTarget());
 
         bool patternCorrect = true;
 
         for(int j = 0; j < _countOutput; j++)
         {
             //Checks if the output value matches the target
-            std::cout << "Training set #" << i << ", output #" << j <<" - Target: " << set[i]->_target[j] << " | Rounded: " << roundOutput(_output[j]->getValue()) <<
+            std::cout << "Training set #" << i << ", output #" << j <<" - Target: " <<
+                         set.getTarget()[j] << " | Rounded: " << roundOutput(_output[j]->getValue()) <<
                          "| Pure: " << _output[j]->getValue() << std::endl;
 
             if(roundOutput(_output[j]->getValue() ) != set.getExercise() )
@@ -651,7 +669,7 @@ void Network::updateWeights()
     //Input to hidden weights
     for(int i = 0; i <= _countInput; i++)
     {
-        for(int j = 0; j < _countHidden; j++)
+        for(int j = 0; j < _countHidden[0]; j++)
         {
             _input[i]->addToWeight(j, _input[i]->getDelta(j));
 
@@ -663,17 +681,22 @@ void Network::updateWeights()
         }
     }
 
+    if(_numHiddenLayers > 1)
+    {
+        //TODO:
+    }
+
     //Hidden to output weights
-    for(int i = 0; i < _countHidden; i++)
+    for(int i = 0; i < _countHidden[_numHiddenLayers-1]; i++)
     {
         for(int j = 0; j < _countOutput; j++)
         {
-            _hidden[i]->addToWeight(j, _hidden[i]->getDelta(j));
+            _hidden[_numHiddenLayers-1][i]->addToWeight(j, _hidden[_numHiddenLayers-1][i]->getDelta(j));
 
             //Clear delta if batch is being used
             if(_useBatch)
             {
-                _hidden[i]->setDelta(j, 0.0);
+                _hidden[_numHiddenLayers-1][i]->setDelta(j, 0.0);
             }
         }
     }

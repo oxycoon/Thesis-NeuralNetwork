@@ -37,6 +37,13 @@ void DataCollection::setExercise(const Exercise ex)
     _exercise = ex;
 }
 
+std::vector<double> DataCollection::getTarget() const
+{
+    std::vector<double> target = std::vector<double>(1);
+    target[0] = _exercise;
+    return target;
+}
+
 void DataCollection::printCollection()
 {
     for(int i = 0; i < _collection.size(); i++)
