@@ -19,7 +19,7 @@ SOURCES += app/main.cpp \
     src/network.cpp \
     src/neuron.cpp \
     src/datacollection.cpp \
-    src/dataentrytotal.cpp
+    src/datasegment.cpp
 
 HEADERS  += include/csvreader.h \
     include/mainwindow.h \
@@ -28,7 +28,7 @@ HEADERS  += include/csvreader.h \
     include/neuron.h \
     include/exercise.h \
     include/datacollection.h \
-    include/dataentrytotal.h
+    include/datasegment.h
 
 FORMS    += res/layout/mainwindow.ui
 

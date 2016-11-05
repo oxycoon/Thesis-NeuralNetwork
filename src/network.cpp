@@ -1,6 +1,6 @@
 #include "../include/network.h"
 
-#include "../include/dataentrytotal.h"
+#include "../include/datasegment.h"
 
 #include <cmath>
 #include <ctime>
@@ -123,7 +123,63 @@ void Network::resetNetwork()
  *
  *  Trains the network with the given training sets.
  */
-void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &testSet, const std::vector<DataEntry*> &validationSet)
+/*void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &testSet, const std::vector<DataEntry*> &validationSet)
+{
+    std::cout << "Neural network training starting " << std::endl
+              << "======================================================================" << std::endl
+              << "Learning rate: " << _learningRate << ", Momentum: " << _momentum << ", Max epochs: " << _maxEpochs
+                    << ", Target accuracy: " << _targetAccuracy << "%" << std::endl
+              << "Input: " << _countInput << ", Hidden: " << _countHidden << ", Output: " << _countOutput << std::endl
+              << "======================================================================" << std::endl;
+
+    _epoch = 0;
+
+    //Runs training using training set for training and generalized set for testing
+    while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs)
+    {
+        //std::cout << "New epoch, epoch #" << _epoch << std::endl;
+
+        double oldTrA = _trainingSetAccuracy;
+        double oldTSA = _testingSetAccuracy;
+        double oldTSMSE = _testingSetError;
+
+        //Train the network with the training set
+        runTrainingEpoch(trainingSet);
+
+        //Gets the generalized set accuracy and MSE
+        _testingSetAccuracy = getSetAccuracy(testSet);
+        _testingSetError = getSetMSE(testSet);
+
+        //Checks for changes in the training and generalization set's accuracy, prints if there's a change
+        if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
+        {
+            std::cout << "Epoch: " << _epoch;
+            std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
+            std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
+        }
+        //Increases epoch for next iteration.
+        _epoch++;
+
+        //Stops the training set if the generalization set's error starts increasing.
+        if(oldTSMSE < _testingSetError)
+        {
+            std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;
+            break;
+        }
+    }
+    //std::cout << "Epochs ran: " << _epoch << std::endl;
+
+    //Run validation set
+    _validationSetAccuracy = getSetAccuracy(validationSet);
+    _validationSetError = getSetMSE(validationSet);
+
+    std::cout << std::endl << "Training Complete!!! - > Elapsed Epochs: " << _epoch << std::endl;
+    std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
+    std::cout << " Validation Set MSE: " << _validationSetError << std::endl << std::endl;
+    std::cout << "Closing system." << std::endl;
+}*/
+
+void Network::runTraining(const DataCollection &set)
 {
     /*std::cout << "Neural network training starting " << std::endl
               << "======================================================================" << std::endl
@@ -144,7 +200,7 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
         double oldTSMSE = _testingSetError;
 
         //Train the network with the training set
-        //runTrainingEpoch(trainingSet);
+        runTrainingEpoch(set.getTrainingSet());
 
         //Gets the generalized set accuracy and MSE
         _testingSetAccuracy = getSetAccuracy(testSet);
@@ -177,11 +233,6 @@ void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std:
     std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
     std::cout << " Validation Set MSE: " << _validationSetError << std::endl << std::endl;
     std::cout << "Closing system." << std::endl;
-}
-
-void Network::runTraining(const DataCollection &trainingSet, const DataCollection &generalizedSet, const DataCollection &validationSet)
-{
-
 }
 
 //================================================
@@ -393,13 +444,13 @@ void Network::initWeights()
  *
  *  Runs a training epoch on the given set.
  */
-void Network::runTrainingEpoch(const DataCollection &set, int setSize = 1)
+void Network::runTrainingEpoch(const std::vector<std::vector<DataEntry*>> &set)
 {
     double incorrectPatterns = 0;
     double meanSquaredError = 0;
 
     //Runs training for every pattern
-    for(int i = 0; i < set.getCollectionSize() - (setSize - 1); i++)
+    for(int i = 0; i < set.size(); i++)
     {
         std::vector<double> inputDataVector;
         std::vector<DataEntry*> tempDataEntryVector;

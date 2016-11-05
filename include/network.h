@@ -31,8 +31,8 @@ public:
 
     void resetNetwork();
 
-    void runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet);
-    void runTraining(const DataCollection &trainingSet, const DataCollection &generalizedSet, const DataCollection &validationSet);
+    //void runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet);
+    void runTraining(const DataCollection &set);
 
     /*std::vector<Neuron*>    getOutputNeurons();
     void                    setInputNeurons(std::vector<Neuron*> &input);*/
@@ -77,7 +77,7 @@ private:
 
     //Epoch training related functions
     //void runTrainingEpoch(const std::vector<DataEntry*> &set);
-    void runTrainingEpoch(const DataCollection &set, int setSize);
+    void runTrainingEpoch(const std::vector<std::vector<DataEntry*>> &set);
     void feedForward(std::vector<double> inputs);
     //void feedForward(DataEntry* input);
     void feedBackward(std::vector<double> targets);

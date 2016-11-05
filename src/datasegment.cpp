@@ -1,47 +1,59 @@
-#include "../include/dataentrytotal.h"
+#include "../include/datasegment.h"
 
 #include <cmath>
 
-DataEntryTotal::DataEntryTotal(std::vector<DataEntry*> entries):
+DataSegment::DataSegment() :
     _totalAccelerometer(0.0), _totalGyroscope(0.0), _totalMagnetometer(0.0),
     _totalBarometer(0.0)
 {
-    create(entries);
+
 }
 
-double DataEntryTotal::getTotalAccelerometer()
+DataSegment::DataSegment(std::vector<DataEntry*> entries):
+    _totalAccelerometer(0.0), _totalGyroscope(0.0), _totalMagnetometer(0.0),
+    _totalBarometer(0.0), _segment(entries)
+{
+    create();
+}
+
+double DataSegment::getTotalAccelerometer() const
 {
     return _totalAccelerometer;
 }
 
-double DataEntryTotal::getTotalGyroscope()
+double DataSegment::getTotalGyroscope() const
 {
     return _totalGyroscope;
 }
 
-double DataEntryTotal::getTotalMagnetometer()
+double DataSegment::getTotalMagnetometer() const
 {
     return _totalMagnetometer;
 }
 
-double DataEntryTotal::getTotalBarometer()
+double DataSegment::getTotalBarometer() const
 {
     return _totalBarometer;
 }
 
-void DataEntryTotal::create(std::vector<DataEntry*> entries)
+void DataSegment::addToSegment(DataEntry *entry)
+{
+    _segment.push_back(entry);
+}
+
+void DataSegment::create()
 {
     std::vector<double> tempAcce;
     std::vector<double> tempGyro;
     std::vector<double> tempMagn;
     std::vector<double> tempBaro;
 
-    for(int i = 0; i < entries.size(); i++)
+    for(int i = 0; i < _segment.size(); i++)
     {
-        std::vector<double> a = entries[i]->getEntriesOfDataType(DataType::ACCELEROMETER);
-        std::vector<double> b = entries[i]->getEntriesOfDataType(DataType::GYRO);
-        std::vector<double> c = entries[i]->getEntriesOfDataType(DataType::COMPASS);
-        std::vector<double> d = entries[i]->getEntriesOfDataType(DataType::BAROMETER);
+        std::vector<double> a = _segment[i]->getEntriesOfDataType(DataType::ACCELEROMETER);
+        std::vector<double> b = _segment[i]->getEntriesOfDataType(DataType::GYRO);
+        std::vector<double> c = _segment[i]->getEntriesOfDataType(DataType::COMPASS);
+        std::vector<double> d = _segment[i]->getEntriesOfDataType(DataType::BAROMETER);
         if(a.size() > 0)
         {
             for(int j = 0; j < a.size(); j++)
@@ -77,7 +89,7 @@ void DataEntryTotal::create(std::vector<DataEntry*> entries)
     if(tempBaro.size() > 0) _totalBarometer = calculateTotal(tempBaro);
 }
 
-double DataEntryTotal::calculateTotal(std::vector<double> values)
+double DataSegment::calculateTotal(std::vector<double> values)
 {
     double result = 0.0;
 
@@ -90,4 +102,29 @@ double DataEntryTotal::calculateTotal(std::vector<double> values)
     result = sqrt(result);
 
     return result;
+}
+
+std::vector<DataEntry *> DataSegment::getSegments() const
+{
+    return _segment;
+}
+
+DataEntry *DataSegment::getSegment(int index) const
+{
+    return _segment[index];
+}
+
+std::vector<double> DataSegment::getDataOfType(DataType type) const
+{
+    std::vector<double> data;
+
+    for(int i = 0; i < _segment.size(); i++)
+    {
+        std::vector<double> tmp = _segment[i]->getEntriesOfDataType(type);
+        for(int j = 0; j < tmp.size(); j++)
+        {
+            data.push_back(tmp[i]);
+        }
+    }
+    return data;
 }

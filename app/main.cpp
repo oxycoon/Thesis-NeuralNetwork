@@ -1,34 +1,28 @@
 #include "include/mainwindow.h"
 #include <QApplication>
 
-/*#include "../include/dataentrytotal.h"
-#include <iostream>*/
+#include "../include/datasegment.h"
+#include "../include/network.h"
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    /*QApplication a(argc, argv);
     MainWindow w;
     w.show();
 
-    return a.exec();
+    return a.exec();*/
 
-    /*CSVReader reader;
+    CSVReader reader;
     DataCollection collection(Exercise::WALKING);
 
 
     reader.readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", collection);
 
-    std::vector<DataEntry*> temp;
+    std::vector<int> hidden = {16,4};
 
-    collection.printCollection();
-    collection.getDataSegment(2, 3, temp);
-
-    DataEntryTotal test(temp);
-
-    std::cout << test.getTotalAccelerometer() << std::endl;
-    std::cout << test.getTotalGyroscope() << std::endl;
-    std::cout << test.getTotalMagnetometer() << std::endl;
+    Network net = Network(7, 1, hidden, DataType::ACCELEROMETER);
 
 
-    return 0;*/
+    return 0;
 }
