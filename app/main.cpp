@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     reader.readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", collection);
 
     std::vector<int> hidden = {16,4};
-    collection.createTrainingTestValidationSets(5, 0.3, 0.2);
+    collection.createTrainingTestValidationSets(5, 0.1, 0.6);
 
     Network net = Network(7, 1, hidden, DataType::ACCELEROMETER);
 

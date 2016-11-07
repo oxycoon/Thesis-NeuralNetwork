@@ -498,9 +498,9 @@ void Network::runTrainingEpoch(const std::vector<DataSegment> &set)
         for(int j = 0; j < _countOutput; j++)
         {
             //Checks if the output value matches the target
-            std::cout << "Training set #" << i << ", output #" << j <<" - Target: " <<
+            /*std::cout << "Training set #" << i << ", output #" << j <<" - Target: " <<
                          set[i].getTargets()[j] << " | Rounded: " << roundOutput(_output[j]->getValue()) <<
-                         "| Pure: " << _output[j]->getValue() << std::endl;
+                         "| Pure: " << _output[j]->getValue() << std::endl;*/
 
             if(roundOutput(_output[j]->getValue() ) != set[i].getTarget(j) )
             {
