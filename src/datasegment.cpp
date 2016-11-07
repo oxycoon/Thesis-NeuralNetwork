@@ -9,11 +9,21 @@ DataSegment::DataSegment() :
 
 }
 
-DataSegment::DataSegment(std::vector<DataEntry*> entries):
+DataSegment::DataSegment(std::vector<DataEntry*> entries, std::vector<double> targets = {0}):
     _totalAccelerometer(0.0), _totalGyroscope(0.0), _totalMagnetometer(0.0),
-    _totalBarometer(0.0), _segment(entries)
+    _totalBarometer(0.0), _segment(entries), _targets(targets)
 {
     create();
+}
+
+void DataSegment::setTargets(const std::vector<double> targets)
+{
+    _targets = targets;
+}
+
+void DataSegment::setTarget(const int index, const double target)
+{
+    _targets[index] = target;
 }
 
 double DataSegment::getTotalAccelerometer() const
@@ -34,6 +44,11 @@ double DataSegment::getTotalMagnetometer() const
 double DataSegment::getTotalBarometer() const
 {
     return _totalBarometer;
+}
+
+int DataSegment::getSegmentSize() const
+{
+    return _segment.size();
 }
 
 void DataSegment::addToSegment(DataEntry *entry)
@@ -114,9 +129,21 @@ DataEntry *DataSegment::getSegment(int index) const
     return _segment[index];
 }
 
-std::vector<double> DataSegment::getDataOfType(DataType type) const
+std::vector<double> DataSegment::getDataOfType(DataType type, bool getTotal = false) const
 {
     std::vector<double> data;
+
+    if(getTotal)
+    {
+        if(type == DataType::ACCELEROMETER)
+            data.push_back(_totalAccelerometer);
+        else if(type == DataType::GYRO)
+            data.push_back(_totalGyroscope);
+        else if(type == DataType::COMPASS)
+            data.push_back(_totalMagnetometer);
+        else if(type == DataType::BAROMETER)
+            data.push_back(_totalBarometer);
+    }
 
     for(int i = 0; i < _segment.size(); i++)
     {
@@ -127,4 +154,14 @@ std::vector<double> DataSegment::getDataOfType(DataType type) const
         }
     }
     return data;
+}
+
+std::vector<double> DataSegment::getTargets() const
+{
+    return _targets;
+}
+
+double DataSegment::getTarget(int index) const
+{
+    return _targets[index];
 }

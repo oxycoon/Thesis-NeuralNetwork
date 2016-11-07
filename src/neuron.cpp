@@ -149,7 +149,6 @@ void Neuron::initializeWeights(int weights)
 {
     _weightCount = weights;
     _weights = std::vector<double>(weights);
-
     for(int i = 0; i < weights; i++)
     {
         _weights[i] = 0.0;
@@ -159,11 +158,9 @@ void Neuron::initializeWeights(int weights)
 void Neuron::initializeDeltas(int deltas)
 {
     _deltaCount = deltas;
-
     _deltas = std::vector<double>(deltas);
     for(int i = 0; i < _deltaCount; i++)
     {
         _deltas[i] = 0.0;
     }
-
 }

@@ -14,14 +14,14 @@ public:
     DataCollection(Exercise ex);
     ~DataCollection();
 
-    DataEntry*                              getEntry(const int index) const;
-    int                                     getCollectionSize() const;
-    int                                     getTrainingSetSize() const;
-    int                                     getTestSetSize() const;
-    int                                     getValidationSetSize() const;
-    Exercise                                getExercise() const;
-    void                                    setExercise(const Exercise ex);
-    std::vector<double>                     getTarget() const;
+    DataEntry*                  getEntry(const int index) const;
+    int                         getCollectionSize() const;
+    int                         getTrainingSetSize() const;
+    int                         getTestSetSize() const;
+    int                         getValidationSetSize() const;
+    Exercise                    getExercise() const;
+    void                        setExercise(const Exercise ex);
+    std::vector<double>         getTarget() const;
     std::vector<DataSegment>    getValidationSet() const;
     std::vector<DataSegment>    getTestSet() const;
     std::vector<DataSegment>    getTrainingSet() const;
@@ -32,7 +32,7 @@ public:
     void                        addToCollection(DataEntry* data);
 
 private:
-    std::vector<DataEntry*>                 _collection;
+    std::vector<DataEntry*>     _collection;
     std::vector<DataSegment>    _trainingSet;
     std::vector<DataSegment>    _testSet;
     std::vector<DataSegment>    _validationSet;

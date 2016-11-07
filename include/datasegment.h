@@ -7,22 +7,28 @@ class DataSegment
 {
 public:
     DataSegment();
-    DataSegment(std::vector<DataEntry*> entries);
+    DataSegment(std::vector<DataEntry*> entries, std::vector<double> targets);
+
+    void                    setTargets(const std::vector<double> targets);
+    void                    setTarget(const int index, const double target);
 
     std::vector<DataEntry*> getSegments() const;
-    DataEntry* getSegment(int index) const;
-    std::vector<double> getDataOfType(DataType type) const;
+    DataEntry*              getSegment(int index) const;
+    std::vector<double>     getDataOfType(DataType type, bool getTotal) const;
+    std::vector<double>     getTargets() const;
+    double                  getTarget(int index) const;
+    double                  getTotalAccelerometer() const;
+    double                  getTotalGyroscope() const;
+    double                  getTotalMagnetometer() const;
+    double                  getTotalBarometer() const;
+    int                     getSegmentSize() const;
 
-    double getTotalAccelerometer() const;
-    double getTotalGyroscope() const;
-    double getTotalMagnetometer() const;
-    double getTotalBarometer() const;
-
-    void addToSegment(DataEntry* entry);
-    void create();
+    void                    addToSegment(DataEntry* entry);
+    void                    create();
 
 private:
     std::vector<DataEntry*> _segment;
+    std::vector<double>     _targets;
 
     double _totalAccelerometer;
     double _totalGyroscope;

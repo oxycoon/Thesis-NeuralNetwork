@@ -203,8 +203,8 @@ void Network::runTraining(const DataCollection &set)
         runTrainingEpoch(set.getTrainingSet());
 
         //Gets the generalized set accuracy and MSE
-        _testingSetAccuracy = getSetAccuracy(testSet);
-        _testingSetError = getSetMSE(testSet);
+        _testingSetAccuracy = getSetAccuracy(set.getTestSet());
+        _testingSetError = getSetMSE(set.getTestSet());
 
         //Checks for changes in the training and generalization set's accuracy, prints if there's a change
         if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
@@ -226,8 +226,8 @@ void Network::runTraining(const DataCollection &set)
     //std::cout << "Epochs ran: " << _epoch << std::endl;
 
     //Run validation set
-    _validationSetAccuracy = getSetAccuracy(validationSet);
-    _validationSetError = getSetMSE(validationSet);
+    _validationSetAccuracy = getSetAccuracy(set.getValidationSet());
+    _validationSetError = getSetMSE(set.getValidationSet());
 
     std::cout << std::endl << "Training Complete!!! - > Elapsed Epochs: " << _epoch << std::endl;
     std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
@@ -242,6 +242,7 @@ void Network::runTraining(const DataCollection &set)
 void Network::setupNeurons()
 {
     _input = std::vector<Neuron*>(_countInput + 1);
+    _hidden = std::vector<std::vector<Neuron*>>(_countHidden.size());
     for(int i = 0; i < _countHidden.size(); i++)
     {
         _hidden[i] = std::vector<Neuron*>(_countHidden[i] + 1);
@@ -285,7 +286,7 @@ void Network::setupWeights()
     {
         for(int i = 0; i <= _countHidden[j]; i++)
         {
-            if(j = _numHiddenLayers - 1)
+            if(j == _numHiddenLayers - 1)
                 _hidden[j][i]->initializeWeights(_countOutput);
             else
                 _hidden[j][i]->initializeWeights(_countHidden[j]);
@@ -303,7 +304,11 @@ void Network::setupDeltas()
     {
         for(int i = 0; i <= _countHidden[j]; i++)
         {
-            _hidden[j][i]->initializeDeltas(_countOutput);
+            //_hidden[j][i]->initializeDeltas(_countOutput);
+            if(j == _numHiddenLayers - 1)
+                _hidden[j][i]->initializeDeltas(_countOutput);
+            else
+                _hidden[j][i]->initializeDeltas(_countHidden[j]);
         }
     }
 }
@@ -444,7 +449,7 @@ void Network::initWeights()
  *
  *  Runs a training epoch on the given set.
  */
-void Network::runTrainingEpoch(const std::vector<std::vector<DataEntry*>> &set)
+void Network::runTrainingEpoch(const std::vector<DataSegment> &set)
 {
     double incorrectPatterns = 0;
     double meanSquaredError = 0;
@@ -453,67 +458,40 @@ void Network::runTrainingEpoch(const std::vector<std::vector<DataEntry*>> &set)
     for(int i = 0; i < set.size(); i++)
     {
         std::vector<double> inputDataVector;
-        std::vector<DataEntry*> tempDataEntryVector;
-        set.getDataSegment(i, setSize, tempDataEntryVector);
-        DataEntryTotal total(tempDataEntryVector);
 
         if(_networkType != DataType::UK)
         {
+            inputDataVector = set[i].getDataOfType(_networkType, true);
+            /*std::vector<double> tempDataEntryVector = set[i].getDataOfType(_networkType);
             if(_networkType == DataType::ACCELEROMETER)
             {
-                inputDataVector.push_back(total.getTotalAccelerometer());
-                for(int j = 0; j < tempDataEntryVector.size(); j++)
-                {
-                    for(int k = 0; k < tempDataEntryVector[j]->getSize(); k++)
-                    {
-                        if(tempDataEntryVector[j]->getDataType(k) == DataType::ACCEL_X ||
-                                tempDataEntryVector[j]->getDataType(k) == DataType::ACCEL_Y ||
-                                tempDataEntryVector[j]->getDataType(k) == DataType::ACCEL_Z )
-                        {
-                            inputDataVector.push_back(tempDataEntryVector[j]->getEntry(k));
-                        }
-                    }
-                }
+                inputDataVector.push_back(set[i].getTotalAccelerometer());
             }
             else if(_networkType == DataType::GYRO)
             {
-                inputDataVector.push_back(total.getTotalGyroscope());
-                for(int j = 0; j < tempDataEntryVector.size(); j++)
-                {
-                    for(int k = 0; k < tempDataEntryVector[j]->getSize(); k++)
-                    {
-                        if(tempDataEntryVector[j]->getDataType(k) == DataType::GYR_X ||
-                                tempDataEntryVector[j]->getDataType(k) == DataType::GYR_Y ||
-                                tempDataEntryVector[j]->getDataType(k) == DataType::GYR_Z )
-                        {
-                            inputDataVector.push_back(tempDataEntryVector[j]->getEntry(k));
-                        }
-                    }
-                }
+                inputDataVector.push_back(set[i].getTotalGyroscope());
+
             }
             else if(_networkType == DataType::COMPASS)
-        {
-            inputDataVector.push_back(total.getTotalMagnetometer());
+            {
+                inputDataVector.push_back(set[i].getTotalMagnetometer());
+            }
+            else if(_networkType == DataType::BAROMETER)
+            {
+                inputDataVector.push_back(set[i].getTotalBarometer());
+            }
+
             for(int j = 0; j < tempDataEntryVector.size(); j++)
             {
-                for(int k = 0; k < tempDataEntryVector[j]->getSize(); k++)
-                {
-                    if(tempDataEntryVector[j]->getDataType(k) == DataType::COM_X ||
-                            tempDataEntryVector[j]->getDataType(k) == DataType::COM_Y ||
-                            tempDataEntryVector[j]->getDataType(k) == DataType::COM_Z )
-                    {
-                        inputDataVector.push_back(tempDataEntryVector[j]->getEntry(k));
-                    }
-                }
-            }
-        }
+                inputDataVector.push_back(tempDataEntryVector[j]);
+            }*/
         }
         else
         {
 
         }
         feedForward(inputDataVector);
-        feedBackward(set.getTarget());
+        feedBackward(set[i].getTargets());
 
         bool patternCorrect = true;
 
@@ -521,15 +499,15 @@ void Network::runTrainingEpoch(const std::vector<std::vector<DataEntry*>> &set)
         {
             //Checks if the output value matches the target
             std::cout << "Training set #" << i << ", output #" << j <<" - Target: " <<
-                         set.getTarget()[j] << " | Rounded: " << roundOutput(_output[j]->getValue()) <<
+                         set[i].getTargets()[j] << " | Rounded: " << roundOutput(_output[j]->getValue()) <<
                          "| Pure: " << _output[j]->getValue() << std::endl;
 
-            if(roundOutput(_output[j]->getValue() ) != set.getExercise() )
+            if(roundOutput(_output[j]->getValue() ) != set[i].getTarget(j) )
             {
                 patternCorrect = false;
             }
             //Calculates mean square error
-            meanSquaredError += std::pow((_output[j]->getValue() - set.getExercise()), 2);
+            meanSquaredError += std::pow((_output[j]->getValue() - set[i].getTarget(j)), 2);
         }
 
 
@@ -838,25 +816,25 @@ int Network::roundOutput(double output)
  *
  *  Calculates the accuracy of the given set.
  */
-double Network::getSetAccuracy(const std::vector<DataEntry *> &set)
+double Network::getSetAccuracy(const std::vector<DataSegment> &set)
 {
-    /*double errors = 0;
+    double errors = 0;
 
     for(int i = 0; i < (int)set.size(); i++)
     {
-        feedForward(set[i]->_pattern);
+        feedForward(set[i].getDataOfType(_networkType, true));
 
         bool isCorrect = true;
 
         for(int j = 0; j < _countOutput; j++)
         {
-            if(roundOutput( _output[j]->getValue() ) != set[i]->_target[j] )
+            if(roundOutput( _output[j]->getValue() ) != set[i].getTarget(j) )
                 isCorrect = false;
         }
         if(!isCorrect)
             errors++;
     }
-    return 100.0 - (errors/set.size() * 100.0);*/
+    return 100.0 - (errors/set.size() * 100.0);
     return 0.0;
 }
 
@@ -867,21 +845,20 @@ double Network::getSetAccuracy(const std::vector<DataEntry *> &set)
  *
  *  Calculates the set's Mean Squared Error
  */
-double Network::getSetMSE(const std::vector<DataEntry *> &set)
+double Network::getSetMSE(const std::vector<DataSegment> &set)
 {
-    /*double mse = 0;
+    double mse = 0;
 
     for(int i = 0; i < (int)set.size(); i++)
     {
-        feedForward(set[i]->_pattern);
-
+        feedForward(set[i].getDataOfType(_networkType, true));
         for(int j = 0; j < _countOutput; j++)
         {
-            mse += std::pow( (_output[j]->getValue() - set[i]->_target[j]), 2 );
+            mse += std::pow((_output[j]->getValue() - set[i].getTarget(j)), 2 );
         }
     }
 
-    return mse / ( _countOutput * set.size() );*/
+    return mse / ( _countOutput * set.size() );
     return 0.0;
 }
 

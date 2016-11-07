@@ -77,7 +77,7 @@ private:
 
     //Epoch training related functions
     //void runTrainingEpoch(const std::vector<DataEntry*> &set);
-    void runTrainingEpoch(const std::vector<std::vector<DataEntry*>> &set);
+    void runTrainingEpoch(const std::vector<DataSegment> &set);
     void feedForward(std::vector<double> inputs);
     //void feedForward(DataEntry* input);
     void feedBackward(std::vector<double> targets);
@@ -90,8 +90,8 @@ private:
     int roundOutput(double output);
 
     //Non training set related functions
-    double getSetAccuracy(const std::vector<DataEntry*> &set);
-    double getSetMSE(const std::vector<DataEntry*> &set);
+    double getSetAccuracy(const std::vector<DataSegment>  &set);
+    double getSetMSE(const std::vector<DataSegment>  &set);
 
 };
 
