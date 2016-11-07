@@ -26,6 +26,11 @@ void DataSegment::setTarget(const int index, const double target)
     _targets[index] = target;
 }
 
+void DataSegment::addToTarget(const double target)
+{
+    _targets.push_back(target);
+}
+
 double DataSegment::getTotalAccelerometer() const
 {
     return _totalAccelerometer;
@@ -150,7 +155,7 @@ std::vector<double> DataSegment::getDataOfType(DataType type, bool getTotal = fa
         std::vector<double> tmp = _segment[i]->getEntriesOfDataType(type);
         for(int j = 0; j < tmp.size(); j++)
         {
-            data.push_back(tmp[i]);
+            data.push_back(tmp[j]);
         }
     }
     return data;

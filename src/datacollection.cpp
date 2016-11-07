@@ -90,6 +90,7 @@ void DataCollection::createTrainingTestValidationSets(int setSize, double traini
     for(int i = 0; i < temp.size(); i++)
     {
         DataSegment tmp;
+        tmp.addToTarget((double)_exercise);
         getDataSegment(i, setSize, tmp);
         temp[i] = tmp;
     }

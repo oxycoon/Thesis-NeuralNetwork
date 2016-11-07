@@ -11,6 +11,7 @@ public:
 
     void                    setTargets(const std::vector<double> targets);
     void                    setTarget(const int index, const double target);
+    void                    addToTarget(const double target);
 
     std::vector<DataEntry*> getSegments() const;
     DataEntry*              getSegment(int index) const;

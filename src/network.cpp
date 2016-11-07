@@ -519,8 +519,8 @@ void Network::runTrainingEpoch(const std::vector<DataSegment> &set)
     }
 
     //update training accuracy and MSE
-    //_trainingSetAccuracy = 100 - (incorrectPatterns / set.size() * 100);
-    //_trainingSetError = meanSquaredError / (_countOutput * set.size());
+    _trainingSetAccuracy = 100 - (incorrectPatterns / set.size() * 100);
+    _trainingSetError = meanSquaredError / (_countOutput * set.size());
 }
 
 /**
@@ -647,12 +647,12 @@ void Network::feedBackward(std::vector<double> targets)
                 {
                     if(!_useBatch)
                     {
-                        _hidden[i][k]->setDelta(j, _learningRate * _hidden[i][k]->getValue() *
-                                                _hiddenErrorGradient[i][j] + _momentum * _hidden[i][j]->getDelta(j));
+                        _hidden[i-1][k]->setDelta(j, _learningRate * _hidden[i-1][k]->getValue() *
+                                                _hiddenErrorGradient[i][j] + _momentum * _hidden[i-1][k]->getDelta(j));
                     }
                     else
                     {
-                        _hidden[i][k]->setDelta(j, _learningRate * _hidden[i][k]->getValue() *
+                        _hidden[i-1][k]->setDelta(j, _learningRate * _hidden[i-1][k]->getValue() *
                                                 _hiddenErrorGradient[i][j]);
                     }
                 }
