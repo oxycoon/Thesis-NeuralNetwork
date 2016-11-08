@@ -207,11 +207,14 @@ void Network::runTraining(const DataCollection &set)
         _testingSetError = getSetMSE(set.getTestSet());
 
         //Checks for changes in the training and generalization set's accuracy, prints if there's a change
-        if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
+        if(PRINT_EPOCH_DATA)
         {
-            std::cout << "Epoch: " << _epoch;
-            std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
-            std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
+            //if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
+            //{
+                std::cout << "Epoch: " << _epoch;
+                std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
+                std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
+            //}
         }
         //Increases epoch for next iteration.
         _epoch++;
@@ -488,7 +491,7 @@ void Network::runTrainingEpoch(const std::vector<DataSegment> &set)
         }
         else
         {
-
+            //TODO: Fix to get input from output of previous layer
         }
         feedForward(inputDataVector);
         feedBackward(set[i].getTargets());
@@ -498,18 +501,26 @@ void Network::runTrainingEpoch(const std::vector<DataSegment> &set)
         for(int j = 0; j < _countOutput; j++)
         {
             //Checks if the output value matches the target
-            /*std::cout << "Training set #" << i << ", output #" << j <<" - Target: " <<
+            if(PRINT_TRAINING_DATA)
+            {
+                std::cout << "Training set #" << i << ", output #" << j <<" - Target: " <<
                          set[i].getTargets()[j] << " | Rounded: " << roundOutput(_output[j]->getValue()) <<
-                         "| Pure: " << _output[j]->getValue() << std::endl;*/
+                         "| Pure: " << _output[j]->getValue() << std::endl;
+            }
 
             if(roundOutput(_output[j]->getValue() ) != set[i].getTarget(j) )
             {
                 patternCorrect = false;
             }
+
+
             //Calculates mean square error
             meanSquaredError += std::pow((_output[j]->getValue() - set[i].getTarget(j)), 2);
         }
-
+        if(!patternCorrect)
+        {
+            incorrectPatterns++;
+        }
 
     }
     //Updates weights here if batch learning is used.
@@ -691,7 +702,7 @@ void Network::feedBackward(std::vector<double> targets)
 /**
  * @brief Network::updateWeights
  *
- *  Updates thje weights of the network.
+ *  Updates the weights of the network.
  */
 void Network::updateWeights()
 {
@@ -712,7 +723,20 @@ void Network::updateWeights()
 
     if(_numHiddenLayers > 1)
     {
-        //TODO:
+        for(int i = 0; i < _numHiddenLayers-1; i++)
+        {
+            for(int j = 0; j < _countHidden[i]; j++)
+            {
+                for(int k = 0; k < _countHidden[i+1]; k++)
+                {
+                    _hidden[i][j]->addToWeight(k, _hidden[i][j]->getDelta(k));
+                    if(_useBatch)
+                    {
+                        _hidden[i][j]->setDelta(k, 0.0);
+                    }
+                }
+            }
+        }
     }
 
     //Hidden to output weights
@@ -791,8 +815,8 @@ double Network::calculateHiddenErrorGradient(int layer, int index)
  */
 int Network::roundOutput(double output)
 {
-    if(output < 0.1) return 0;
-    else if(output > 0.9) return 1;
+    if(output < 0.1) return Exercise::WALKING;
+    else if(output > 0.9) return Exercise::UNKNOWN;
     else return -1;
     //std::cout << output << std::endl;
 
@@ -835,7 +859,7 @@ double Network::getSetAccuracy(const std::vector<DataSegment> &set)
             errors++;
     }
     return 100.0 - (errors/set.size() * 100.0);
-    return 0.0;
+    //return 0.0;
 }
 
 /**
@@ -859,6 +883,6 @@ double Network::getSetMSE(const std::vector<DataSegment> &set)
     }
 
     return mse / ( _countOutput * set.size() );
-    return 0.0;
+    //return 0.0;
 }
 

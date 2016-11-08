@@ -30,6 +30,7 @@ public:
 
     void                        createTrainingTestValidationSets(int setSize, double trainingSize, double testSize);
     void                        addToCollection(DataEntry* data);
+    //void                        addCollection(DataCollection &collection);
 
 private:
     std::vector<DataEntry*>     _collection;

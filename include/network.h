@@ -11,7 +11,8 @@
 #define MOMENTUM 0.9
 #define MAX_EPOCHS 1500
 #define TARGET_ACCURACY 90
-
+#define PRINT_EPOCH_DATA true
+#define PRINT_TRAINING_DATA false
 
 //Inspired by https://takinginitiative.wordpress.com/2008/04/23/basic-neural-network-tutorial-c-implementation-and-source-code/
 
