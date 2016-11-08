@@ -7,11 +7,12 @@
 
 #include <vector>
 
-#define LEARNING_RATE 0.001
-#define MOMENTUM 0.9
+#define LEARNING_RATE 0.0005
+#define MOMENTUM 0.90
 #define MAX_EPOCHS 1500
 #define TARGET_ACCURACY 90
 #define PRINT_EPOCH_DATA true
+#define PRINT_EPOCH_DATA_ON_UPDATE_ONLY false
 #define PRINT_TRAINING_DATA false
 
 //Inspired by https://takinginitiative.wordpress.com/2008/04/23/basic-neural-network-tutorial-c-implementation-and-source-code/

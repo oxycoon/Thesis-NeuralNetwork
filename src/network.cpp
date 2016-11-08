@@ -209,12 +209,21 @@ void Network::runTraining(const DataCollection &set)
         //Checks for changes in the training and generalization set's accuracy, prints if there's a change
         if(PRINT_EPOCH_DATA)
         {
-            //if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
-            //{
+            if(PRINT_EPOCH_DATA_ON_UPDATE_ONLY)
+            {
+                if((std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy)))
+                {
+                    std::cout << "Epoch: " << _epoch;
+                    std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
+                    std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
+                }
+            }
+            else
+            {
                 std::cout << "Epoch: " << _epoch;
                 std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
                 std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
-            //}
+            }
         }
         //Increases epoch for next iteration.
         _epoch++;
