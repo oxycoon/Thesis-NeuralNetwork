@@ -1,6 +1,8 @@
 #include "../include/network.h"
 
 #include "../include/datasegment.h"
+#include "../include/dataresults.h"
+#include "../include/filewriter.h"
 
 #include <cmath>
 #include <ctime>
@@ -187,7 +189,7 @@ void Network::runTraining(const DataCollection &set)
                     << ", Target accuracy: " << _targetAccuracy << "%" << std::endl
               << "Input: " << _countInput << ", Hidden: " << _countHidden << ", Output: " << _countOutput << std::endl
               << "======================================================================" << std::endl;*/
-
+    DataResults results;
     _epoch = 0;
 
     //Runs training using training set for training and generalized set for testing
@@ -205,6 +207,11 @@ void Network::runTraining(const DataCollection &set)
         //Gets the generalized set accuracy and MSE
         _testingSetAccuracy = getSetAccuracy(set.getTestSet());
         _testingSetError = getSetMSE(set.getTestSet());
+
+        results.addResult(ResultType::TMSE, _trainingSetError);
+        results.addResult(ResultType::TA, _trainingSetAccuracy);
+        results.addResult(ResultType::VMSE, _testingSetError);
+        results.addResult(ResultType::VA, _testingSetAccuracy);
 
         //Checks for changes in the training and generalization set's accuracy, prints if there's a change
         if(PRINT_EPOCH_DATA)
@@ -240,6 +247,10 @@ void Network::runTraining(const DataCollection &set)
     //Run validation set
     _validationSetAccuracy = getSetAccuracy(set.getValidationSet());
     _validationSetError = getSetMSE(set.getValidationSet());
+
+
+    FileWriter writer;
+    writer.writeFile("Test1.csv", results.toString());
 
     std::cout << std::endl << "Training Complete!!! - > Elapsed Epochs: " << _epoch << std::endl;
     std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;

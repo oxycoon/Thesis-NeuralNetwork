@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     reader.readCSVFile("../res/docs/09_1_1_1477052835575.csv", 10, ",", collection);
     reader.readCSVFile("../res/docs/10_1_1_1477053563351.csv", 10, ",", collection);*/
 
-    std::vector<int> hidden = {24,6};
+    std::vector<int> hidden = {24,7};
     collection.createTrainingTestValidationSets(5, 0.1, 0.6);
 
     Network net = Network(16, 1, hidden, DataType::ACCELEROMETER);

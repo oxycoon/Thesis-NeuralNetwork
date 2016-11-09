@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#define LEARNING_RATE 0.0005
+#define LEARNING_RATE 0.001
 #define MOMENTUM 0.90
 #define MAX_EPOCHS 1500
 #define TARGET_ACCURACY 90
@@ -94,6 +94,8 @@ private:
     //Non training set related functions
     double getSetAccuracy(const std::vector<DataSegment>  &set);
     double getSetMSE(const std::vector<DataSegment>  &set);
+
+
 
 };
 
