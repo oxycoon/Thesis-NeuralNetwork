@@ -42,7 +42,7 @@ public:
     void        enableBarometer(bool enable);
 
     bool readCSVFile(const char* path, int entries, char* separator);
-    bool readCSVFile(const char* path, int entries, char* separator, DataCollection &output);
+    bool readCSVFile(const char* path, int entries, char* separator, Exercise ex, DataCollection &output);
     void clearData();
 
 private:
@@ -58,7 +58,7 @@ private:
 
     char* _separator;
 
-    DataEntry* readLine(const std::string &line);
+    DataEntry* readLine(const std::string &line, Exercise ex);
 };
 
 #endif // CSVREADER_H

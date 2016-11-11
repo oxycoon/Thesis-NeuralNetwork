@@ -26,6 +26,7 @@ public:
 
     void                    addToSegment(DataEntry* entry);
     void                    create();
+    void                    createNoise();
 
 private:
     std::vector<DataEntry*> _segment;
@@ -35,7 +36,6 @@ private:
     double _totalGyroscope;
     double _totalMagnetometer;
     double _totalBarometer;
-
 
     double calculateTotal(std::vector<double> values);
 };

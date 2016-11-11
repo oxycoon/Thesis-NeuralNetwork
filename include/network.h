@@ -6,6 +6,7 @@
 #include "datacollection.h"
 
 #include <vector>
+#include <random>
 
 #define LEARNING_RATE 0.001
 #define MOMENTUM 0.90
@@ -14,6 +15,11 @@
 #define PRINT_EPOCH_DATA true
 #define PRINT_EPOCH_DATA_ON_UPDATE_ONLY false
 #define PRINT_TRAINING_DATA false
+#define WRITE_RESULTS_TO_FILE false
+
+#define USE_GAUSSIAN_NOISE true
+#define GAUSSIAN_MEAN 0.0
+#define GAUSSIAN_DEVIATON 0.15
 
 //Inspired by https://takinginitiative.wordpress.com/2008/04/23/basic-neural-network-tutorial-c-implementation-and-source-code/
 
@@ -69,11 +75,16 @@ private:
 
     bool _useBatch;
 
+    std::default_random_engine _generator;
+    std::normal_distribution<double> _distribution;
+
     //Initializers
     void setupNeurons();
     void setupWeights();
     void setupDeltas();
     void setupErrorGradients();
+
+
 
     void initWeights();
 
@@ -95,7 +106,7 @@ private:
     double getSetAccuracy(const std::vector<DataSegment>  &set);
     double getSetMSE(const std::vector<DataSegment>  &set);
 
-
+    double getGaussianNoise(double mean, double standardDeviation);
 
 };
 

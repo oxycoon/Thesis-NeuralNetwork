@@ -10,8 +10,8 @@ DataEntry::DataEntry(int size = 10):
 }
 
 
-DataEntry::DataEntry(std::vector<double> &e, std::vector<DataType> &type):
-    _entries(e), _size(e.size()), _types(type)
+DataEntry::DataEntry(std::vector<double> &e, std::vector<DataType> &type, Exercise ex):
+    _entries(e), _size(e.size()), _types(type), _exercise(ex)
 {
     //Failsafe if there are more data nodes than we know the data types of
     if(_size > type.size())
@@ -85,6 +85,11 @@ DataType DataEntry::getDataType(const int index) const
     return _types[index];
 }
 
+Exercise DataEntry::getExercise() const
+{
+    return _exercise;
+}
+
 int DataEntry::getSize() const
 {
     return _size;
@@ -99,6 +104,11 @@ void DataEntry::modifyEntry(double entry, DataType type, const int index)
 void DataEntry::setTimestamp(long time)
 {
     _timestamp = time;
+}
+
+void DataEntry::setExercise(Exercise ex)
+{
+    _exercise = ex;
 }
 
 std::string DataEntry::toString()

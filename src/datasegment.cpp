@@ -107,6 +107,9 @@ void DataSegment::create()
     if(tempGyro.size() > 0) _totalGyroscope = calculateTotal(tempGyro);
     if(tempMagn.size() > 0) _totalMagnetometer = calculateTotal(tempMagn);
     if(tempBaro.size() > 0) _totalBarometer = calculateTotal(tempBaro);
+
+    //NOTE Fit for purpose, wouldn't work in a generalized set of data
+    _targets.push_back((double)_segment[0]->getExercise());
 }
 
 double DataSegment::calculateTotal(std::vector<double> values)

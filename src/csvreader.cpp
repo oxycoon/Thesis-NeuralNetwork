@@ -101,7 +101,7 @@ bool CSVReader::readCSVFile(const char *path, int entries, char* separator)
                 }
                 else
                 {
-                    readLine(line);
+                    readLine(line, Exercise::UNKNOWN);
                 }
             }
         }
@@ -158,7 +158,7 @@ bool CSVReader::readCSVFile(const char *path, int entries, char* separator)
  *  Reads a .csv file with {numberInput} input variables and {numberOutput} output variables.
  */
 bool CSVReader::readCSVFile(const char *path, int entries,
-                            char* separator, DataCollection &output)
+                            char* separator, Exercise ex, DataCollection &output)
 {
     _separator = separator;
     _numEntries = entries;
@@ -184,7 +184,7 @@ bool CSVReader::readCSVFile(const char *path, int entries,
                 }
                 else
                 {
-                    DataEntry* temp = readLine(line);
+                    DataEntry* temp = readLine(line, ex);
 
                     if(_enableBarometer)
                     {
@@ -235,7 +235,7 @@ void CSVReader::clearData()
  *  Reads the line and pushes the resulting data entry into the
  *  data set.
  */
-DataEntry* CSVReader::readLine(const std::string &line)
+DataEntry* CSVReader::readLine(const std::string &line, Exercise ex)
 {
     std::vector<double> pattern(_numEntries);
     std::vector<DataType> type(_numEntries);
@@ -299,7 +299,7 @@ DataEntry* CSVReader::readLine(const std::string &line)
         std::cout << type[i] << ",";
     }
     std::cout << "]" << std::endl;*/
-    return new DataEntry(pattern, type);
+    return new DataEntry(pattern, type, ex);
 }
 
 

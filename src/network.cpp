@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstdlib>
 
+
 //================================================
 //              Constructor/Destructor
 //================================================
@@ -37,6 +38,8 @@ Network::Network(int in, int out, std::vector<int> hidden, DataType networkType 
     _momentum = MOMENTUM;
 
     _useBatch = false;
+
+    _distribution = std::normal_distribution<double>(GAUSSIAN_MEAN, GAUSSIAN_DEVIATON);
 
     std::cout << "Network ready for use!" << std::endl;
 }
@@ -236,26 +239,28 @@ void Network::runTraining(const DataCollection &set)
         _epoch++;
 
         //Stops the training set if the generalization set's error starts increasing.
-        /*if(oldTSMSE < _testingSetError)
+        if(oldTSMSE < _testingSetError)
         {
             std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;
             break;
-        }*/
+        }
     }
     //std::cout << "Epochs ran: " << _epoch << std::endl;
 
     //Run validation set
-    _validationSetAccuracy = getSetAccuracy(set.getValidationSet());
-    _validationSetError = getSetMSE(set.getValidationSet());
+    /*_validationSetAccuracy = getSetAccuracy(set.getValidationSet());
+    _validationSetError = getSetMSE(set.getValidationSet());*/
 
-
-    FileWriter writer;
-    writer.writeFile("Test1.csv", results.toString());
+    if(WRITE_RESULTS_TO_FILE)
+    {
+        FileWriter writer;
+        writer.writeFile("Test1.csv", results.toString());
+    }
 
     std::cout << std::endl << "Training Complete!!! - > Elapsed Epochs: " << _epoch << std::endl;
-    std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
+    /*std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
     std::cout << " Validation Set MSE: " << _validationSetError << std::endl << std::endl;
-    std::cout << "Closing system." << std::endl;
+    std::cout << "Closing system." << std::endl;*/
 }
 
 //================================================
@@ -376,7 +381,7 @@ void Network::initWeights()
         {
             //Random weights
             double random = (double)std::rand() / (RAND_MAX);
-            _input[i]->setWeight(j, ( random - 0.5) ) ;
+            _input[i]->setWeight(j, ( 2*random - 1.0) ) ;
             _input[i]->setDelta(j, 0.0);
         }
     }
@@ -565,7 +570,15 @@ void Network::feedForward(std::vector<double> input)
     //Sets input neurons to input values
     for(int i = 0; i < _countInput; i++)
     {
-        _input[i]->setValue(input[i]);
+        if(USE_GAUSSIAN_NOISE)
+        {
+            double gausNoise = input[i] * getGaussianNoise(GAUSSIAN_MEAN, GAUSSIAN_DEVIATON);
+            _input[i]->setValue(input[i] + gausNoise);
+        }
+        else
+        {
+            _input[i]->setValue(input[i]);
+        }
     }
 
     //Calculates the hidden layers
@@ -904,5 +917,10 @@ double Network::getSetMSE(const std::vector<DataSegment> &set)
 
     return mse / ( _countOutput * set.size() );
     //return 0.0;
+}
+
+double Network::getGaussianNoise(double mean, double standardDeviation)
+{
+    return _distribution(_generator);
 }
 
