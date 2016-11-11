@@ -8,7 +8,7 @@
 #include <vector>
 #include <random>
 
-#define LEARNING_RATE 0.001
+#define LEARNING_RATE 0.05
 #define MOMENTUM 0.90
 #define MAX_EPOCHS 1500
 #define TARGET_ACCURACY 90

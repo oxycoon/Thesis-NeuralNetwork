@@ -239,11 +239,11 @@ void Network::runTraining(const DataCollection &set)
         _epoch++;
 
         //Stops the training set if the generalization set's error starts increasing.
-        if(oldTSMSE < _testingSetError)
+        /*if(oldTSMSE < _testingSetError)
         {
             std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;
             break;
-        }
+        }*/
     }
     //std::cout << "Epochs ran: " << _epoch << std::endl;
 
@@ -849,7 +849,7 @@ double Network::calculateHiddenErrorGradient(int layer, int index)
 int Network::roundOutput(double output)
 {
     if(output < 0.1) return Exercise::WALKING;
-    else if(output > 0.9) return Exercise::UNKNOWN;
+    else if(output < 0.30 && output > 0.20) return Exercise::STAIRS_UP;
     else return -1;
     //std::cout << output << std::endl;
 
