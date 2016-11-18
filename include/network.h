@@ -10,8 +10,8 @@
 
 #define LEARNING_RATE 0.01
 #define MOMENTUM 0.90
-#define MAX_EPOCHS 10000
-#define TARGET_ACCURACY 90
+#define MAX_EPOCHS 500
+#define TARGET_ACCURACY 80
 #define PRINT_EPOCH_DATA true
 #define PRINT_EPOCH_DATA_ON_UPDATE_ONLY true
 #define PRINT_TRAINING_DATA false
@@ -40,21 +40,27 @@ public:
     void useStochasticLearning();
 
     std::vector<Neuron*>    getOutputNeurons() const;
+    std::vector<double>     getOutputResults() const;
     int                     getOutputCount() const;
+    DataType                getNetworkType() const;
 
     void resetNetwork();
 
     //void runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet);
     void runTraining(const DataCollection &set);
 
+protected:
+    DataType _networkType;
+
+    void feedForward(std::vector<double> inputs);
+    void feedBackward(std::vector<double> targets);
+
 private:
     int _countInput, _countOutput;
     std::vector<int> _countHidden;
     int _numHiddenLayers;
 
-    DataType _networkType;
-
-    std::vector<Network*>               _networks;
+    std::vector<Network*>               _subNetworks;
 
     std::vector<Neuron*>                _input;
     std::vector<std::vector<Neuron*>>   _hidden;
@@ -76,6 +82,7 @@ private:
     double _testingSetError;
 
     bool _useBatch;
+    bool _trainSubnetsFirst;
 
     std::default_random_engine _generator;
     std::normal_distribution<double> _distribution;
@@ -91,9 +98,6 @@ private:
     //Epoch training related functions
     //void runTrainingEpoch(const std::vector<DataEntry*> &set);
     void runTrainingEpoch(const std::vector<DataSegment> &set);
-    void feedForward(std::vector<double> inputs);
-    //void feedForward(DataEntry* input);
-    void feedBackward(std::vector<double> targets);
     void updateWeights();
 
 

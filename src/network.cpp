@@ -26,7 +26,9 @@ Network::Network(int in, int out, int hidden, DataType networkType)
 }
 
 Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int output):
-    _countHidden(hidden), _countOutput(output)
+    _countHidden(hidden), _countOutput(output), _trainingSetAccuracy(0),
+    _testingSetAccuracy(0), _trainingSetError(0), _testingSetError(100),
+    _epoch(0), _numHiddenLayers(hidden.size()), _networkType(DataType::UK)
 {
     int inputCount = 0;
     for(int i = 0; i < inputs.size(); i++)
@@ -35,17 +37,28 @@ Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int out
     }
     _countInput = inputCount;
     int tempIterator = 0;
+    _subNetworks = inputs;
 
     setupNeurons();
     for(int i = 0; i < inputs.size(); i++)
     {
         modifyInputs(inputs[i]->getOutputNeurons(), tempIterator);
     }
+    setupWeights();
+    setupDeltas();
+    setupErrorGradients();
+    initWeights();
 
+    _maxEpochs = MAX_EPOCHS;
+    _targetAccuracy = TARGET_ACCURACY;
+    _learningRate = LEARNING_RATE;
+    _momentum = MOMENTUM;
 
+    _trainSubnetsFirst = true;
+    _useBatch = false;
+    _distribution = std::normal_distribution<double>(GAUSSIAN_MEAN, GAUSSIAN_DEVIATON);
 
-
-
+    std::cout << "Network ready for use!" << std::endl;
 }
 
 Network::Network(int in, int out, std::vector<int> hidden, DataType networkType = DataType::UK):
@@ -140,9 +153,26 @@ std::vector<Neuron *> Network::getOutputNeurons() const
     return _output;
 }
 
+std::vector<double> Network::getOutputResults() const
+{
+    std::vector<double> results;
+
+    for(int i = 0; i < _countOutput; i++)
+    {
+        results.push_back(_output[i]->getValue());
+    }
+
+    return results;
+}
+
 int Network::getOutputCount() const
 {
     return _countOutput;
+}
+
+DataType Network::getNetworkType() const
+{
+    return _networkType;
 }
 
 //================================================
@@ -233,6 +263,13 @@ void Network::runTraining(const DataCollection &set)
               << "======================================================================" << std::endl;*/
     DataResults results;
     _epoch = 0;
+    if(_trainSubnetsFirst && _subNetworks.size() > 0)
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->runTraining(set);
+        }
+    }
 
     //Runs training using training set for training and generalized set for testing
     while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs)
@@ -275,7 +312,7 @@ void Network::runTraining(const DataCollection &set)
             }
         }
         //Increases epoch for next iteration.
-        _epoch++;
+         _epoch++;
 
         //Stops the training set if the generalization set's error starts increasing.
         /*if(oldTSMSE < _testingSetError)
@@ -314,7 +351,7 @@ void Network::setupNeurons()
     {
         _hidden[i] = std::vector<Neuron*>(_countHidden[i] + 1);
     }
-    _output = std::vector<Neuron*>(_countOutput + 1);
+    _output = std::vector<Neuron*>(_countOutput);
 
     for(int i = 0; i <= _countInput; i++)
     {
@@ -517,7 +554,18 @@ void Network::runTrainingEpoch(const std::vector<DataSegment> &set)
         }
         else
         {
-            //TODO: Fix to get input from output of previous layer
+            if(_subNetworks.size() > 0 && _trainSubnetsFirst)
+            {
+                for(int j = 0; j < _subNetworks.size(); j++)
+                {
+                    _subNetworks[j]->feedForward(set[i].getDataOfType(_subNetworks[j]->_networkType, true));
+                    std::vector<double> tmp = _subNetworks[j]->getOutputResults();
+                    for(int k = 0; k < tmp.size(); k++)
+                    {
+                        inputDataVector.push_back(tmp[k]);
+                    }
+                }
+            }
         }
         feedForward(inputDataVector);
         feedBackward(set[i].getTargets());
