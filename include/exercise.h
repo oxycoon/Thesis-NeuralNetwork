@@ -13,7 +13,7 @@ enum Exercise{
     FALLING_FORWARD,
     PICKUP_ITEM_SITTING,
     PICKUP_ITEM_STANDING,
-    UNKNOWN
+    UNKNOWN = -1
 };
 
 #endif // EXERCISE_H

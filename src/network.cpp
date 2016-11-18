@@ -15,16 +15,43 @@
 //================================================
 
 
+Network::Network()
+{
+    Network(1,1,1,DataType::UK);
+}
+
 Network::Network(int in, int out, int hidden, DataType networkType)
 {
 
 }
 
+Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int output):
+    _countHidden(hidden), _countOutput(output)
+{
+    int inputCount = 0;
+    for(int i = 0; i < inputs.size(); i++)
+    {
+        inputCount += inputs[i]->getOutputCount();
+    }
+    _countInput = inputCount;
+    int tempIterator = 0;
+
+    setupNeurons();
+    for(int i = 0; i < inputs.size(); i++)
+    {
+        modifyInputs(inputs[i]->getOutputNeurons(), tempIterator);
+    }
+
+
+
+
+
+}
+
 Network::Network(int in, int out, std::vector<int> hidden, DataType networkType = DataType::UK):
     _countInput(in), _countHidden(hidden), _countOutput(out), _networkType(networkType),
-    _trainingSetAccuracy(0), _testingSetAccuracy(0), _validationSetAccuracy(0),
-    _trainingSetError(0), _testingSetError(100), _validationSetError(0), _epoch(0),
-    _numHiddenLayers(hidden.size())
+    _trainingSetAccuracy(0), _testingSetAccuracy(0), _trainingSetError(0), _testingSetError(100),
+    _epoch(0), _numHiddenLayers(hidden.size())
 {
     setupNeurons();
     setupWeights();
@@ -47,15 +74,20 @@ Network::Network(int in, int out, std::vector<int> hidden, DataType networkType 
 
 Network::~Network()
 {
-    /*for(auto it = _input.begin(); it != _input.end(); it++)
+    std::cout << "DESTRUCTOR CALLED" << std::endl;
+    for(auto it = _input.begin(); it != _input.end(); it++)
     {
         delete *it;
     }
     _input.clear();
 
-    for(auto it = _hidden.begin(); it != _hidden.end(); it++)
+    for(int i = 0; i < _numHiddenLayers; i++)
     {
-        delete *it;
+        for(auto it = _hidden[i].begin(); it != _hidden[i].end(); it++)
+        {
+            delete *it;
+        }
+        _hidden[i].clear();
     }
     _hidden.clear();
 
@@ -66,14 +98,7 @@ Network::~Network()
     _output.clear();
 
     _hiddenErrorGradient.clear();
-    _outputErrorGradient.clear();*/
-
-    /*delete[] _hidden;
-    delete[] _output;
-    delete[] _input;
-
-    delete[] _hiddenErrorGradient;
-    delete[] _outputErrorGradient;*/
+    _outputErrorGradient.clear();
 }
 
 //================================================
@@ -104,6 +129,20 @@ void Network::useBatchLearning()
 void Network::useStochasticLearning()
 {
     _useBatch = false;
+}
+
+//================================================
+//                  Getters
+//================================================
+
+std::vector<Neuron *> Network::getOutputNeurons() const
+{
+    return _output;
+}
+
+int Network::getOutputCount() const
+{
+    return _countOutput;
 }
 
 //================================================
@@ -317,7 +356,7 @@ void Network::setupWeights()
             if(j == _numHiddenLayers - 1)
                 _hidden[j][i]->initializeWeights(_countOutput);
             else
-                _hidden[j][i]->initializeWeights(_countHidden[j]);
+                _hidden[j][i]->initializeWeights(_countHidden[j+1]);
         }
     }
 }
@@ -381,7 +420,7 @@ void Network::initWeights()
         {
             //Random weights
             double random = (double)std::rand() / (RAND_MAX);
-            _input[i]->setWeight(j, ( 2*random - 1.0) ) ;
+            _input[i]->setWeight(j, ( random - 0.5) ) ;
             _input[i]->setDelta(j, 0.0);
         }
     }
@@ -396,7 +435,7 @@ void Network::initWeights()
             {
                 for(int k = 0; k < _countHidden[i+1]; k++)
                 {
-                    _hidden[i][j]->setWeight(k, ( (double)std::rand() / (RAND_MAX + 1) + 0.5) );
+                    _hidden[i][j]->setWeight(k, ( (double)std::rand() / (RAND_MAX + 1) - 0.5) );
                     _hidden[i][j]->setDelta(k, 0.0);
                 }
             }
@@ -415,61 +454,23 @@ void Network::initWeights()
     }
 }
 
+/**
+ * @brief Network::modifyInputs
+ * @param inputs
+ * @param startIndex
+ */
+void Network::modifyInputs(std::vector<Neuron *> inputs, int &startIndex)
+{
+    for(int i = 0; i < inputs.size(); i++)
+    {
+        _input[startIndex] = inputs[i];
+        startIndex++;
+    }
+}
+
 //================================================
 //            Epoch training functions
 //================================================
-
-/**
- * @brief Network::runTrainingEpoch
- * @param set
- *
- *  Runs a training epoch on the given set.
- */
-/*void Network::runTrainingEpoch(const std::vector<DataEntry*> &set)
-{
-    double incorrectPatterns = 0;
-    double meanSquaredError = 0;
-
-    //Runs training for every pattern
-    for(int i = 0; i < (int)set.size(); i++)
-    {
-        feedForward(set[i]->_pattern);
-        feedBackward(set[i]->_target);
-
-        bool patternCorrect = true;
-
-        for(int j = 0; j < _countOutput; j++)
-        {
-            //Checks if the output value matches the target
-            std::cout << "Training set #" << i << ", output #" << j <<" - Target: " << set[i]->_target[j] << " | Rounded: " << roundOutput(_output[j]->getValue()) <<
-                         "| Pure: " << _output[j]->getValue() << std::endl;
-
-            if(roundOutput(_output[j]->getValue() ) != set[i]->_target[j] )
-            {
-                patternCorrect = false;
-            }
-
-            //Calculates mean square error
-            meanSquaredError += std::pow((_output[j]->getValue() - set[i]->_target[j]), 2);
-        }
-        std::cout << std::endl;
-
-        //If pattern does not match, add to sum of incorrect.
-        if(!patternCorrect)
-        {
-            incorrectPatterns++;
-        }
-    }
-    //Updates weights here if batch learning is used.
-    if(_useBatch)
-    {
-        updateWeights();
-    }
-
-    //update training accuracy and MSE
-    _trainingSetAccuracy = 100 - (incorrectPatterns / set.size() * 100);
-    _trainingSetError = meanSquaredError / (_countOutput * set.size());
-}*/
 
 /**
  * @brief Network::runTrainingEpoch
@@ -581,6 +582,8 @@ void Network::feedForward(std::vector<double> input)
         }
     }
 
+    //TODO CHECK BIAS NODES AND HOW THEY ARE FUNCTIONING!
+
     //Calculates the hidden layers
     for(int k = 0; k < _numHiddenLayers; k++)
     {
@@ -606,7 +609,7 @@ void Network::feedForward(std::vector<double> input)
                 }
             }
             //Set to sigmoid result
-            _hidden[k][i]->setValue(activationFunction(_hidden[k][i]->getValue()));
+            _hidden[k][i]->setValue(sigmoidFunction(_hidden[k][i]->getValue()));
         }
     }
 
@@ -622,35 +625,9 @@ void Network::feedForward(std::vector<double> input)
             _output[i]->addToValue(_hidden[_numHiddenLayers-1][j]->getValue() * _hidden[_numHiddenLayers-1][j]->getWeight(i));
         }
         //Set to sigmoid result
-        _output[i]->setValue(activationFunction(_output[i]->getValue()));
+        _output[i]->setValue(sigmoidFunction(_output[i]->getValue()));
     }
 }
-
-/*void Network::feedForward(DataEntry* input)
-{
-    //Sets inputneuros to input values
-    std::vector<double> inputVectors = input->getEntriesOfDataType(_networkType);
-
-    for(int i = 0; i < inputVectors.size(); i++)
-    {
-        _input[i]->setValue(inputVectors[i]);
-    }
-
-    //Calculates hidden layer
-    for(int i = 0; i < _countHidden; i++)
-    {
-        //Reset value
-        _hidden[i]->setValue(0.0);
-
-        //Calculate weighted sum of inputs, including bias neuron
-        for(int j = 0; j <= _countInput; i++)
-        {
-            _hidden[i]->addToValue(_input[j]->getValue() * _input[j]->getWeight(i));
-        }
-        //Set sigmoid result
-        _hidden[i]->setValue(activationFunction(_hidden[i]->getValue()));
-    }
-}*/
 
 /**
  * @brief Network::feedBackward
@@ -788,8 +765,22 @@ void Network::updateWeights()
     }
 }
 
+/**
+ * @brief Network::sigmoidPrimeFunction
+ * @param x
+ * @return Derivative Sigmoid function
+ */
+double Network::sigmoidPrimeFunction(double x)
+{
+    return sigmoidFunction(x)*(1-sigmoidFunction(x));
+}
 
-double Network::activationFunction(double x)
+/**
+ * @brief Network::sigmoidFunction
+ * @param x
+ * @return Sigmoid function
+ */
+double Network::sigmoidFunction(double x)
 {
     //Sigmoid function
     return 1 / (1 + std::exp(-x));
@@ -803,6 +794,7 @@ double Network::activationFunction(double x)
  * @return Error between the target and actual
  *
  *  Calculates the error gradient between the target and actual value.
+ *  SigmoidPrime
  */
 double Network::calculateOutputErrorGradient(double target, double actual)
 {
@@ -848,18 +840,11 @@ double Network::calculateHiddenErrorGradient(int layer, int index)
  */
 int Network::roundOutput(double output)
 {
-    if(output < 0.1) return Exercise::WALKING;
-    else if(output < 0.30 && output > 0.20) return Exercise::STAIRS_UP;
+    //TODO PROBABLY SOME PROBLEM HERE
+    if(output < 0.1) return 0;//Exercise::WALKING;
+    else if(output > 0.9) return 1;//Exercise::UNKNOWN;
     else return -1;
     //std::cout << output << std::endl;
-
-    /*if(output < 0.05) return 0; //empty classroom
-    else if(output > 0.20 && output < 0.25) return 1;// one person
-    else if(output > 0.40 && output < 0.45) return 2;// group
-    else if(output > 0.60 && output < 0.5) return 3;// class
-    else if(output > 0.95) return 4;// lecture
-    else return -1; //unknown*/
-
 }
 
 //================================================
@@ -911,7 +896,7 @@ double Network::getSetMSE(const std::vector<DataSegment> &set)
         feedForward(set[i].getDataOfType(_networkType, true));
         for(int j = 0; j < _countOutput; j++)
         {
-            mse += std::pow((_output[j]->getValue() - set[i].getTarget(j)), 2 );
+            mse += std::pow(roundOutput(_output[j]->getValue() - set[i].getTarget(j)), 2 );
         }
     }
 

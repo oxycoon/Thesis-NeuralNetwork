@@ -8,42 +8,44 @@
 #include <vector>
 #include <random>
 
-#define LEARNING_RATE 0.05
+#define LEARNING_RATE 0.01
 #define MOMENTUM 0.90
-#define MAX_EPOCHS 1500
+#define MAX_EPOCHS 10000
 #define TARGET_ACCURACY 90
 #define PRINT_EPOCH_DATA true
-#define PRINT_EPOCH_DATA_ON_UPDATE_ONLY false
+#define PRINT_EPOCH_DATA_ON_UPDATE_ONLY true
 #define PRINT_TRAINING_DATA false
-#define WRITE_RESULTS_TO_FILE false
+#define WRITE_RESULTS_TO_FILE true
 
 #define USE_GAUSSIAN_NOISE true
 #define GAUSSIAN_MEAN 0.0
-#define GAUSSIAN_DEVIATON 0.15
+#define GAUSSIAN_DEVIATON 0.10
 
 //Inspired by https://takinginitiative.wordpress.com/2008/04/23/basic-neural-network-tutorial-c-implementation-and-source-code/
 
 class Network
 {
 public:
+    Network();
     Network(int in, int out, int hidden, DataType networkType);
+    Network(std::vector<Network*> inputs, std::vector<int> hidden, int out);
     Network(int in, int out, std::vector<int> hidden, DataType networkType);
     ~Network();
 
     void setLearningParameters(double learningRate, double momentum);
     void setMaxEpochs(unsigned int max);
     void setTargetAccuracy(double target);
-
+    void setInputNeurons(std::vector<Neuron*> &input);
     void useBatchLearning();
     void useStochasticLearning();
+
+    std::vector<Neuron*>    getOutputNeurons() const;
+    int                     getOutputCount() const;
 
     void resetNetwork();
 
     //void runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet);
     void runTraining(const DataCollection &set);
-
-    /*std::vector<Neuron*>    getOutputNeurons();
-    void                    setInputNeurons(std::vector<Neuron*> &input);*/
 
 private:
     int _countInput, _countOutput;
@@ -51,6 +53,8 @@ private:
     int _numHiddenLayers;
 
     DataType _networkType;
+
+    std::vector<Network*>               _networks;
 
     std::vector<Neuron*>                _input;
     std::vector<std::vector<Neuron*>>   _hidden;
@@ -67,10 +71,8 @@ private:
     double _momentum;
 
     double _trainingSetAccuracy;
-    double _validationSetAccuracy;
     double _testingSetAccuracy;
     double _trainingSetError;
-    double _validationSetError;
     double _testingSetError;
 
     bool _useBatch;
@@ -83,10 +85,8 @@ private:
     void setupWeights();
     void setupDeltas();
     void setupErrorGradients();
-
-
-
     void initWeights();
+    void modifyInputs(std::vector<Neuron*> inputs, int &startIndex);
 
     //Epoch training related functions
     //void runTrainingEpoch(const std::vector<DataEntry*> &set);
@@ -96,7 +96,11 @@ private:
     void feedBackward(std::vector<double> targets);
     void updateWeights();
 
-    double activationFunction(double x);
+
+    double sigmoidFunction(double x);
+    double sigmoidPrimeFunction(double x);
+
+
     double calculateOutputErrorGradient(double target, double actual);
     double calculateHiddenErrorGradient(int layer, int index);
 

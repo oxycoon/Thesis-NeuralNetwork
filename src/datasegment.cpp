@@ -56,6 +56,7 @@ int DataSegment::getSegmentSize() const
     return _segment.size();
 }
 
+
 void DataSegment::addToSegment(DataEntry *entry)
 {
     _segment.push_back(entry);
@@ -109,20 +110,37 @@ void DataSegment::create()
     if(tempBaro.size() > 0) _totalBarometer = calculateTotal(tempBaro);
 
     //NOTE Fit for purpose, wouldn't work in a generalized set of data
-    _targets.push_back((double)_segment[0]->getExercise());
+    if(_segment[0]->getExercise() != Exercise::FALLING_FORWARD)
+    {
+        _targets.push_back(1.0);
+        _targets.push_back(0.0);
+    }
+    else
+    {
+        _targets.push_back(0.0);
+        _targets.push_back(1.0);
+    }
 }
 
 double DataSegment::calculateTotal(std::vector<double> values)
 {
     double result = 0.0;
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
 
-    for(int i = 0; i < values.size(); i++)
+    for(int i = 0; i < values.size()/3; i++)
     {
-        result += std::pow(values[i], 2);
+        x += values[i];
+        y += values[i+1];
+        z += values[i+2];
     }
 
-    result = result / values.size();
-    result = sqrt(result);
+    x = std::pow(x, 2);
+    y = std::pow(y, 2);
+    z = std::pow(z, 2);
+
+    result = sqrt(x + y + z);
 
     return result;
 }
@@ -137,7 +155,7 @@ DataEntry *DataSegment::getSegment(int index) const
     return _segment[index];
 }
 
-std::vector<double> DataSegment::getDataOfType(DataType type, bool getTotal = false) const
+std::vector<double> DataSegment::getDataOfType(DataType type, bool getTotal) const
 {
     std::vector<double> data;
 

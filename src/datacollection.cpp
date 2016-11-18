@@ -57,7 +57,9 @@ void DataCollection::printCollection()
 
 void DataCollection::createTrainingTestSets(int setSize, double trainingSize)
 {
-    std::vector<DataSegment> temp(_collection.size()-setSize);
+    int size = _collection.size()-setSize;
+
+    std::vector<DataSegment> temp(size);
 
     for(int i = 0; i < temp.size(); i++)
     {
