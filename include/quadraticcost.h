@@ -9,7 +9,7 @@ public:
     QuadraticCost();
 
     double calculateCost(double a, double y);
-    double errorDelta(double target, double a, double y);
+    double errorDelta(double value, double output, double target);
 private:
     double sigmoid(double z);
     double sigmoidPrime(double z);

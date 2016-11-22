@@ -20,15 +20,16 @@ Network::Network()
     Network(1,1,1,DataType::UK);
 }
 
-Network::Network(int in, int out, int hidden, DataType networkType)
+Network::Network(int in, int out, int hidden, DataType networkType, std::string name)
 {
 
 }
 
-Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int output):
+Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int output, std::string name):
     _countHidden(hidden), _countOutput(output), _trainingSetAccuracy(0),
     _testingSetAccuracy(0), _trainingSetError(0), _testingSetError(100),
-    _epoch(0), _numHiddenLayers(hidden.size()), _networkType(DataType::UK)
+    _epoch(0), _numHiddenLayers(hidden.size()), _networkType(DataType::UK),
+    _networkName(name)
 {
     int inputCount = 0;
     for(int i = 0; i < inputs.size(); i++)
@@ -61,10 +62,10 @@ Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int out
     std::cout << "Network ready for use!" << std::endl;
 }
 
-Network::Network(int in, int out, std::vector<int> hidden, DataType networkType = DataType::UK):
+Network::Network(int in, int out, std::vector<int> hidden, DataType networkType, std::string name):
     _countInput(in), _countHidden(hidden), _countOutput(out), _networkType(networkType),
     _trainingSetAccuracy(0), _testingSetAccuracy(0), _trainingSetError(0), _testingSetError(100),
-    _epoch(0), _numHiddenLayers(hidden.size())
+    _epoch(0), _numHiddenLayers(hidden.size()), _networkName(name)
 {
     setupNeurons();
     setupWeights();
@@ -329,8 +330,9 @@ void Network::runTraining(const DataCollection &set)
 
     if(WRITE_RESULTS_TO_FILE)
     {
+        std::string name = _networkName + "_result.csv";
         FileWriter writer;
-        writer.writeFile("Test1.csv", results.toString());
+        writer.writeFile(name, results.toString());
     }
 
     std::cout << std::endl << "Training Complete!!! - > Elapsed Epochs: " << _epoch << std::endl;
@@ -629,8 +631,6 @@ void Network::feedForward(std::vector<double> input)
             _input[i]->setValue(input[i]);
         }
     }
-
-    //TODO CHECK BIAS NODES AND HOW THEY ARE FUNCTIONING!
 
     //Calculates the hidden layers
     for(int k = 0; k < _numHiddenLayers; k++)
@@ -939,12 +939,12 @@ double Network::getSetMSE(const std::vector<DataSegment> &set)
 {
     double mse = 0;
 
-    for(int i = 0; i < (int)set.size(); i++)
+    for(int i = 0; i < set.size(); i++)
     {
         feedForward(set[i].getDataOfType(_networkType, true));
         for(int j = 0; j < _countOutput; j++)
         {
-            mse += std::pow(roundOutput(_output[j]->getValue() - set[i].getTarget(j)), 2 );
+            mse += std::pow((_output[j]->getValue() - set[i].getTarget(j)), 2 );
         }
     }
 

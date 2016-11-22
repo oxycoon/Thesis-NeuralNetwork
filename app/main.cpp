@@ -43,30 +43,27 @@ int main(int argc, char *argv[])
     collection.createTrainingTestSets(5, 0.33);
     //collection2.createTrainingTestSets(5, 0.33);
 
-
     std::vector<int> hidden = {16,6};
     std::vector<int> hidden2 = {6};
 
-
-
-    Network* net = new Network(16, 2, hidden, DataType::ACCELEROMETER);
-    Network* net2 = new Network(16, 2, hidden, DataType::GYRO);
-    Network* net3 = new Network(16, 2, hidden, DataType::COMPASS);
+    Network* net = new Network(16, 2, hidden, DataType::ACCELEROMETER, "Accelerometer");
+    Network* net2 = new Network(16, 2, hidden, DataType::GYRO, "Gyroscope");
+    Network* net3 = new Network(16, 2, hidden, DataType::COMPASS, "Compass");
     std::vector<Network*> subNets(3);
     subNets[0] = net;
     subNets[1] = net2;
     subNets[2] = net3;
 
-    Network* net4 = new Network(subNets, hidden2, 2);
+    Network* net4 = new Network(subNets, hidden2, 2, "Total");
 
     /*net->runTraining(collection);
     net2->runTraining(collection);*/
     net4->runTraining(collection);
 
-    delete net4;
+    /*delete net4;
     delete net;
     delete net2;
-    delete net3;
+    delete net3;*/
     /*Network net2 = Network(16, 1, hidden, DataType::ACCELEROMETER);
     net2.runTraining(collection2);*/
 

@@ -10,7 +10,7 @@
 
 #define LEARNING_RATE 0.01
 #define MOMENTUM 0.90
-#define MAX_EPOCHS 500
+#define MAX_EPOCHS 1000
 #define TARGET_ACCURACY 80
 #define PRINT_EPOCH_DATA true
 #define PRINT_EPOCH_DATA_ON_UPDATE_ONLY true
@@ -27,9 +27,9 @@ class Network
 {
 public:
     Network();
-    Network(int in, int out, int hidden, DataType networkType);
-    Network(std::vector<Network*> inputs, std::vector<int> hidden, int out);
-    Network(int in, int out, std::vector<int> hidden, DataType networkType);
+    Network(int in, int out, int hidden, DataType networkType, std::string name="");
+    Network(std::vector<Network*> inputs, std::vector<int> hidden, int out, std::string name="");
+    Network(int in, int out, std::vector<int> hidden, DataType networkType = DataType::UK, std::string name="");
     ~Network();
 
     void setLearningParameters(double learningRate, double momentum);
@@ -59,6 +59,8 @@ private:
     int _countInput, _countOutput;
     std::vector<int> _countHidden;
     int _numHiddenLayers;
+
+    std::string                         _networkName;
 
     std::vector<Network*>               _subNetworks;
 

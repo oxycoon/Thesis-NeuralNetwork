@@ -22,8 +22,8 @@ SOURCES += app/main.cpp \
     src/datasegment.cpp \
     src/filewriter.cpp \
     src/dataresults.cpp \
-#    src/quadraticcost.cpp \
-#    src/cost.cpp
+    src/quadraticcost.cpp \
+    src/cost.cpp
 
 HEADERS  += include/csvreader.h \
     include/mainwindow.h \
@@ -35,8 +35,8 @@ HEADERS  += include/csvreader.h \
     include/datasegment.h \
     include/filewriter.h \
     include/dataresults.h \
-#    include/quadraticcost.h \
-#    include/cost.h
+    include/quadraticcost.h \
+    include/cost.h
 
 FORMS    += res/layout/mainwindow.ui
 
