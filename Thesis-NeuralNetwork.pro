@@ -23,7 +23,8 @@ SOURCES += app/main.cpp \
     src/filewriter.cpp \
     src/dataresults.cpp \
     src/quadraticcost.cpp \
-    src/cost.cpp
+    src/cost.cpp \
+    src/crossentropycost.cpp
 
 HEADERS  += include/csvreader.h \
     include/mainwindow.h \
@@ -36,7 +37,8 @@ HEADERS  += include/csvreader.h \
     include/filewriter.h \
     include/dataresults.h \
     include/quadraticcost.h \
-    include/cost.h
+    include/cost.h \
+    include/crossentropycost.h
 
 FORMS    += res/layout/mainwindow.ui
 

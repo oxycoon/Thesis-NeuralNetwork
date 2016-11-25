@@ -3,6 +3,7 @@
 #include "../include/datasegment.h"
 #include "../include/dataresults.h"
 #include "../include/filewriter.h"
+#include "../include/quadraticcost.h"
 
 #include <cmath>
 #include <ctime>
@@ -17,19 +18,19 @@
 
 Network::Network()
 {
-    Network(1,1,1,DataType::UK);
+    //Network(1,1,1,new QuadraticCost(), DataType::UK);
 }
 
-Network::Network(int in, int out, int hidden, DataType networkType, std::string name)
+Network::Network(int in, int out, int hidden, DataType networkType, Cost* cost, std::string name)
 {
 
 }
 
-Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int output, std::string name):
+Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int output, Cost* cost, std::string name):
     _countHidden(hidden), _countOutput(output), _trainingSetAccuracy(0),
     _testingSetAccuracy(0), _trainingSetError(0), _testingSetError(100),
     _epoch(0), _numHiddenLayers(hidden.size()), _networkType(DataType::UK),
-    _networkName(name)
+    _networkName(name), _costCalculator(cost)
 {
     int inputCount = 0;
     for(int i = 0; i < inputs.size(); i++)
@@ -62,10 +63,10 @@ Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int out
     std::cout << "Network ready for use!" << std::endl;
 }
 
-Network::Network(int in, int out, std::vector<int> hidden, DataType networkType, std::string name):
+Network::Network(int in, int out, std::vector<int> hidden, Cost* cost, DataType networkType, std::string name):
     _countInput(in), _countHidden(hidden), _countOutput(out), _networkType(networkType),
     _trainingSetAccuracy(0), _testingSetAccuracy(0), _trainingSetError(0), _testingSetError(100),
-    _epoch(0), _numHiddenLayers(hidden.size()), _networkName(name)
+    _epoch(0), _numHiddenLayers(hidden.size()), _networkName(name), _costCalculator(cost)
 {
     setupNeurons();
     setupWeights();
@@ -113,6 +114,7 @@ Network::~Network()
 
     _hiddenErrorGradient.clear();
     _outputErrorGradient.clear();
+    delete _costCalculator;
 }
 
 //================================================
@@ -944,7 +946,7 @@ double Network::getSetMSE(const std::vector<DataSegment> &set)
         feedForward(set[i].getDataOfType(_networkType, true));
         for(int j = 0; j < _countOutput; j++)
         {
-            mse += std::pow((_output[j]->getValue() - set[i].getTarget(j)), 2 );
+            mse += _costCalculator->calculateCost(_output[j]->getValue(),set[i].getTarget(j));
         }
     }
 

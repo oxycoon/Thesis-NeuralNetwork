@@ -7,8 +7,8 @@ class Cost
 public:
     Cost();
 
-    virtual double calculateCost(double a, double y) = 0;
-    virtual double errorDelta(double target, double a, double y) = 0;
+    virtual double calculateCost(double output, double target) = 0;
+    virtual double errorDelta(double z, double output, double target) = 0;
 };
 
 #endif // COST_H

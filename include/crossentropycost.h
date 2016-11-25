@@ -1,12 +1,12 @@
-#ifndef QUADRATICCOST_H
-#define QUADRATICCOST_H
+#ifndef CROSSENTROPYCOST_H
+#define CROSSENTROPYCOST_H
 
 #include "cost.h"
 
-class QuadraticCost : public Cost
+class CrossEntropyCost : public Cost
 {
 public:
-    QuadraticCost();
+    CrossEntropyCost();
 
     double calculateCost(double output, double target);
     double errorDelta(double z, double output, double target);
@@ -16,4 +16,4 @@ private:
 
 };
 
-#endif // QUADRATICCOST_H
+#endif // CROSSENTROPYCOST_H

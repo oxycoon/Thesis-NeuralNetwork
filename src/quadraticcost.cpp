@@ -1,14 +1,21 @@
 #include "../include/quadraticcost.h"
-#include "../include/network.h"
+
+#include <cmath>
 
 QuadraticCost::QuadraticCost()
 {
 
 }
 
+/**
+ * @brief QuadraticCost::calculateCost
+ * @param output
+ * @param target
+ * @return
+ */
 double QuadraticCost::calculateCost(double output, double target)
 {
-    return 0.0;
+    return std::pow((output-target),2);
 }
 
 /**
@@ -18,9 +25,9 @@ double QuadraticCost::calculateCost(double output, double target)
  * @param target
  * @return
  */
-double QuadraticCost::errorDelta(double value, double output, double target)
+double QuadraticCost::errorDelta(double z, double output, double target)
 {
-    return (output-target) * sigmoidPrime(value);
+    return (output-target) * sigmoidPrime(z);
 }
 
 double QuadraticCost::sigmoid(double z)

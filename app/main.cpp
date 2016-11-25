@@ -3,6 +3,9 @@
 
 #include "../include/datasegment.h"
 #include "../include/network.h"
+#include "../include/quadraticcost.h"
+#include "../include/crossentropycost.h"
+
 #include <iostream>
 
 int main(int argc, char *argv[])
@@ -46,15 +49,17 @@ int main(int argc, char *argv[])
     std::vector<int> hidden = {16,6};
     std::vector<int> hidden2 = {6};
 
-    Network* net = new Network(16, 2, hidden, DataType::ACCELEROMETER, "Accelerometer");
-    Network* net2 = new Network(16, 2, hidden, DataType::GYRO, "Gyroscope");
-    Network* net3 = new Network(16, 2, hidden, DataType::COMPASS, "Compass");
+    QuadraticCost *cost = new QuadraticCost();
+
+    Network* net = new Network(16, 2, hidden, cost, DataType::ACCELEROMETER, "Accelerometer");
+    Network* net2 = new Network(16, 2, hidden, cost, DataType::GYRO, "Gyroscope");
+    Network* net3 = new Network(16, 2, hidden, cost, DataType::COMPASS, "Compass");
     std::vector<Network*> subNets(3);
     subNets[0] = net;
     subNets[1] = net2;
     subNets[2] = net3;
 
-    Network* net4 = new Network(subNets, hidden2, 2, "Total");
+    Network* net4 = new Network(subNets, hidden2, 2, cost, "Total");
 
     /*net->runTraining(collection);
     net2->runTraining(collection);*/

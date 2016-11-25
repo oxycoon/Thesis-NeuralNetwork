@@ -4,6 +4,9 @@
 #include "neuron.h"
 #include "dataentry.h"
 #include "datacollection.h"
+#include "cost.h"
+
+
 
 #include <vector>
 #include <random>
@@ -27,9 +30,9 @@ class Network
 {
 public:
     Network();
-    Network(int in, int out, int hidden, DataType networkType, std::string name="");
-    Network(std::vector<Network*> inputs, std::vector<int> hidden, int out, std::string name="");
-    Network(int in, int out, std::vector<int> hidden, DataType networkType = DataType::UK, std::string name="");
+    Network(int in, int out, int hidden, DataType networkType, Cost* cost, std::string name="");
+    Network(std::vector<Network*> inputs, std::vector<int> hidden, int out, Cost* cost,  std::string name="");
+    Network(int in, int out, std::vector<int> hidden, Cost* cost, DataType networkType = DataType::UK, std::string name="");
     ~Network();
 
     void setLearningParameters(double learningRate, double momentum);
@@ -56,40 +59,78 @@ protected:
     void feedBackward(std::vector<double> targets);
 
 private:
-    int _countInput, _countOutput;
-    std::vector<int> _countHidden;
-    int _numHiddenLayers;
-
+    //******************************
+    //  Network name
+    //******************************
     std::string                         _networkName;
 
+    //******************************
+    //  Network Neurons variables
+    //******************************
+    /**
+     * @brief _input
+     *
+     *  Input layer neurons, if the network consists of
+     *  sub networks these will be represented by the
+     *  ouput Neurons in the underlying networks.
+     */
+    std::vector<Neuron*>                _input;
+    /**
+     * @brief _hidden
+     *
+     *  Hidden layer neurons.
+     */
+    std::vector<std::vector<Neuron*>>   _hidden;
+    /**
+     * @brief _output
+     *
+     *  Output layer neurons.
+     */
+    std::vector<Neuron*>                _output;
+    /**
+     * @brief _subNetworks
+     *
+     *  Subnetworks within this network.
+     */
     std::vector<Network*>               _subNetworks;
 
-    std::vector<Neuron*>                _input;
-    std::vector<std::vector<Neuron*>>   _hidden;
-    std::vector<Neuron*>                _output;
+    int                                 _countInput;
+    int                                 _countOutput;
+    std::vector<int>                    _countHidden;
+    int                                 _numHiddenLayers;
 
+
+    //******************************
+    //  Network learning settings
+    //******************************
+    unsigned int    _epoch;
+    unsigned int    _maxEpochs;
+    double          _targetAccuracy;
+    double          _learningRate;
+    double          _momentum;
+    bool            _useBatch;
+    bool            _trainSubnetsFirst;
+
+    //******************************
+    //  Training and testing error and accuracy
+    //******************************
+    double                              _trainingSetAccuracy;
+    double                              _testingSetAccuracy;
+    double                              _trainingSetError;
+    double                              _testingSetError;
     std::vector<std::vector<double>>    _hiddenErrorGradient;
     std::vector<double>                 _outputErrorGradient;
+    Cost*                               _costCalculator;
 
-    unsigned int _epoch;
-    unsigned int _maxEpochs;
+    //******************************
+    //  Gaussian noise variables
+    //******************************
+    std::default_random_engine          _generator;
+    std::normal_distribution<double>    _distribution;
 
-    double _targetAccuracy;
-    double _learningRate;
-    double _momentum;
-
-    double _trainingSetAccuracy;
-    double _testingSetAccuracy;
-    double _trainingSetError;
-    double _testingSetError;
-
-    bool _useBatch;
-    bool _trainSubnetsFirst;
-
-    std::default_random_engine _generator;
-    std::normal_distribution<double> _distribution;
-
-    //Initializers
+    //******************************
+    //  Initializers
+    //******************************
     void setupNeurons();
     void setupWeights();
     void setupDeltas();
