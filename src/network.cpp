@@ -288,7 +288,7 @@ void Network::runTraining(const DataCollection &set)
 
         //Gets the generalized set accuracy and MSE
         _testingSetAccuracy = getSetAccuracy(set.getTestSet());
-        _testingSetError = getSetMSE(set.getTestSet());
+        _testingSetError = getSetError(set.getTestSet());
 
         results.addResult(ResultType::TMSE, _trainingSetError);
         results.addResult(ResultType::TA, _trainingSetAccuracy);
@@ -591,9 +591,8 @@ void Network::runTrainingEpoch(const std::vector<DataSegment> &set)
                 patternCorrect = false;
             }
 
-
-            //Calculates mean square error
-            meanSquaredError += std::pow((_output[j]->getValue() - set[i].getTarget(j)), 2);
+            //Calculates error
+            meanSquaredError += _costCalculator->calculateCost(_output[j]->getValue(), set[i].getTarget(j));
         }
         if(!patternCorrect)
         {
@@ -937,7 +936,7 @@ double Network::getSetAccuracy(const std::vector<DataSegment> &set)
  *
  *  Calculates the set's Mean Squared Error
  */
-double Network::getSetMSE(const std::vector<DataSegment> &set)
+double Network::getSetError(const std::vector<DataSegment> &set)
 {
     double mse = 0;
 

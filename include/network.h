@@ -155,7 +155,7 @@ private:
 
     //Non training set related functions
     double getSetAccuracy(const std::vector<DataSegment>  &set);
-    double getSetMSE(const std::vector<DataSegment>  &set);
+    double getSetError(const std::vector<DataSegment>  &set);
 
     double getGaussianNoise(double mean, double standardDeviation);
 
