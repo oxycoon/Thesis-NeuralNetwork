@@ -1,4 +1,4 @@
-#include "include/mainwindow.h"
+#include "include/window/mainwindow.h"
 #include <QApplication>
 
 #include "../include/datasegment.h"
@@ -10,13 +10,13 @@
 
 int main(int argc, char *argv[])
 {
-    /*QApplication a(argc, argv);
+    QApplication a(argc, argv);
     MainWindow w;
     w.show();
 
-    return a.exec();*/
+    return a.exec();
 
-    CSVReader reader;
+    /*CSVReader reader;
     DataCollection collection;
     //DataCollection collection2(Exercise::WALKING);
 
@@ -50,27 +50,30 @@ int main(int argc, char *argv[])
     std::vector<int> hidden2 = {6};
 
     QuadraticCost *cost = new QuadraticCost();
+    CrossEntropyCost *cost2 = new CrossEntropyCost();
 
-    Network* net = new Network(16, 2, hidden, cost, DataType::ACCELEROMETER, "Accelerometer");
-    Network* net2 = new Network(16, 2, hidden, cost, DataType::GYRO, "Gyroscope");
-    Network* net3 = new Network(16, 2, hidden, cost, DataType::COMPASS, "Compass");
+    Network* net = new Network(16, 2, hidden, cost2, DataType::ACCELEROMETER, "Accelerometer");
+    Network* net2 = new Network(16, 2, hidden, cost2, DataType::GYRO, "Gyroscope");
+    Network* net3 = new Network(16, 2, hidden, cost2, DataType::COMPASS, "Compass");
     std::vector<Network*> subNets(3);
     subNets[0] = net;
     subNets[1] = net2;
     subNets[2] = net3;
 
-    Network* net4 = new Network(subNets, hidden2, 2, cost, "Total");
+    Network* net4 = new Network(subNets, hidden2, 2, cost2, "Total");
 
-    /*net->runTraining(collection);
-    net2->runTraining(collection);*/
+    net->runTraining(collection);
+    net2->runTraining(collection);
     net4->runTraining(collection);
 
-    /*delete net4;
+    delete net4;
     delete net;
     delete net2;
-    delete net3;*/
-    /*Network net2 = Network(16, 1, hidden, DataType::ACCELEROMETER);
-    net2.runTraining(collection2);*/
+    delete net3;
+    Network net2 = Network(16, 1, hidden, DataType::ACCELEROMETER);
+    net2.runTraining(collection2);
+    delete cost;
+    delete cost2;
 
-    return 0;
+    return 0;*/
 }

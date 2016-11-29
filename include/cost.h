@@ -8,7 +8,7 @@ public:
     Cost();
 
     virtual double calculateCost(double output, double target) = 0;
-    virtual double errorDelta(double z, double output, double target) = 0;
+    virtual double errorDelta(double output, double target) = 0;
 };
 
 #endif // COST_H

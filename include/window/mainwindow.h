@@ -2,9 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QtCore>
+#include <QFileSystemModel>
 
-#include "network.h"
-#include "csvreader.h"
+#include "../network.h"
+#include "../csvreader.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,12 +25,16 @@ private:
     Network*            _network;
     CSVReader*          _reader;
 
+    QString             _selectedFile;
+
     std::vector<DataCollection>     _collections;
-    std::vector<std::string>        _fileNames;
+    std::vector<QString>            _fileNames;
+
+    QFileSystemModel*       _dirModel;
+    QFileSystemModel*       _fileModel;
 
 
     void            initializeNetwork();
-    void            findAllFiles();
 
 public slots:
 
@@ -38,6 +44,13 @@ protected slots:
 
 private slots:
 
+
+    void on_dirtreeview_clicked(const QModelIndex &index);
+    void on_filelistview_clicked(const QModelIndex &index);
+
+    void on_button_addFile_clicked();
+
+    void on_pushButton_clicked();
 
 signals:
     /*void      signViewportChanged( const QString& name, const QRectF& size );

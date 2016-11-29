@@ -13,7 +13,7 @@ TEMPLATE = app
 
 
 SOURCES += app/main.cpp \
-    src/mainwindow.cpp \
+    src/window/mainwindow.cpp \
     src/csvreader.cpp \
     src/dataentry.cpp \
     src/network.cpp \
@@ -24,10 +24,11 @@ SOURCES += app/main.cpp \
     src/dataresults.cpp \
     src/quadraticcost.cpp \
     src/cost.cpp \
-    src/crossentropycost.cpp
+    src/crossentropycost.cpp \
+    src/window/networkcreationdialog.cpp
 
 HEADERS  += include/csvreader.h \
-    include/mainwindow.h \
+    include/window/mainwindow.h \
     include/dataentry.h \
     include/network.h \
     include/neuron.h \
@@ -38,9 +39,11 @@ HEADERS  += include/csvreader.h \
     include/dataresults.h \
     include/quadraticcost.h \
     include/cost.h \
-    include/crossentropycost.h
+    include/crossentropycost.h \
+    include/window/networkcreationdialog.h
 
-FORMS    += res/layout/mainwindow.ui
+FORMS    += res/layout/mainwindow.ui \
+    res/layout/networkcreationdialog.ui
 
 win32 {
     INCLUDEPATH += C:/boost_1_62_0_msvc

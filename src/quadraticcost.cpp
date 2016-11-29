@@ -25,17 +25,8 @@ double QuadraticCost::calculateCost(double output, double target)
  * @param target
  * @return
  */
-double QuadraticCost::errorDelta(double z, double output, double target)
+double QuadraticCost::errorDelta(double output, double target)
 {
-    return (output-target) * sigmoidPrime(z);
+    return (target-output) * output * (1 - output);
 }
 
-double QuadraticCost::sigmoid(double z)
-{
-    return 1.0/(1.0 - std::exp(-z));
-}
-
-double QuadraticCost::sigmoidPrime(double z)
-{
-    return sigmoid(z) * (1.0 - sigmoid(z));
-}

@@ -25,17 +25,7 @@ double CrossEntropyCost::calculateCost(double output, double target)
  * @param target
  * @return
  */
-double CrossEntropyCost::errorDelta(double z, double output, double target)
+double CrossEntropyCost::errorDelta(double output, double target)
 {
     return output-target;
-}
-
-double CrossEntropyCost::sigmoid(double z)
-{
-    return 1.0/(1.0 - std::exp(-z));
-}
-
-double CrossEntropyCost::sigmoidPrime(double z)
-{
-    return sigmoid(z) * (1.0 - sigmoid(z));
 }

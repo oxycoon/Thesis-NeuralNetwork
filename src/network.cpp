@@ -847,7 +847,8 @@ double Network::sigmoidFunction(double x)
  */
 double Network::calculateOutputErrorGradient(double target, double actual)
 {
-    return actual * (1 - actual) * (target - actual);
+    //return actual * (1 - actual) * (target - actual);
+    return _costCalculator->errorDelta(actual, target);
 }
 
 /**
