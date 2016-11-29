@@ -96,5 +96,5 @@ void NetworkCreationDialog::updateHiddenLayerSection()
         _hiddenLabel.pop_back();
         _hiddenLineEdit.pop_back();
     }
-
+    this->adjustSize();
 }
