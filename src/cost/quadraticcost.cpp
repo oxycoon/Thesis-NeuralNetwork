@@ -1,4 +1,4 @@
-#include "../include/quadraticcost.h"
+#include "include/cost/quadraticcost.h"
 
 #include <cmath>
 

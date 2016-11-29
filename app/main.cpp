@@ -1,10 +1,10 @@
 #include "include/window/mainwindow.h"
 #include <QApplication>
 
-#include "../include/datasegment.h"
-#include "../include/network.h"
-#include "../include/quadraticcost.h"
-#include "../include/crossentropycost.h"
+#include "include/datasegment.h"
+#include "include/network.h"
+#include "include/cost/quadraticcost.h"
+#include "include/cost/crossentropycost.h"
 
 #include <iostream>
 

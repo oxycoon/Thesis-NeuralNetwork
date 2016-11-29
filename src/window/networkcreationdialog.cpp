@@ -59,7 +59,37 @@ void NetworkCreationDialog::on_buttonBox_accepted()
 
     DataType type;
 
-    emit signNetworkCreation(_numInput, _numHidden, _numOutput, name, type);
+    int index = ui->comboBox_netType->currentIndex();
+    switch(index)
+    {
+    case 0:
+        type = DataType::ACCELEROMETER;
+        break;
+    case 1:
+        type = DataType::GYRO;
+        break;
+    case 2:
+        type = DataType::COMPASS;
+        break;
+    case 3:
+        type = DataType::UK;
+        break;
+    }
+
+    CostCalc calc;
+
+    index = ui->comboBox_cost->currentIndex();
+    switch(index)
+    {
+    case 0:
+        calc = CostCalc::Quadratic;
+        break;
+    case 1:
+        calc = CostCalc::CrossEntropy;
+        break;
+    }
+
+    emit signNetworkCreation(_numInput, _numHidden, _numOutput, name, type, calc);
 }
 
 void NetworkCreationDialog::updateHiddenLayerSection()

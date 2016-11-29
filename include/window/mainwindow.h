@@ -53,7 +53,8 @@ private slots:
     void on_pushButton_clicked();
 
     void signNetworkCreationRecieved(const int in, const std::vector<int> hidden,
-                                     const int out, const QString name, const DataType type);
+                                     const int out, const QString name, const DataType type,
+                                     const CostCalc calc);
 
 signals:
     /*void      signViewportChanged( const QString& name, const QRectF& size );

@@ -1,6 +1,10 @@
 #ifndef COST_H
 #define COST_H
 
+enum CostCalc{
+    Quadratic,
+    CrossEntropy
+};
 
 class Cost
 {

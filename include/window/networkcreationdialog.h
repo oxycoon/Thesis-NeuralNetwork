@@ -8,6 +8,7 @@
 #include <QtWidgets/QComboBox>
 
 #include "include/enum/datatype.h"
+#include "include/cost/cost.h"
 
 namespace Ui {
 class NetworkCreationDialog;
@@ -22,7 +23,8 @@ public:
     ~NetworkCreationDialog();
 
 signals:
-    void signNetworkCreation(int input, std::vector<int> hidden, int output, QString name, DataType type);
+    void signNetworkCreation(int input, std::vector<int> hidden,
+                             int output, QString name, DataType type, CostCalc calc);
 
 private slots:
     void on_pushButton_clicked();

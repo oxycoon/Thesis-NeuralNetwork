@@ -1,4 +1,4 @@
-#include "../include/crossentropycost.h"
+#include "include/cost/crossentropycost.h"
 
 #include <cmath>
 

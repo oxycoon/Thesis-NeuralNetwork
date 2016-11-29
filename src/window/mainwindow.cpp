@@ -69,7 +69,9 @@ void MainWindow::on_pushButton_clicked()
     dialog->show();
 }
 
-void MainWindow::signNetworkCreationRecieved(const int in, const std::vector<int> hidden, const int out, const QString name, const DataType type)
+void MainWindow::signNetworkCreationRecieved(const int in,
+                const std::vector<int> hidden, const int out,
+                const QString name, const DataType type, const CostCalc calc)
 {
 
 }

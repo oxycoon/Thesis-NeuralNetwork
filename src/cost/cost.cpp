@@ -1,4 +1,4 @@
-#include "../include/cost.h"
+#include "include/cost/cost.h"
 
 Cost::Cost()
 {
