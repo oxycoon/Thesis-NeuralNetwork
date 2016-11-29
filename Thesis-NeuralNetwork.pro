@@ -10,6 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Thesis-NeuralNetwork
 TEMPLATE = app
+CONFIG += qt debug
 
 
 SOURCES += app/main.cpp \
@@ -22,9 +23,9 @@ SOURCES += app/main.cpp \
     src/datasegment.cpp \
     src/filewriter.cpp \
     src/dataresults.cpp \
-    src/quadraticcost.cpp \
-    src/cost.cpp \
-    src/crossentropycost.cpp \
+    src/cost/quadraticcost.cpp \
+    src/cost/cost.cpp \
+    src/cost/crossentropycost.cpp \
     src/window/networkcreationdialog.cpp
 
 HEADERS  += include/csvreader.h \
@@ -32,15 +33,16 @@ HEADERS  += include/csvreader.h \
     include/dataentry.h \
     include/network.h \
     include/neuron.h \
-    include/exercise.h \
     include/datacollection.h \
     include/datasegment.h \
     include/filewriter.h \
     include/dataresults.h \
-    include/quadraticcost.h \
-    include/cost.h \
-    include/crossentropycost.h \
-    include/window/networkcreationdialog.h
+    include/cost/quadraticcost.h \
+    include/cost/cost.h \
+    include/cost/crossentropycost.h \
+    include/window/networkcreationdialog.h \
+    include/enum/exercise.h \
+    include/enum/datatype.h
 
 FORMS    += res/layout/mainwindow.ui \
     res/layout/networkcreationdialog.ui

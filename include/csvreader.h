@@ -5,9 +5,10 @@
 #include <string>
 
 
-#include "dataentry.h"
-#include "exercise.h"
-#include "datacollection.h"
+#include "include/dataentry.h"
+#include "include/datacollection.h"
+
+#include "include/enum/exercise.h"
 
 /**
  * @brief The DataSet class

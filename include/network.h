@@ -1,10 +1,10 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include "neuron.h"
-#include "dataentry.h"
-#include "datacollection.h"
-#include "cost.h"
+#include "include/neuron.h"
+#include "include/dataentry.h"
+#include "include/datacollection.h"
+#include "include/cost/cost.h"
 
 
 

@@ -1,4 +1,4 @@
-#include "../include/csvreader.h"
+#include "include/csvreader.h"
 
 #include <algorithm>
 #include <cmath>

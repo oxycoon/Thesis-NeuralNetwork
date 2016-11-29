@@ -23,6 +23,9 @@ NetworkCreationDialog::~NetworkCreationDialog()
     {
          delete f;
     }
+    _hiddenComboBox.clear();
+    _hiddenLabel.clear();
+    _hiddenLineEdit.clear();
 
     delete ui;
 }
@@ -47,9 +50,16 @@ void NetworkCreationDialog::on_buttonBox_accepted()
     _numInput = ui->spinBox_input->value();
     _numOutput = ui->spinBox_output->value();
 
+    for(int i = 0; i < _numHiddenLayers; i++)
+    {
+        _numHidden.push_back(_hiddenLineEdit[i]->value());
+    }
 
+    QString name = ui->lineEdit_name->text();
 
-    emit signNetworkCreation(_numInput, _numHidden, _numOutput);
+    DataType type;
+
+    emit signNetworkCreation(_numInput, _numHidden, _numOutput, name, type);
 }
 
 void NetworkCreationDialog::updateHiddenLayerSection()

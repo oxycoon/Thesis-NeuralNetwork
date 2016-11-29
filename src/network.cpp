@@ -1,9 +1,9 @@
-#include "../include/network.h"
+#include "include/network.h"
 
-#include "../include/datasegment.h"
-#include "../include/dataresults.h"
-#include "../include/filewriter.h"
-#include "../include/quadraticcost.h"
+#include "include/datasegment.h"
+#include "include/dataresults.h"
+#include "include/filewriter.h"
+#include "include/cost/quadraticcost.h"
 
 #include <cmath>
 #include <ctime>

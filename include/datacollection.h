@@ -3,9 +3,10 @@
 
 #include <vector>
 
-#include "dataentry.h"
-#include "exercise.h"
-#include "datasegment.h"
+#include "include/dataentry.h"
+#include "include/datasegment.h"
+
+#include "include/enum/exercise.h"
 
 
 class DataCollection

@@ -1,4 +1,4 @@
-#include "../include/dataentry.h"
+#include "include/dataentry.h"
 
 #include <sstream>
 

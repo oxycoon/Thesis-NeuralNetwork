@@ -1,7 +1,7 @@
 #ifndef DATASEGMENT_H
 #define DATASEGMENT_H
 
-#include "dataentry.h"
+#include "include/dataentry.h"
 
 class DataSegment
 {

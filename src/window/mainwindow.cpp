@@ -20,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     _ui->filelistview->setModel(_fileModel);
     _ui->dirtreeview->setRootIndex(_dirModel->setRootPath(sPath));
     _ui->filelistview->setRootIndex(_fileModel->setRootPath(sPath));
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -60,5 +63,13 @@ void MainWindow::on_button_addFile_clicked()
 void MainWindow::on_pushButton_clicked()
 {
     NetworkCreationDialog* dialog = new NetworkCreationDialog(this);
+    //connect(dialog, SIGNAL(signNetworkCreation(int,std::vector<int>,int,QString)), this, signNetworkCreationRecieved);
+    connect(dialog, &NetworkCreationDialog::signNetworkCreation, this, &MainWindow::signNetworkCreationRecieved);
+
     dialog->show();
+}
+
+void MainWindow::signNetworkCreationRecieved(const int in, const std::vector<int> hidden, const int out, const QString name, const DataType type)
+{
+
 }

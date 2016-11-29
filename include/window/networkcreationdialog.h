@@ -7,6 +7,8 @@
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QComboBox>
 
+#include "include/enum/datatype.h"
+
 namespace Ui {
 class NetworkCreationDialog;
 }
@@ -20,7 +22,7 @@ public:
     ~NetworkCreationDialog();
 
 signals:
-    void signNetworkCreation(int input, std::vector<int> hidden, int output);
+    void signNetworkCreation(int input, std::vector<int> hidden, int output, QString name, DataType type);
 
 private slots:
     void on_pushButton_clicked();

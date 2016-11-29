@@ -1,4 +1,4 @@
-#include "../include/dataresults.h"
+#include "include/dataresults.h"
 
 DataResults::DataResults()
 {

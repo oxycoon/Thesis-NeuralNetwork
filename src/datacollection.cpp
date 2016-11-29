@@ -1,4 +1,4 @@
-#include "../include/datacollection.h"
+#include "include/datacollection.h"
 
 #include <iostream>
 #include <algorithm>
