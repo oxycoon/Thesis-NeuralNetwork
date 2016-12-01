@@ -4,7 +4,7 @@
 
 QuadraticCost::QuadraticCost()
 {
-
+    _calculatorType = CostCalc::Quadratic;
 }
 
 /**

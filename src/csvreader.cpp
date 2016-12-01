@@ -163,7 +163,7 @@ bool CSVReader::readCSVFile(const char *path, int entries,
     _separator = separator;
     _numEntries = entries;
 
-    _numberDataSet = 1;
+    _numberDataSet = 0;
 
     std::fstream file;
     file.open(path, std::ios::in);
@@ -195,6 +195,7 @@ bool CSVReader::readCSVFile(const char *path, int entries,
                         if(temp->getDataType(9) != DataType::BAR)
                         {
                             output.addToCollection(temp);
+                            _numberDataSet++;
                         }
                         else
                         {
@@ -204,6 +205,8 @@ bool CSVReader::readCSVFile(const char *path, int entries,
                 }
             }
         }
+        QString message = "File " + QString::fromStdString(path) + " successfully read. " + _numberDataSet + " entries.\n";
+        emit signFileReadComplete(message);
         file.close();
         return true;
     }

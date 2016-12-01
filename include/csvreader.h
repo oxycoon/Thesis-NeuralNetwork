@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 
+#include <QtCore>
 
 #include "include/dataentry.h"
 #include "include/datacollection.h"
@@ -16,6 +17,7 @@
  *  Container class for the data sets.
  */
 class DataSet{
+
 public:
     std::vector<DataEntry*> _trainingSet;
     std::vector<DataEntry*> _testingSet;
@@ -32,8 +34,9 @@ public:
  *
  *  Class to read a CSV file
  */
-class CSVReader
+class CSVReader : public QObject
 {
+    Q_OBJECT
 public:
     CSVReader();
     ~CSVReader();
@@ -60,6 +63,10 @@ private:
     char* _separator;
 
     DataEntry* readLine(const std::string &line, Exercise ex);
+
+signals:
+    void signFileReadComplete(const QString &message);
+
 };
 
 #endif // CSVREADER_H

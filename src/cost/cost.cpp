@@ -4,3 +4,8 @@ Cost::Cost()
 {
 
 }
+
+CostCalc Cost::getCalculatorType()
+{
+    return _calculatorType;
+}

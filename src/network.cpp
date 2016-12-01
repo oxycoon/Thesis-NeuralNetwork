@@ -21,7 +21,7 @@ Network::Network()
     //Network(1,1,1,new QuadraticCost(), DataType::UK);
 }
 
-Network::Network(int in, int out, int hidden, DataType networkType, Cost* cost, std::string name)
+Network::Network(int in, int hidden, int out, Cost* cost, DataType networkType, std::string name)
 {
 
 }
@@ -63,7 +63,7 @@ Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int out
     std::cout << "Network ready for use!" << std::endl;
 }
 
-Network::Network(int in, int out, std::vector<int> hidden, Cost* cost, DataType networkType, std::string name):
+Network::Network(int in, std::vector<int> hidden, int out, Cost* cost, DataType networkType, std::string name):
     _countInput(in), _countHidden(hidden), _countOutput(out), _networkType(networkType),
     _trainingSetAccuracy(0), _testingSetAccuracy(0), _trainingSetError(0), _testingSetError(100),
     _epoch(0), _numHiddenLayers(hidden.size()), _networkName(name), _costCalculator(cost)
@@ -84,6 +84,14 @@ Network::Network(int in, int out, std::vector<int> hidden, Cost* cost, DataType 
     _distribution = std::normal_distribution<double>(GAUSSIAN_MEAN, GAUSSIAN_DEVIATON);
 
     std::cout << "Network ready for use!" << std::endl;
+    std::cout << "-- Input nodes: " << _countInput << std::endl;
+    std::cout << "-- Hidden nodes: ";
+    for(int i = 0; i < _numHiddenLayers; i++)
+    {
+        std::cout << _countHidden[i] << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "-- Output nodes: " << _countOutput << std::endl << std::endl;
 }
 
 
@@ -147,6 +155,37 @@ void Network::useStochasticLearning()
     _useBatch = false;
 }
 
+/*void Network::editNetwork(int in, std::vector<int> hidden, int out, std::string name, DataType type, Cost *calc)
+{
+    for(auto it = _input.begin(); it != _input.end(); it++)
+    {
+        delete *it;
+    }
+    _input.clear();
+
+    for(int i = 0; i < _numHiddenLayers; i++)
+    {
+        for(auto it = _hidden[i].begin(); it != _hidden[i].end(); it++)
+        {
+            delete *it;
+        }
+        _hidden[i].clear();
+    }
+    _hidden.clear();
+
+    for(auto it = _output.begin(); it != _output.end(); it++)
+    {
+        delete *it;
+    }
+    _output.clear();
+
+    _hiddenErrorGradient.clear();
+    _outputErrorGradient.clear();
+    delete _costCalculator;
+
+    Network(in, hidden, out, calc, type, name);
+}*/
+
 //================================================
 //                  Getters
 //================================================
@@ -168,6 +207,16 @@ std::vector<double> Network::getOutputResults() const
     return results;
 }
 
+int Network::getInputCount() const
+{
+    return _countInput;
+}
+
+std::vector<int> Network::getHiddenCount() const
+{
+    return _countHidden;
+}
+
 int Network::getOutputCount() const
 {
     return _countOutput;
@@ -176,6 +225,16 @@ int Network::getOutputCount() const
 DataType Network::getNetworkType() const
 {
     return _networkType;
+}
+
+CostCalc Network::getNetworkCostCalc() const
+{
+    return _costCalculator->getCalculatorType();
+}
+
+std::string Network::getNetworkName() const
+{
+    return _networkName;
 }
 
 //================================================

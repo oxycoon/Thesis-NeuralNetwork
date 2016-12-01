@@ -30,9 +30,9 @@ class Network
 {
 public:
     Network();
-    Network(int in, int out, int hidden, DataType networkType, Cost* cost, std::string name="");
+    Network(int in, int hidden, int out, Cost* cost, DataType networkType, std::string name="");
     Network(std::vector<Network*> inputs, std::vector<int> hidden, int out, Cost* cost,  std::string name="");
-    Network(int in, int out, std::vector<int> hidden, Cost* cost, DataType networkType = DataType::UK, std::string name="");
+    Network(int in, std::vector<int> hidden, int out, Cost* cost, DataType networkType = DataType::UK, std::string name="");
     ~Network();
 
     void setLearningParameters(double learningRate, double momentum);
@@ -42,10 +42,17 @@ public:
     void useBatchLearning();
     void useStochasticLearning();
 
+    //void                    editNetwork(int in, std::vector<int> hidden, int out,
+    //                                    std::string name, DataType type, Cost* calc);
+
     std::vector<Neuron*>    getOutputNeurons() const;
     std::vector<double>     getOutputResults() const;
+    int                     getInputCount() const;
+    std::vector<int>        getHiddenCount() const;
     int                     getOutputCount() const;
     DataType                getNetworkType() const;
+    CostCalc                getNetworkCostCalc() const;
+    std::string             getNetworkName() const;
 
     void resetNetwork();
 

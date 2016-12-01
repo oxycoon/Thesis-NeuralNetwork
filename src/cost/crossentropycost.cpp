@@ -4,7 +4,7 @@
 
 CrossEntropyCost::CrossEntropyCost()
 {
-
+    _calculatorType = CostCalc::CrossEntropy;
 }
 
 double CrossEntropyCost::calculateCost(double output, double target)

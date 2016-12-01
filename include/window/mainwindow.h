@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QtCore>
 #include <QFileSystemModel>
+#include <QListWidgetItem>
 
 #include "include/network.h"
 #include "include/csvreader.h"
@@ -23,11 +24,12 @@ public:
     ~MainWindow();
 
 private:
-    Ui::MainWindow*     _ui;
-    Network*            _network;
-    CSVReader*          _reader;
+    Ui::MainWindow*         _ui;
+    std::vector<Network*>   _networkList;
+    CSVReader*              _reader;
 
     QString             _selectedFile;
+    int                 _selectedNetwork;
 
     std::vector<DataCollection>     _collections;
     std::vector<QString>            _fileNames;
@@ -40,21 +42,25 @@ private:
 
 public slots:
 
-
 protected slots:
-    void            onButtonPress();
 
 private slots:
-
-
     void on_dirtreeview_clicked(const QModelIndex &index);
     void on_filelistview_clicked(const QModelIndex &index);
     void on_button_addFile_clicked();
     void on_pushButton_clicked();
 
-    void signNetworkCreationRecieved(const int in, const std::vector<int> hidden,
+    void signRecievedNetworkCreation(const int in, const std::vector<int> hidden,
                                      const int out, const QString name, const DataType type,
                                      const CostCalc calc);
+    void signRecievedNetworkEdit(const int index, const int in, const std::vector<int> hidden,
+                                     const int out, const QString name, const DataType type,
+                                     const CostCalc calc);
+    void signRecievedFileReadComplete(const QString &message);
+
+    void on_listWidget_networkList_itemClicked(QListWidgetItem *item);
+
+    void on_pushButton_2_clicked();
 
 signals:
     /*void      signViewportChanged( const QString& name, const QRectF& size );

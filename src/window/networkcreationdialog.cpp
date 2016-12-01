@@ -7,6 +7,7 @@ NetworkCreationDialog::NetworkCreationDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     updateHiddenLayerSection();
+    _isEditing = false;
 }
 
 NetworkCreationDialog::~NetworkCreationDialog()
@@ -30,6 +31,51 @@ NetworkCreationDialog::~NetworkCreationDialog()
     delete ui;
 }
 
+void NetworkCreationDialog::editNetwork(int index, int input, std::vector<int> hidden, int output, QString name, DataType type, CostCalc calc)
+{
+    _isEditing = true;
+    _index = index;
+
+    ui->tabWidget->setTabEnabled(1, false);
+    ui->tabWidget->setTabText(0, "Edit network");
+
+    ui->spinBox_input->setValue(input);
+    ui->spinBox_output->setValue(output);
+    ui->lineEdit_name->setText(name);
+
+    _numHiddenLayers = hidden.size();
+    updateHiddenLayerSection();
+    updateHiddenLayerValues(hidden);
+
+    switch(type)
+    {
+    case DataType::ACCELEROMETER:
+        ui->comboBox_netType->setCurrentIndex(0);
+        break;
+    case DataType::GYRO:
+        ui->comboBox_netType->setCurrentIndex(1);
+        break;
+    case DataType::COMPASS:
+        ui->comboBox_netType->setCurrentIndex(2);
+        break;
+    case DataType::UK:
+        ui->comboBox_netType->setCurrentIndex(3);
+        break;
+    }
+
+    index = ui->comboBox_cost->currentIndex();
+    switch(calc)
+    {
+    case CostCalc::Quadratic:
+        ui->comboBox_cost->setCurrentIndex(0);
+        break;
+    case CostCalc::CrossEntropy:
+        ui->comboBox_cost->setCurrentIndex(1);
+        break;
+    }
+
+}
+
 void NetworkCreationDialog::on_pushButton_clicked()
 {
     _numHiddenLayers++;
@@ -47,12 +93,14 @@ void NetworkCreationDialog::on_pushButton_2_clicked()
 
 void NetworkCreationDialog::on_buttonBox_accepted()
 {
-    _numInput = ui->spinBox_input->value();
-    _numOutput = ui->spinBox_output->value();
+    int numInput = ui->spinBox_input->value();
+    int numOutput = ui->spinBox_output->value();
+
+    std::vector<int> numHidden;
 
     for(int i = 0; i < _numHiddenLayers; i++)
     {
-        _numHidden.push_back(_hiddenLineEdit[i]->value());
+        numHidden.push_back(_hiddenLineEdit[i]->value());
     }
 
     QString name = ui->lineEdit_name->text();
@@ -89,7 +137,17 @@ void NetworkCreationDialog::on_buttonBox_accepted()
         break;
     }
 
-    emit signNetworkCreation(_numInput, _numHidden, _numOutput, name, type, calc);
+    if(_activeTab = 0)
+    {
+        if(!_isEditing)
+            emit signNetworkCreation(numInput, numHidden, numOutput, name, type, calc);
+        else
+            emit signNetworkEdit(_index, numInput, numHidden, numOutput, name, type, calc);
+    }
+    else if(_activeTab = 1)
+    {
+
+    }
 }
 
 void NetworkCreationDialog::updateHiddenLayerSection()
@@ -110,6 +168,7 @@ void NetworkCreationDialog::updateHiddenLayerSection()
 
             QSpinBox* box = new QSpinBox(this);
             box->setObjectName(boxName);
+            box->setMinimum(1);
 
             QComboBox* cbox = new QComboBox(this);
             cbox->setObjectName(comboName);
@@ -137,4 +196,21 @@ void NetworkCreationDialog::updateHiddenLayerSection()
         _hiddenLineEdit.pop_back();
     }
     this->adjustSize();
+}
+
+void NetworkCreationDialog::updateHiddenLayerValues(std::vector<int> hidden)
+{
+    for(int i = 0; i < hidden.size(); i++)
+    {
+        QString layerNumString = QString::number(i+1);
+        QString boxName = "spinBox_hidden_"+layerNumString;
+        QSpinBox *box = this->findChild<QSpinBox*>(boxName);
+        Q_ASSERT(box);
+        box->setValue(hidden[i]);
+    }
+}
+
+void NetworkCreationDialog::on_tabWidget_tabBarClicked(int index)
+{
+    _activeTab = index;
 }
