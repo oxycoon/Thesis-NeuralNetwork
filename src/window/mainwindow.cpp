@@ -36,6 +36,17 @@ MainWindow::~MainWindow()
     delete _reader;
 }
 
+std::vector<QString> MainWindow::getNetworkNames()
+{
+    std::vector<QString> result;
+
+    for(int i = 0; i < _networkList.size(); i++)
+    {
+        result.push_back(QString::fromStdString(_networkList.at(i)->getNetworkName()));
+    }
+    return result;
+}
+
 void MainWindow::on_dirtreeview_clicked(const QModelIndex &index)
 {
     QString sPath = _dirModel->fileInfo(index).absoluteFilePath();
@@ -63,7 +74,9 @@ void MainWindow::on_button_addFile_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
-    NetworkCreationDialog* dialog = new NetworkCreationDialog(this);
+    std::vector<QString> names = getNetworkNames();
+
+    NetworkCreationDialog* dialog = new NetworkCreationDialog(this, &names);
     //connect(dialog, SIGNAL(signNetworkCreation(int,std::vector<int>,int,QString)), this, signNetworkCreationRecieved);
     connect(dialog, &NetworkCreationDialog::signNetworkCreation, this, &MainWindow::signRecievedNetworkCreation);
 

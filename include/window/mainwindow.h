@@ -37,8 +37,7 @@ private:
     QFileSystemModel*       _dirModel;
     QFileSystemModel*       _fileModel;
 
-
-    void            initializeNetwork();
+    std::vector<QString>    getNetworkNames();
 
 public slots:
 

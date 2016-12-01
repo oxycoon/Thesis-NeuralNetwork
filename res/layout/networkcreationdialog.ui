@@ -189,9 +189,6 @@
        <item row="4" column="0" colspan="3">
         <layout class="QGridLayout" name="gridLayout_hidden2"/>
        </item>
-       <item row="3" column="1" colspan="2">
-        <widget class="QListView" name="listView"/>
-       </item>
        <item row="2" column="1">
         <widget class="QComboBox" name="comboBox">
          <item>
@@ -221,6 +218,9 @@
           <string>Remove Hidden Layer</string>
          </property>
         </widget>
+       </item>
+       <item row="3" column="1" colspan="2">
+        <widget class="QListWidget" name="listWidget_networks"/>
        </item>
       </layout>
      </widget>

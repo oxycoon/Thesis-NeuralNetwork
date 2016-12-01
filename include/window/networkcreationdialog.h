@@ -19,7 +19,7 @@ class NetworkCreationDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit NetworkCreationDialog(QWidget *parent = 0);
+    explicit NetworkCreationDialog(QWidget *parent = 0, std::vector<QString>* networkNames = nullptr);
     ~NetworkCreationDialog();
 
     void editNetwork(int index, int input, std::vector<int> hidden,
@@ -29,7 +29,7 @@ signals:
                              int output, QString name, DataType type, CostCalc calc);
     void signNetworkEdit(int index, int input, std::vector<int> hidden,
                          int output, QString name, DataType type, CostCalc calc);
-    void signNetworkCreationFromSubs(int indexes, std::vector<int> hidden,
+    void signNetworkCreationFromSubs(std::vector<int> indexes, std::vector<int> hidden,
                                      int output, QString name, CostCalc calc);
 
 private slots:
@@ -45,6 +45,7 @@ private:
     std::vector<QSpinBox*>   _hiddenLineEdit;
     std::vector<QLabel*>     _hiddenLabel;
     std::vector<QComboBox*>  _hiddenComboBox;
+    std::vector<QString>*    _networkNames;
 
     int                 _numHiddenLayers = 1;
     int                 _index = -1;
@@ -53,6 +54,7 @@ private:
 
     void    updateHiddenLayerSection();
     void    updateHiddenLayerValues(std::vector<int> hidden);
+    void    populateNetworkNames();
 };
 
 #endif // NETWORKCREATIONDIALOG_H

@@ -1,12 +1,14 @@
 #include "../include/window/networkcreationdialog.h"
 #include "ui_networkcreationdialog.h"
 
-NetworkCreationDialog::NetworkCreationDialog(QWidget *parent) :
+NetworkCreationDialog::NetworkCreationDialog(QWidget *parent,std::vector<QString>* networkNames) :
     QDialog(parent),
-    ui(new Ui::NetworkCreationDialog)
+    ui(new Ui::NetworkCreationDialog),
+    _networkNames(networkNames)
 {
     ui->setupUi(this);
     updateHiddenLayerSection();
+    populateNetworkNames();
     _isEditing = false;
 }
 
@@ -137,14 +139,14 @@ void NetworkCreationDialog::on_buttonBox_accepted()
         break;
     }
 
-    if(_activeTab = 0)
+    if(_activeTab == 0)
     {
         if(!_isEditing)
             emit signNetworkCreation(numInput, numHidden, numOutput, name, type, calc);
         else
             emit signNetworkEdit(_index, numInput, numHidden, numOutput, name, type, calc);
     }
-    else if(_activeTab = 1)
+    else if(_activeTab == 1)
     {
 
     }
@@ -207,6 +209,31 @@ void NetworkCreationDialog::updateHiddenLayerValues(std::vector<int> hidden)
         QSpinBox *box = this->findChild<QSpinBox*>(boxName);
         Q_ASSERT(box);
         box->setValue(hidden[i]);
+    }
+}
+
+void NetworkCreationDialog::populateNetworkNames()
+{
+    if(_networkNames != nullptr)
+    {
+        if(_networkNames->size() > 0)
+        {
+            for(int i = 0; i < _networkNames->size(); i++)
+            {
+                QListWidgetItem *item = new QListWidgetItem(_networkNames->at(i));
+                item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+                item->setCheckState(Qt::Unchecked);
+                ui->listWidget_networks->addItem(item);
+            }
+        }
+        else
+        {
+            ui->listWidget_networks->addItem(QString("NO NETWORKS FOUND"));
+        }
+    }
+    else
+    {
+        ui->listWidget_networks->addItem(QString("NO NETWORKS FOUND"));
     }
 }
 
