@@ -137,7 +137,7 @@ void DataEntry::initializeTypes()
 {
     for(int i = 0; i < _size; i++)
     {
-        _types.push_back(DataType::NO_DATA);
+        _types.push_back(DataType::NODATA);
     }
 }
 

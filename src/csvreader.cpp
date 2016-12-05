@@ -254,7 +254,7 @@ DataEntry* CSVReader::readLine(const std::string &line, Exercise ex)
 
     while(token != NULL && i < _numEntries+1)
     {
-        DataType tempTy = DataType::NO_DATA;
+        DataType tempTy = DataType::NODATA;
         if(i == 0)
         {
             timestamp = std::atoll(token);
@@ -279,7 +279,7 @@ DataEntry* CSVReader::readLine(const std::string &line, Exercise ex)
                 else if(match[0] == "CY")   {tempTy = DataType::COM_Y; temp.erase(temp.size()-2, temp.size());}
                 else if(match[0] == "CZ")   {tempTy = DataType::COM_Z; temp.erase(temp.size()-2, temp.size());}
                 else if(match[0] == "BAR")  {tempTy = DataType::BAR; temp.erase(temp.size()-3, temp.size());}
-                else if(match[0] == "UK")   {tempTy = DataType::NO_DATA;}
+                else if(match[0] == "UK")   {tempTy = DataType::NODATA;}
             }
             type[i-1] = tempTy;
             pattern[i-1] = std::stod(temp);

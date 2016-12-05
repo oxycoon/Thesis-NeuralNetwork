@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets datavisualization printsupport
 
 TARGET = Thesis-NeuralNetwork
 TEMPLATE = app
@@ -23,6 +23,7 @@ SOURCES += app/main.cpp \
     src/datasegment.cpp \
     src/filewriter.cpp \
     src/dataresults.cpp \
+    src/qcustomplot/qcustomplot.cpp \
     src/cost/quadraticcost.cpp \
     src/cost/cost.cpp \
     src/cost/crossentropycost.cpp \
@@ -37,6 +38,7 @@ HEADERS  += include/csvreader.h \
     include/datasegment.h \
     include/filewriter.h \
     include/dataresults.h \
+    include/qcustomplot/qcustomplot.h \
     include/cost/quadraticcost.h \
     include/cost/cost.h \
     include/cost/crossentropycost.h \

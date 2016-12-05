@@ -315,7 +315,7 @@ void Network::resetNetwork()
     std::cout << "Closing system." << std::endl;
 }*/
 
-void Network::runTraining(const DataCollection &set)
+void Network::runTraining(const DataCollection &set, bool trainSubnetsFirst)
 {
     /*std::cout << "Neural network training starting " << std::endl
               << "======================================================================" << std::endl
@@ -325,11 +325,12 @@ void Network::runTraining(const DataCollection &set)
               << "======================================================================" << std::endl;*/
     DataResults results;
     _epoch = 0;
+    _trainSubnetsFirst = trainSubnetsFirst;
     if(_trainSubnetsFirst && _subNetworks.size() > 0)
     {
         for(int i = 0; i < _subNetworks.size(); i++)
         {
-            _subNetworks[i]->runTraining(set);
+            _subNetworks[i]->runTraining(set, _trainSubnetsFirst);
         }
     }
 

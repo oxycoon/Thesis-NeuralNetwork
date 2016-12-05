@@ -57,7 +57,7 @@ public:
     void resetNetwork();
 
     //void runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet);
-    void runTraining(const DataCollection &set);
+    void runTraining(const DataCollection &set, bool trainSubnetsFirst = true);
 
 protected:
     DataType _networkType;

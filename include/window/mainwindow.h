@@ -5,6 +5,7 @@
 #include <QtCore>
 #include <QFileSystemModel>
 #include <QListWidgetItem>
+#include <QtDataVisualization>
 
 #include "include/network.h"
 #include "include/csvreader.h"
@@ -47,7 +48,14 @@ private slots:
     void on_dirtreeview_clicked(const QModelIndex &index);
     void on_filelistview_clicked(const QModelIndex &index);
     void on_button_addFile_clicked();
-    void on_pushButton_clicked();
+    void on_pushButton_network_create_clicked();
+    void on_pushButton_network_edit_clicked();
+    void on_pushButton_network_delete_clicked();
+
+    void on_listWidget_networkList_itemClicked(QListWidgetItem *item);
+
+
+
 
     void signRecievedNetworkCreation(const int in, const std::vector<int> hidden,
                                      const int out, const QString name, const DataType type,
@@ -57,9 +65,7 @@ private slots:
                                      const CostCalc calc);
     void signRecievedFileReadComplete(const QString &message);
 
-    void on_listWidget_networkList_itemClicked(QListWidgetItem *item);
 
-    void on_pushButton_2_clicked();
 
 signals:
     /*void      signViewportChanged( const QString& name, const QRectF& size );

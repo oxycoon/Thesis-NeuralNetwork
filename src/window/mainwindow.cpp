@@ -5,6 +5,8 @@
 #include "include/cost/quadraticcost.h"
 #include "include/cost/crossentropycost.h"
 
+#include <iostream>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     _ui(new Ui::MainWindow),
@@ -72,7 +74,7 @@ void MainWindow::on_button_addFile_clicked()
     }
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pushButton_network_create_clicked()
 {
     std::vector<QString> names = getNetworkNames();
 
@@ -107,6 +109,8 @@ void MainWindow::signRecievedNetworkEdit(const int index, const int in, const st
     delete _networkList[index];
     _networkList[index] = new Network(in, hidden, out, costCalculator, type, name.toStdString());
 
+     _ui->listWidget_networkList->item(index)->setText(name);
+
     int d = 0;
 }
 
@@ -120,7 +124,7 @@ void MainWindow::on_listWidget_networkList_itemClicked(QListWidgetItem *item)
     _selectedNetwork = _ui->listWidget_networkList->row(item);
 }
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::on_pushButton_network_edit_clicked()
 {
     if(_selectedNetwork != -1)
     {
@@ -142,5 +146,17 @@ void MainWindow::on_pushButton_2_clicked()
         connect(dialog, &NetworkCreationDialog::signNetworkEdit, this, &MainWindow::signRecievedNetworkEdit);
         dialog->editNetwork(_selectedNetwork, input, hidden, output, name, type, calc);
         dialog->show();
+    }
+}
+
+void MainWindow::on_pushButton_network_delete_clicked()
+{
+    if(_selectedNetwork != -1)
+    {
+        std::cout << "Elements in list: " << _networkList.size() << std::endl;
+        _ui->listWidget_networkList->model()->removeRow(_selectedNetwork);
+        delete _networkList[_selectedNetwork];
+        _networkList.erase(_networkList.begin() + _selectedNetwork);
+        std::cout << "Elements in list: " << _networkList.size() << std::endl;
     }
 }

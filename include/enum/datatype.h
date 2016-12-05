@@ -13,12 +13,12 @@ enum DataType
     GYR_Y,
     GYR_Z,
     BAR,
-    NO_DATA,
-    UK,
-    GYRO,
-    ACCELEROMETER,
-    BAROMETER,
-    COMPASS
+    NODATA,
+    UK,             // Unknown data or Unknown Network type
+    GYRO,           // Network Type
+    ACCELEROMETER,  // Network Type
+    BAROMETER,      // Network Type
+    COMPASS         // Network Type
 };
 
 #endif // DATATYPE_H
