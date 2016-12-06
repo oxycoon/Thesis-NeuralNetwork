@@ -61,6 +61,7 @@ Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int out
     _distribution = std::normal_distribution<double>(GAUSSIAN_MEAN, GAUSSIAN_DEVIATON);
 
     std::cout << "Network ready for use!" << std::endl;
+    sendConsoleMessage(QString("Network ready!"));
 }
 
 Network::Network(int in, std::vector<int> hidden, int out, Cost* cost, DataType networkType, std::string name):
@@ -68,36 +69,16 @@ Network::Network(int in, std::vector<int> hidden, int out, Cost* cost, DataType 
     _trainingSetAccuracy(0), _testingSetAccuracy(0), _trainingSetError(0), _testingSetError(100),
     _epoch(0), _numHiddenLayers(hidden.size()), _networkName(name), _costCalculator(cost)
 {
-    setupNeurons();
-    setupWeights();
-    setupDeltas();
-    setupErrorGradients();
-    initWeights();
 
-    _maxEpochs = MAX_EPOCHS;
-    _targetAccuracy = TARGET_ACCURACY;
-    _learningRate = LEARNING_RATE;
-    _momentum = MOMENTUM;
-
-    _useBatch = false;
-
-    _distribution = std::normal_distribution<double>(GAUSSIAN_MEAN, GAUSSIAN_DEVIATON);
-
-    std::cout << "Network ready for use!" << std::endl;
-    std::cout << "-- Input nodes: " << _countInput << std::endl;
-    std::cout << "-- Hidden nodes: ";
-    for(int i = 0; i < _numHiddenLayers; i++)
-    {
-        std::cout << _countHidden[i] << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "-- Output nodes: " << _countOutput << std::endl << std::endl;
 }
 
 
 Network::~Network()
 {
-    std::cout << "DESTRUCTOR CALLED" << std::endl;
+    QString message;
+    message.append("DESTRUCTOR CALLED FOR: " + QString::fromStdString(_networkName) + "\n\n");
+    sendConsoleMessage(message);
+
     for(auto it = _input.begin(); it != _input.end(); it++)
     {
         delete *it;
@@ -251,6 +232,35 @@ void Network::resetNetwork()
     initWeights();
 }
 
+void Network::initNetwork()
+{
+    setupNeurons();
+    setupWeights();
+    setupDeltas();
+    setupErrorGradients();
+    initWeights();
+
+    _maxEpochs = MAX_EPOCHS;
+    _targetAccuracy = TARGET_ACCURACY;
+    _learningRate = LEARNING_RATE;
+    _momentum = MOMENTUM;
+
+    _useBatch = false;
+
+    _distribution = std::normal_distribution<double>(GAUSSIAN_MEAN, GAUSSIAN_DEVIATON);
+
+    QString message;
+    message.append("Network " + QString::fromStdString(_networkName) + " ready for use!\n");
+    message.append("-- Input nodes: " +QString::number(_countInput) +"+n");
+    message.append("-- Hidden nodes: ");
+    for(int i = 0; i < _numHiddenLayers; i++)
+    {
+        message.append(QString::number(_countHidden[i]) + " ");
+    }
+    message.append("\n-- Output nodes: " + QString::number(_countOutput) + "\n\n");
+    sendConsoleMessage(message);
+}
+
 /**
  * @brief Network::runTraining
  * @param trainingSet
@@ -355,23 +365,26 @@ void Network::runTraining(const DataCollection &set, bool trainSubnetsFirst)
         results.addResult(ResultType::VMSE, _testingSetError);
         results.addResult(ResultType::VA, _testingSetAccuracy);
 
+        emit signNetworkEpochComplete(_epoch, _trainingSetError, _trainingSetAccuracy,
+                                      _testingSetError, _testingSetAccuracy);
+
         //Checks for changes in the training and generalization set's accuracy, prints if there's a change
         if(PRINT_EPOCH_DATA)
         {
+            QString message;
+            message.append("Epoch: " + QString::number(_epoch));
+            message.append(" | Training set accuracy: " + QString::number(_trainingSetAccuracy) + "%, MSE: " + QString::number(_trainingSetError));
+            message.append(" | Generalized set accuracy: " + QString::number(_testingSetAccuracy) + "%, MSE: " + QString::number(_testingSetError));
             if(PRINT_EPOCH_DATA_ON_UPDATE_ONLY)
             {
                 if((std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy)))
                 {
-                    std::cout << "Epoch: " << _epoch;
-                    std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
-                    std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
+                    sendConsoleMessage(message);
                 }
             }
             else
             {
-                std::cout << "Epoch: " << _epoch;
-                std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
-                std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
+                sendConsoleMessage(message);
             }
         }
         //Increases epoch for next iteration.
@@ -951,8 +964,8 @@ double Network::calculateHiddenErrorGradient(int layer, int index)
 int Network::roundOutput(double output)
 {
     //TODO PROBABLY SOME PROBLEM HERE
-    if(output < 0.1) return 0;//Exercise::WALKING;
-    else if(output > 0.9) return 1;//Exercise::UNKNOWN;
+    if(output < 0.15) return 0;//Exercise::WALKING;
+    else if(output > 0.85) return 1;//Exercise::UNKNOWN;
     else return -1;
     //std::cout << output << std::endl;
 }
@@ -1017,5 +1030,10 @@ double Network::getSetError(const std::vector<DataSegment> &set)
 double Network::getGaussianNoise(double mean, double standardDeviation)
 {
     return _distribution(_generator);
+}
+
+void Network::sendConsoleMessage(const QString &message)
+{
+    emit signNetworkConsoleOutput(message);
 }
 

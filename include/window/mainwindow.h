@@ -11,6 +11,7 @@
 #include "include/csvreader.h"
 
 #include "include/enum/datatype.h"
+#include "include/qcustomplot/qcustomplot.h"
 
 namespace Ui {
 class MainWindow;
@@ -64,6 +65,9 @@ private slots:
                                      const int out, const QString name, const DataType type,
                                      const CostCalc calc);
     void signRecievedFileReadComplete(const QString &message);
+    void signRecievedConsoleOutput(const QString &message);
+    void signRecievedEpochComplete(const int epoch, const double trainingError, const double trainingAccuracy,
+                                   const double testingError, const double testingAccuracy);
 
 
 

@@ -6,7 +6,7 @@
 #include "include/datacollection.h"
 #include "include/cost/cost.h"
 
-
+#include <QtCore>
 
 #include <vector>
 #include <random>
@@ -26,8 +26,9 @@
 
 //Inspired by https://takinginitiative.wordpress.com/2008/04/23/basic-neural-network-tutorial-c-implementation-and-source-code/
 
-class Network
+class Network : public QObject
 {
+    Q_OBJECT
 public:
     Network();
     Network(int in, int hidden, int out, Cost* cost, DataType networkType, std::string name="");
@@ -55,6 +56,7 @@ public:
     std::string             getNetworkName() const;
 
     void resetNetwork();
+    void initNetwork();
 
     //void runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet);
     void runTraining(const DataCollection &set, bool trainSubnetsFirst = true);
@@ -161,10 +163,17 @@ private:
     int roundOutput(double output);
 
     //Non training set related functions
-    double getSetAccuracy(const std::vector<DataSegment>  &set);
-    double getSetError(const std::vector<DataSegment>  &set);
+    double getSetAccuracy(const std::vector<DataSegment> &set);
+    double getSetError(const std::vector<DataSegment> &set);
 
     double getGaussianNoise(double mean, double standardDeviation);
+
+    void sendConsoleMessage(const QString &message);
+
+signals:
+    void signNetworkEpochComplete(int epoch, double trainingError, double trainingAccuracy,
+                                  double testingError, double testingAccuracy);
+    void signNetworkConsoleOutput(const QString &message);
 
 };
 

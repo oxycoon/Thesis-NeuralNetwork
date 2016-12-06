@@ -28,8 +28,6 @@ MainWindow::MainWindow(QWidget *parent) :
     _ui->filelistview->setModel(_fileModel);
     _ui->dirtreeview->setRootIndex(_dirModel->setRootPath(sPath));
     _ui->filelistview->setRootIndex(_fileModel->setRootPath(sPath));
-
-
 }
 
 MainWindow::~MainWindow()
@@ -94,10 +92,13 @@ void MainWindow::signRecievedNetworkCreation(const int in,
     else if(calc == CostCalc::CrossEntropy) costCalculator = new CrossEntropyCost();
 
     Network* net = new Network(in, hidden, out, costCalculator, type, name.toStdString() );
+    connect(net, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net->initNetwork();
 
     _networkList.push_back(net);
-
     _ui->listWidget_networkList->addItem(name);
+
 }
 
 void MainWindow::signRecievedNetworkEdit(const int index, const int in, const std::vector<int> hidden, const int out, const QString name, const DataType type, const CostCalc calc)
@@ -110,13 +111,22 @@ void MainWindow::signRecievedNetworkEdit(const int index, const int in, const st
     _networkList[index] = new Network(in, hidden, out, costCalculator, type, name.toStdString());
 
      _ui->listWidget_networkList->item(index)->setText(name);
-
-    int d = 0;
 }
 
 void MainWindow::signRecievedFileReadComplete(const QString &message)
 {
     _ui->text_parseConsole->appendPlainText(message);
+    _ui->consoleOutput->appendPlainText(message);
+}
+
+void MainWindow::signRecievedConsoleOutput(const QString &message)
+{
+    _ui->consoleOutput->appendPlainText(message);
+}
+
+void MainWindow::signRecievedEpochComplete(const int epoch, const double trainingError, const double trainingAccuracy, const double testingError, const double testingAccuracy)
+{
+    //TODO: PLOT INTO GRAPH
 }
 
 void MainWindow::on_listWidget_networkList_itemClicked(QListWidgetItem *item)
