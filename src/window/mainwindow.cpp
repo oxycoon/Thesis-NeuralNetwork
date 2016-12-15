@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _ui->customplot_error->yAxis->setLabel("Error%");
     _ui->customplot_error->xAxis->setLabel("Epoch");
 
-    _ui->horizontalScrollBar_error->setRange(0,500);
+    _ui->horizontalScrollBar_error->setRange(0,100);
 
     DataCollection* collection = new DataCollection();
     connect(collection, &DataCollection::signDataCollectionConsoleOutput,
@@ -69,6 +69,21 @@ MainWindow::MainWindow(QWidget *parent) :
     _reader->readCSVFile("../res/docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
     _reader->readCSVFile("../res/docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
     _reader->readCSVFile("../res/docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+
+
+
+    QuadraticCost* cost = new QuadraticCost();
+    Network* net = new Network(16, {16,6}, 2, cost, DataType::ACCELEROMETER, "DefaultAccelerometer");
+    connect(net, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net->initNetwork();
+    net->setAutoDelete(false);
+
+    _networkList.push_back(net);
+    _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
+    _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
+
+
 
     collection->createTrainingTestSets(5, 15);
     _collections.push_back(collection);
@@ -343,6 +358,14 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
     {
          _ui->customplot_accuracy->xAxis->setRange(0.0, epoch);
 
+         int minRange = 0;
+         if(epoch - 100 > 0)
+         {
+             minRange = epoch - 100;
+         }
+          _ui->customplot_accuracy->xAxis->setRange(minRange, epoch);
+          _ui->horizontalScrollBar_accuracy->setRange(0,epoch);
+          _ui->horizontalScrollBar_accuracy->setValue(epoch);
     }
 
     if(epoch > _ui->customplot_error->xAxis->range().upper)
@@ -354,7 +377,10 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
         }
          _ui->customplot_error->xAxis->setRange(minRange, epoch);
          _ui->horizontalScrollBar_error->setRange(0,epoch);
+         _ui->horizontalScrollBar_error->setValue(epoch);
     }
+
+
 
     _ui->customplot_accuracy->graph(_currentGraphNetwork)->addData(epoch, trainingAccuracy);
     _ui->customplot_accuracy->graph(_currentGraphNetwork+1)->addData(epoch, testingAccuracy);
@@ -482,7 +508,9 @@ void MainWindow::on_pushButton_training_start_clicked()
     _currentGraphNetwork = 0;
 
     if(_ui->listWidget_training_collections->count() > 0 &&
-            _ui->listWidget_training_networks->count() > 0)
+            _ui->listWidget_training_networks->count() > 0 &&
+            _ui->listWidget_training_collections->selectedItems().size() != 0 &&
+             _ui->listWidget_training_networks->selectedItems().size() != 0 )
     {
         int i = _ui->listWidget_training_networks->currentRow();
 
@@ -525,9 +553,18 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_horizontalScrollBar_error_valueChanged(int value)
 {
-    if(qAbs(_ui->customplot_error->xAxis->range().center() - (value/500)) > 10)
+    if(qAbs(_ui->customplot_error->xAxis->range().lower - (value)) > 10)
     {
-        _ui->customplot_error->xAxis->setRange((value/500), _ui->customplot_error->xAxis->range().size(), Qt::AlignCenter);
+        _ui->customplot_error->xAxis->setRange(value, 100, Qt::AlignRight);
         _ui->customplot_error->replot();
+    }
+}
+
+void MainWindow::on_horizontalScrollBar_accuracy_valueChanged(int value)
+{
+    if(qAbs(_ui->customplot_error->xAxis->range().lower - (value)) > 10)
+    {
+        _ui->customplot_accuracy->xAxis->setRange(value, 100, Qt::AlignRight);
+        _ui->customplot_accuracy->replot();
     }
 }

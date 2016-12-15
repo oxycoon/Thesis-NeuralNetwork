@@ -546,6 +546,9 @@ void Network::runTraining(DataCollection *set)
         results.addResult(ResultType::VMSE, _testingSetError);
         results.addResult(ResultType::VA, _testingSetAccuracy);
 
+        //Increases epoch for next iteration.
+        _epoch++;
+
         emit signNetworkEpochComplete(_id, _epoch, _trainingSetError, _trainingSetAccuracy,
                                       _testingSetError, _testingSetAccuracy);
 
@@ -570,8 +573,8 @@ void Network::runTraining(DataCollection *set)
                 std::cout << message.toStdString() << std::endl;
             }
         }
-        //Increases epoch for next iteration.
-         _epoch++;
+
+
 
         //Stops the training set if the generalization set's error starts increasing.
          //TODO Stop condition

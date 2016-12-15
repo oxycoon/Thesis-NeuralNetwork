@@ -102,6 +102,8 @@ private slots:
 
     void on_horizontalScrollBar_error_valueChanged(int value);
 
+    void on_horizontalScrollBar_accuracy_valueChanged(int value);
+
 signals:
     /*void      signViewportChanged( const QString& name, const QRectF& size );
     void      signMousePressed( const QString& name, QMouseEvent* event );
