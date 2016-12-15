@@ -340,25 +340,6 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
         _ui->customplot_error->graph(index_graph+1)->setName(errTesName);
     }
 
-    //TODO: PLOT INTO GRAPH
-    /*if(_ui->customplot_accuracy->graphCount() < 2*(_currentGraphNetwork+1))
-    {
-        _ui->customplot_accuracy->addGraph();
-        _ui->customplot_accuracy->addGraph();
-        _ui->customplot_accuracy->graph(_currentGraphNetwork)->setPen(QPen(Qt::red));
-        _ui->customplot_accuracy->graph(_currentGraphNetwork)->setName("Training Accuracy");
-        _ui->customplot_accuracy->graph(_currentGraphNetwork+1)->setName("Testing Accuracy");
-    }
-
-    if(_ui->customplot_error->graphCount() < 2*(_currentGraphNetwork+1))
-    {
-        _ui->customplot_error->addGraph();
-        _ui->customplot_error->addGraph();
-        _ui->customplot_error->graph(_currentGraphNetwork)->setPen(QPen(Qt::red));
-        _ui->customplot_error->graph(_currentGraphNetwork)->setName("Training Error");
-        _ui->customplot_error->graph(_currentGraphNetwork+1)->setName("Testing Error");
-    }*/
-
     if(epoch > _ui->customplot_accuracy->xAxis->range().upper)
     {
          _ui->customplot_accuracy->xAxis->setRange(0.0, epoch);
@@ -370,9 +351,8 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
          }
           _ui->customplot_accuracy->xAxis->setRange(minRange, epoch);
           _ui->horizontalScrollBar_accuracy->setRange(0,epoch);
-
     }
-    _ui->horizontalScrollBar_accuracy->setValue(epoch);
+    _ui->horizontalScrollBar_accuracy->setValue(epoch-100);
 
     if(epoch > _ui->customplot_error->xAxis->range().upper)
     {
@@ -385,20 +365,13 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
          _ui->horizontalScrollBar_error->setRange(0,epoch);
 
     }
-    _ui->horizontalScrollBar_error->setValue(epoch);
+    _ui->horizontalScrollBar_error->setValue(epoch-100);
 
     _ui->customplot_accuracy->graph(index_graph)->addData(epoch, trainingAccuracy);
     _ui->customplot_accuracy->graph(index_graph+1)->addData(epoch, testingAccuracy);
 
     _ui->customplot_error->graph(index_graph)->addData(epoch, trainingError*100);
     _ui->customplot_error->graph(index_graph+1)->addData(epoch, testingError*100);
-
-
-    /*_ui->customplot_accuracy->graph(_currentGraphNetwork)->addData(epoch, trainingAccuracy);
-    _ui->customplot_accuracy->graph(_currentGraphNetwork+1)->addData(epoch, testingAccuracy);
-
-    _ui->customplot_error->graph(_currentGraphNetwork)->addData(epoch, trainingError*100);
-    _ui->customplot_error->graph(_currentGraphNetwork+1)->addData(epoch, testingError*100);*/
 
     _ui->customplot_accuracy->replot();
     _ui->customplot_error->replot();
@@ -549,7 +522,7 @@ void MainWindow::on_pushButton_training_reset_clicked()
 
     if(_idsForNetworkGraphs.size() > 0)
     {
-        int graph_index = 0; //TODO FIND CORRECT GRAPH INDEX
+        int graph_index = 0;
         int networkId = _networkList[networkIndex]->getNetworkID();
 
         for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
@@ -561,13 +534,20 @@ void MainWindow::on_pushButton_training_reset_clicked()
                 break;
             }
         }
-        _ui->customplot_accuracy->xAxis->setRange(0,100);
-        _ui->customplot_error->xAxis->setRange(0,100);
 
         _ui->customplot_accuracy->removeGraph(graph_index+1);
         _ui->customplot_accuracy->removeGraph(graph_index);
         _ui->customplot_error->removeGraph(graph_index+1);
         _ui->customplot_error->removeGraph(graph_index);
+
+        if(_ui->customplot_accuracy->graphCount() == 0)
+        {
+            _ui->customplot_accuracy->xAxis->setRange(0, 100);
+        }
+        if(_ui->customplot_error->graphCount() == 0)
+        {
+            _ui->customplot_error->xAxis->setRange(0, 100);
+        }
 
         _ui->customplot_accuracy->replot();
         _ui->customplot_error->replot();
@@ -583,18 +563,18 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_horizontalScrollBar_error_valueChanged(int value)
 {
-    if(qAbs(_ui->customplot_error->xAxis->range().lower - (value)) > 10)
-    {
-        _ui->customplot_error->xAxis->setRange(value, 100, Qt::AlignRight);
+    //if(qAbs(_ui->customplot_error->xAxis->range().lower - (value)) > 1)
+    //{
+        _ui->customplot_error->xAxis->setRange(value, 100, Qt::AlignLeft);
         _ui->customplot_error->replot();
-    }
+    //}
 }
 
 void MainWindow::on_horizontalScrollBar_accuracy_valueChanged(int value)
 {
-    if(qAbs(_ui->customplot_error->xAxis->range().lower - (value)) > 10)
-    {
-        _ui->customplot_accuracy->xAxis->setRange(value, 100, Qt::AlignRight);
+    //if(qAbs(_ui->customplot_error->xAxis->range().lower - (value)) > 10)
+    //{
+        _ui->customplot_accuracy->xAxis->setRange(value, 100, Qt::AlignLeft);
         _ui->customplot_accuracy->replot();
-    }
+    //}
 }
