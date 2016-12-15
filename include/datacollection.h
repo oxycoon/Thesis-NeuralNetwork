@@ -1,16 +1,20 @@
 #ifndef DATACOLLECTION_H
 #define DATACOLLECTION_H
 
-#include <vector>
+
 
 #include "include/dataentry.h"
 #include "include/datasegment.h"
 
 #include "include/enum/exercise.h"
 
+#include <QtCore>
 
-class DataCollection
+#include <vector>
+
+class DataCollection : public QObject
 {
+    Q_OBJECT
 public:
     DataCollection();
     ~DataCollection();
@@ -23,6 +27,9 @@ public:
     void                        setExercise(const Exercise ex);
     std::vector<DataSegment>    getTestSet() const;
     std::vector<DataSegment>    getTrainingSet() const;
+    std::string                 getName() const;
+
+    void                        setName(const std::string name);
 
     void                        printCollection();
 
@@ -35,10 +42,15 @@ private:
     std::vector<DataSegment>    _trainingSet;
     std::vector<DataSegment>    _testSet;
 
+    std::string                 _name;
+
     int                         _trainingSetSize;
     int                         _testSetSize;
 
     bool                        getDataSegment(int startIndex, int size, DataSegment &output) const;
+
+signals:
+    void        signDataCollectionConsoleOutput(const QString &msg);
 };
 
 #endif // DATACOLLECTION_H

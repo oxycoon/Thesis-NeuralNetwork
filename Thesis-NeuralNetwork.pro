@@ -44,7 +44,8 @@ HEADERS  += include/csvreader.h \
     include/cost/crossentropycost.h \
     include/window/networkcreationdialog.h \
     include/enum/exercise.h \
-    include/enum/datatype.h
+    include/enum/datatype.h \
+    include/filename.h
 
 FORMS    += res/layout/mainwindow.ui \
     res/layout/networkcreationdialog.ui

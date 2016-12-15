@@ -73,7 +73,7 @@ void CSVReader::enableBarometer(bool enable)
  *
  *  Reads a .csv file with {numberInput} input variables and {numberOutput} output variables.
  */
-bool CSVReader::readCSVFile(const char *path, int entries, char* separator)
+bool CSVReader::readCSVFile(const char *path, int entries, const char* separator)
 {
     clearData();
 
@@ -158,7 +158,7 @@ bool CSVReader::readCSVFile(const char *path, int entries, char* separator)
  *  Reads a .csv file with {numberInput} input variables and {numberOutput} output variables.
  */
 bool CSVReader::readCSVFile(const char *path, int entries,
-                            char* separator, Exercise ex, DataCollection &output)
+                            const char* separator, Exercise ex, DataCollection *output)
 {
     _separator = separator;
     _numEntries = entries;
@@ -188,13 +188,13 @@ bool CSVReader::readCSVFile(const char *path, int entries,
 
                     if(_enableBarometer)
                     {
-                        output.addToCollection(temp);
+                        output->addToCollection(temp);
                     }
                     else
                     {
                         if(temp->getDataType(9) != DataType::BAR)
                         {
-                            output.addToCollection(temp);
+                            output->addToCollection(temp);
                             _numberDataSet++;
                         }
                         else
@@ -205,8 +205,9 @@ bool CSVReader::readCSVFile(const char *path, int entries,
                 }
             }
         }
-        QString message = "File " + QString::fromStdString(path) + " successfully read. " + _numberDataSet + " entries.\n";
+        QString message = "File " + QString::fromStdString(path) + " successfully read. " + QString::number(_numberDataSet) + " entries.";
         emit signFileReadComplete(message);
+        emit signFileReadConsoleOutput(message);
         file.close();
         return true;
     }

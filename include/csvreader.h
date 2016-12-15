@@ -45,8 +45,8 @@ public:
     DataSet* getDataSet();
     void        enableBarometer(bool enable);
 
-    bool readCSVFile(const char* path, int entries, char* separator);
-    bool readCSVFile(const char* path, int entries, char* separator, Exercise ex, DataCollection &output);
+    bool readCSVFile(const char* path, int entries, const char* separator);
+    bool readCSVFile(const char* path, int entries, const char* separator, Exercise ex, DataCollection *output);
     void clearData();
 
 private:
@@ -60,12 +60,13 @@ private:
 
     bool _enableBarometer; //disabled by defalt
 
-    char* _separator;
+    const char* _separator;
 
     DataEntry* readLine(const std::string &line, Exercise ex);
 
 signals:
     void signFileReadComplete(const QString &message);
+    void signFileReadConsoleOutput(const QString &message);
 
 };
 

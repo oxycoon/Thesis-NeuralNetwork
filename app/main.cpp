@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     reader.readCSVFile("../res/docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
     reader.readCSVFile("../res/docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
     reader.readCSVFile("../res/docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    collection.createTrainingTestSets(5, 0.33);
+    collection.createTrainingTestSets(5, 0.15);
     //collection2.createTrainingTestSets(5, 0.33);
 
     std::vector<int> hidden = {16,6};
@@ -55,13 +55,16 @@ int main(int argc, char *argv[])
     Network* net = new Network(16, hidden, 2, cost, DataType::ACCELEROMETER, "Accelerometer");
     Network* net2 = new Network(16, hidden, 2, cost, DataType::GYRO, "Gyroscope");
     Network* net3 = new Network(16, hidden, 2, cost, DataType::COMPASS, "Compass");
+    net->initNetwork();
+    net2->initNetwork();
+    net3->initNetwork();
     std::vector<Network*> subNets(3);
     subNets[0] = net;
     subNets[1] = net2;
     subNets[2] = net3;
 
     Network* net4 = new Network(subNets, hidden2, 2, cost, "Total");
-
+    net4->initNetwork();
     //net->runTraining(collection);
     //net2->runTraining(collection);
     net4->runTraining(collection);

@@ -13,20 +13,19 @@
 
 #define LEARNING_RATE 0.01
 #define MOMENTUM 0.90
-#define MAX_EPOCHS 1000
+#define MAX_EPOCHS 5000
 #define TARGET_ACCURACY 80
 #define PRINT_EPOCH_DATA true
-#define PRINT_EPOCH_DATA_ON_UPDATE_ONLY true
+#define PRINT_EPOCH_DATA_ON_UPDATE_ONLY false
 #define PRINT_TRAINING_DATA false
 #define WRITE_RESULTS_TO_FILE true
 
-#define USE_GAUSSIAN_NOISE true
 #define GAUSSIAN_MEAN 0.0
 #define GAUSSIAN_DEVIATON 0.10
 
-//Inspired by https://takinginitiative.wordpress.com/2008/04/23/basic-neural-network-tutorial-c-implementation-and-source-code/
 
-class Network : public QObject
+
+class Network : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
@@ -42,9 +41,13 @@ public:
     void setInputNeurons(std::vector<Neuron*> &input);
     void useBatchLearning();
     void useStochasticLearning();
-
-    //void                    editNetwork(int in, std::vector<int> hidden, int out,
-    //                                    std::string name, DataType type, Cost* calc);
+    void enableNoise(bool enable);
+    void setNoiseParameters(double noiseDeviation, double noiseMean = 0.0);
+    void setTrainSubNetworksFirst(bool enable);
+    void setDataCollection(DataCollection* collection);
+    void doTraining(bool enable);
+    void editNetwork(int in, std::vector<int> hidden, int out,
+                      std::string name, DataType type, Cost* calc);
 
     std::vector<Neuron*>    getOutputNeurons() const;
     std::vector<double>     getOutputResults() const;
@@ -54,15 +57,24 @@ public:
     DataType                getNetworkType() const;
     CostCalc                getNetworkCostCalc() const;
     std::string             getNetworkName() const;
+    bool                    hasSubNetworks() const;
+    std::vector<Network*>   getSubNetworks() const;
+    int                     getNetworkDepth(int depth = 1) const;
+    int                     getNetworkID() const;
+
 
     void resetNetwork();
     void initNetwork();
+    void initNetworkFromSub(std::vector<Network*> inputs);
 
     //void runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet);
-    void runTraining(const DataCollection &set, bool trainSubnetsFirst = true);
+    void runTraining(DataCollection *set);
+
+    void run();
 
 protected:
     DataType _networkType;
+    static int UNIQUE_ID;
 
     void feedForward(std::vector<double> inputs);
     void feedBackward(std::vector<double> targets);
@@ -72,6 +84,7 @@ private:
     //  Network name
     //******************************
     std::string                         _networkName;
+    int                                 _id;
 
     //******************************
     //  Network Neurons variables
@@ -117,8 +130,14 @@ private:
     double          _targetAccuracy;
     double          _learningRate;
     double          _momentum;
+    bool            _doTraining;
     bool            _useBatch;
     bool            _trainSubnetsFirst;
+    bool            _useNoise;
+    double          _noiseMean;
+    double          _noiseDeviation;
+
+    DataCollection* _dataCollection;
 
     //******************************
     //  Training and testing error and accuracy
@@ -166,14 +185,14 @@ private:
     double getSetAccuracy(const std::vector<DataSegment> &set);
     double getSetError(const std::vector<DataSegment> &set);
 
-    double getGaussianNoise(double mean, double standardDeviation);
+    double getGaussianNoise();
 
-    void sendConsoleMessage(const QString &message);
 
 signals:
-    void signNetworkEpochComplete(int epoch, double trainingError, double trainingAccuracy,
+    void signNetworkEpochComplete(int id, int epoch, double trainingError, double trainingAccuracy,
                                   double testingError, double testingAccuracy);
     void signNetworkConsoleOutput(const QString &message);
+    void signNetworkTrainingComplete();
 
 };
 

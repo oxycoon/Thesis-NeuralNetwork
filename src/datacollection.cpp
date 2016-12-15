@@ -47,6 +47,16 @@ std::vector<DataSegment> DataCollection::getTrainingSet() const
     return _trainingSet;
 }
 
+std::string DataCollection::getName() const
+{
+    return _name;
+}
+
+void DataCollection::setName(const std::string name)
+{
+    _name = name;
+}
+
 void DataCollection::printCollection()
 {
     for(int i = 0; i < _collection.size(); i++)
@@ -71,7 +81,7 @@ void DataCollection::createTrainingTestSets(int setSize, double trainingSize)
 
     std::random_shuffle(temp.begin(), temp.end());
 
-    int trainingDataEnd = (int)(trainingSize * temp.size());
+    int trainingDataEnd = (int)((trainingSize*0.01) * temp.size());
 
     for(int i = 0; i < trainingDataEnd; i++)
     {
@@ -86,6 +96,11 @@ void DataCollection::createTrainingTestSets(int setSize, double trainingSize)
     _trainingSetSize = _trainingSet.size();
     _testSetSize = _testSet.size();
 
+
+    QString msg = "Training and testing sests successfully created.\n";
+    msg.append("--Training sets: " + QString::number(_trainingSetSize) + "\n");
+    msg.append("--Test sets: " + QString::number(_testSetSize) + "\n\n");
+    emit signDataCollectionConsoleOutput(msg);
 }
 
 void DataCollection::addToCollection(DataEntry *data)

@@ -11,6 +11,8 @@
 #include <cstdlib>
 
 
+int Network::UNIQUE_ID = 0;
+
 //================================================
 //              Constructor/Destructor
 //================================================
@@ -23,7 +25,8 @@ Network::Network()
 
 Network::Network(int in, int hidden, int out, Cost* cost, DataType networkType, std::string name)
 {
-
+    _id = UNIQUE_ID;
+    UNIQUE_ID++;
 }
 
 Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int output, Cost* cost, std::string name):
@@ -32,36 +35,8 @@ Network::Network(std::vector<Network *> inputs, std::vector<int> hidden, int out
     _epoch(0), _numHiddenLayers(hidden.size()), _networkType(DataType::UK),
     _networkName(name), _costCalculator(cost)
 {
-    int inputCount = 0;
-    for(int i = 0; i < inputs.size(); i++)
-    {
-        inputCount += inputs[i]->getOutputCount();
-    }
-    _countInput = inputCount;
-    int tempIterator = 0;
-    _subNetworks = inputs;
-
-    setupNeurons();
-    for(int i = 0; i < inputs.size(); i++)
-    {
-        modifyInputs(inputs[i]->getOutputNeurons(), tempIterator);
-    }
-    setupWeights();
-    setupDeltas();
-    setupErrorGradients();
-    initWeights();
-
-    _maxEpochs = MAX_EPOCHS;
-    _targetAccuracy = TARGET_ACCURACY;
-    _learningRate = LEARNING_RATE;
-    _momentum = MOMENTUM;
-
-    _trainSubnetsFirst = true;
-    _useBatch = false;
-    _distribution = std::normal_distribution<double>(GAUSSIAN_MEAN, GAUSSIAN_DEVIATON);
-
-    std::cout << "Network ready for use!" << std::endl;
-    sendConsoleMessage(QString("Network ready!"));
+    _id = UNIQUE_ID;
+    UNIQUE_ID++;
 }
 
 Network::Network(int in, std::vector<int> hidden, int out, Cost* cost, DataType networkType, std::string name):
@@ -69,7 +44,8 @@ Network::Network(int in, std::vector<int> hidden, int out, Cost* cost, DataType 
     _trainingSetAccuracy(0), _testingSetAccuracy(0), _trainingSetError(0), _testingSetError(100),
     _epoch(0), _numHiddenLayers(hidden.size()), _networkName(name), _costCalculator(cost)
 {
-
+    _id = UNIQUE_ID;
+    UNIQUE_ID++;
 }
 
 
@@ -77,7 +53,7 @@ Network::~Network()
 {
     QString message;
     message.append("DESTRUCTOR CALLED FOR: " + QString::fromStdString(_networkName) + "\n\n");
-    sendConsoleMessage(message);
+    emit signNetworkConsoleOutput(message);
 
     for(auto it = _input.begin(); it != _input.end(); it++)
     {
@@ -114,26 +90,137 @@ void Network::setLearningParameters(double learningRate, double momentum)
 {
     _learningRate = learningRate;
     _momentum = momentum;
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->setLearningParameters(learningRate,momentum);
+        }
+    }
 }
 
 void Network::setMaxEpochs(unsigned int max)
 {
     _maxEpochs = max;
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->setMaxEpochs(max);
+        }
+    }
 }
 
 void Network::setTargetAccuracy(double target)
 {
     _targetAccuracy = target;
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->setTargetAccuracy(target);
+        }
+    }
 }
 
 void Network::useBatchLearning()
 {
     _useBatch = true;
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->useBatchLearning();
+        }
+    }
 }
 
 void Network::useStochasticLearning()
 {
     _useBatch = false;
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->useStochasticLearning();
+        }
+    }
+}
+
+void Network::enableNoise(bool enable)
+{
+    _useNoise = enable;
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->enableNoise(enable);
+        }
+    }
+}
+
+void Network::setNoiseParameters(double noiseDeviation, double noiseMean)
+{
+    _noiseDeviation = noiseDeviation;
+    _noiseMean = noiseMean;
+    _distribution = std::normal_distribution<double>(_noiseMean, _noiseDeviation);
+
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->setNoiseParameters(noiseDeviation, noiseMean);
+        }
+    }
+}
+
+void Network::setTrainSubNetworksFirst(bool enable)
+{
+    _trainSubnetsFirst = enable;
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->setTrainSubNetworksFirst(enable);
+        }
+    }
+}
+
+void Network::setDataCollection(DataCollection *collection)
+{
+    _dataCollection = collection;
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->setDataCollection(collection);
+        }
+    }
+}
+
+void Network::doTraining(bool enable)
+{
+    _doTraining = enable;
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->doTraining(enable);
+        }
+    }
+}
+
+void Network::editNetwork(int in, std::vector<int> hidden, int out, std::string name, DataType type, Cost *calc)
+{
+    _countInput = in;
+    _countHidden = hidden;
+    _countOutput = out;
+    _numHiddenLayers = hidden.size();
+    _networkName = name;
+    _networkType = type;
+    _costCalculator = calc;
+
+    initNetwork();
 }
 
 /*void Network::editNetwork(int in, std::vector<int> hidden, int out, std::string name, DataType type, Cost *calc)
@@ -215,7 +302,47 @@ CostCalc Network::getNetworkCostCalc() const
 
 std::string Network::getNetworkName() const
 {
-    return _networkName;
+    std::string result = _networkName;
+
+    int depth = getNetworkDepth();
+    for(int i = 0; i < depth; i++)
+    {
+        result.append("*");
+    }
+    return result;
+}
+
+bool Network::hasSubNetworks() const
+{
+    return (_subNetworks.size() > 0);
+}
+
+std::vector<Network *> Network::getSubNetworks() const
+{
+    return  _subNetworks;
+}
+
+int Network::getNetworkDepth(int depth) const
+{
+    //TODO: FIX
+    int result = depth;
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+
+        }
+        return result;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+int Network::getNetworkID() const
+{
+    return _id;
 }
 
 //================================================
@@ -230,6 +357,15 @@ std::string Network::getNetworkName() const
 void Network::resetNetwork()
 {
     initWeights();
+    if(hasSubNetworks())
+    {
+        for(int i = 0; i < _subNetworks.size(); i++)
+        {
+            _subNetworks[i]->resetNetwork();
+        }
+    }
+
+    emit signNetworkConsoleOutput(QString::fromStdString(_networkName) + " network reset!");
 }
 
 void Network::initNetwork()
@@ -240,6 +376,7 @@ void Network::initNetwork()
     setupErrorGradients();
     initWeights();
 
+    _doTraining = true;
     _maxEpochs = MAX_EPOCHS;
     _targetAccuracy = TARGET_ACCURACY;
     _learningRate = LEARNING_RATE;
@@ -251,14 +388,59 @@ void Network::initNetwork()
 
     QString message;
     message.append("Network " + QString::fromStdString(_networkName) + " ready for use!\n");
-    message.append("-- Input nodes: " +QString::number(_countInput) +"+n");
+    message.append("-- Input nodes: " +QString::number(_countInput) +"\n");
     message.append("-- Hidden nodes: ");
     for(int i = 0; i < _numHiddenLayers; i++)
     {
         message.append(QString::number(_countHidden[i]) + " ");
     }
     message.append("\n-- Output nodes: " + QString::number(_countOutput) + "\n\n");
-    sendConsoleMessage(message);
+    emit signNetworkConsoleOutput(message);
+}
+
+void Network::initNetworkFromSub(std::vector<Network*> inputs)
+{
+
+    int inputCount = 0;
+    for(int i = 0; i < inputs.size(); i++)
+    {
+        inputCount += inputs[i]->getOutputCount();
+    }
+    _countInput = inputCount;
+    int tempIterator = 0;
+    _subNetworks = inputs;
+
+    setupNeurons();
+    for(int i = 0; i < inputs.size(); i++)
+    {
+        modifyInputs(inputs[i]->getOutputNeurons(), tempIterator);
+    }
+    setupWeights();
+    setupDeltas();
+    setupErrorGradients();
+    initWeights();
+
+    _maxEpochs = MAX_EPOCHS;
+    _targetAccuracy = TARGET_ACCURACY;
+    _learningRate = LEARNING_RATE;
+    _momentum = MOMENTUM;
+    _noiseMean = GAUSSIAN_MEAN;
+    _noiseDeviation = GAUSSIAN_DEVIATON;
+
+    _trainSubnetsFirst = true;
+    _useBatch = false;
+    _distribution = std::normal_distribution<double>(_noiseMean, _noiseDeviation);
+
+    QString message;
+    message.append("Network " + QString::fromStdString(_networkName) + " ready for use!\n");
+    message.append("-- Input nodes: " +QString::number(_countInput) +"\n");
+    message.append("-- Hidden nodes: ");
+    for(int i = 0; i < _numHiddenLayers; i++)
+    {
+        message.append(QString::number(_countHidden[i]) + " ");
+    }
+    message.append("\n-- Output nodes: " + QString::number(_countOutput) + "\n\n");
+    emit signNetworkConsoleOutput(message);
 }
 
 /**
@@ -325,7 +507,7 @@ void Network::initNetwork()
     std::cout << "Closing system." << std::endl;
 }*/
 
-void Network::runTraining(const DataCollection &set, bool trainSubnetsFirst)
+void Network::runTraining(DataCollection *set)
 {
     /*std::cout << "Neural network training starting " << std::endl
               << "======================================================================" << std::endl
@@ -335,17 +517,16 @@ void Network::runTraining(const DataCollection &set, bool trainSubnetsFirst)
               << "======================================================================" << std::endl;*/
     DataResults results;
     _epoch = 0;
-    _trainSubnetsFirst = trainSubnetsFirst;
     if(_trainSubnetsFirst && _subNetworks.size() > 0)
     {
         for(int i = 0; i < _subNetworks.size(); i++)
         {
-            _subNetworks[i]->runTraining(set, _trainSubnetsFirst);
+            _subNetworks[i]->runTraining(set);
         }
     }
 
     //Runs training using training set for training and generalized set for testing
-    while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs)
+    while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs && _doTraining)
     {
         //std::cout << "New epoch, epoch #" << _epoch << std::endl;
 
@@ -354,18 +535,18 @@ void Network::runTraining(const DataCollection &set, bool trainSubnetsFirst)
         double oldTSMSE = _testingSetError;
 
         //Train the network with the training set
-        runTrainingEpoch(set.getTrainingSet());
+        runTrainingEpoch(set->getTrainingSet());
 
         //Gets the generalized set accuracy and MSE
-        _testingSetAccuracy = getSetAccuracy(set.getTestSet());
-        _testingSetError = getSetError(set.getTestSet());
+        _testingSetAccuracy = getSetAccuracy(set->getTestSet());
+        _testingSetError = getSetError(set->getTestSet());
 
         results.addResult(ResultType::TMSE, _trainingSetError);
         results.addResult(ResultType::TA, _trainingSetAccuracy);
         results.addResult(ResultType::VMSE, _testingSetError);
         results.addResult(ResultType::VA, _testingSetAccuracy);
 
-        emit signNetworkEpochComplete(_epoch, _trainingSetError, _trainingSetAccuracy,
+        emit signNetworkEpochComplete(_id, _epoch, _trainingSetError, _trainingSetAccuracy,
                                       _testingSetError, _testingSetAccuracy);
 
         //Checks for changes in the training and generalization set's accuracy, prints if there's a change
@@ -379,18 +560,21 @@ void Network::runTraining(const DataCollection &set, bool trainSubnetsFirst)
             {
                 if((std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy)))
                 {
-                    sendConsoleMessage(message);
+                    emit signNetworkConsoleOutput(message);
+                    std::cout << message.toStdString() << std::endl;
                 }
             }
             else
             {
-                sendConsoleMessage(message);
+                emit signNetworkConsoleOutput(message);
+                std::cout << message.toStdString() << std::endl;
             }
         }
         //Increases epoch for next iteration.
          _epoch++;
 
         //Stops the training set if the generalization set's error starts increasing.
+         //TODO Stop condition
         /*if(oldTSMSE < _testingSetError)
         {
             std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;
@@ -399,21 +583,23 @@ void Network::runTraining(const DataCollection &set, bool trainSubnetsFirst)
     }
     //std::cout << "Epochs ran: " << _epoch << std::endl;
 
-    //Run validation set
-    /*_validationSetAccuracy = getSetAccuracy(set.getValidationSet());
-    _validationSetError = getSetMSE(set.getValidationSet());*/
-
     if(WRITE_RESULTS_TO_FILE)
     {
         std::string name = _networkName + "_result.csv";
         FileWriter writer;
         writer.writeFile(name, results.toString());
     }
+    emit signNetworkTrainingComplete();
 
-    std::cout << std::endl << "Training Complete!!! - > Elapsed Epochs: " << _epoch << std::endl;
-    /*std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
+    /*std::cout << std::endl << "Training Complete!!! - > Elapsed Epochs: " << _epoch << std::endl;
+    std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
     std::cout << " Validation Set MSE: " << _validationSetError << std::endl << std::endl;
     std::cout << "Closing system." << std::endl;*/
+}
+
+void Network::run()
+{
+    runTraining(_dataCollection);
 }
 
 //================================================
@@ -695,9 +881,9 @@ void Network::feedForward(std::vector<double> input)
     //Sets input neurons to input values
     for(int i = 0; i < _countInput; i++)
     {
-        if(USE_GAUSSIAN_NOISE)
+        if(_useNoise && !hasSubNetworks())
         {
-            double gausNoise = input[i] * getGaussianNoise(GAUSSIAN_MEAN, GAUSSIAN_DEVIATON);
+            double gausNoise = input[i] * getGaussianNoise();
             _input[i]->setValue(input[i] + gausNoise);
         }
         else
@@ -963,11 +1149,9 @@ double Network::calculateHiddenErrorGradient(int layer, int index)
  */
 int Network::roundOutput(double output)
 {
-    //TODO PROBABLY SOME PROBLEM HERE
-    if(output < 0.15) return 0;//Exercise::WALKING;
-    else if(output > 0.85) return 1;//Exercise::UNKNOWN;
+    if(output < 0.1) return 0;
+    else if(output > 0.9) return 1;
     else return -1;
-    //std::cout << output << std::endl;
 }
 
 //================================================
@@ -1027,13 +1211,8 @@ double Network::getSetError(const std::vector<DataSegment> &set)
     //return 0.0;
 }
 
-double Network::getGaussianNoise(double mean, double standardDeviation)
+double Network::getGaussianNoise()
 {
     return _distribution(_generator);
-}
-
-void Network::sendConsoleMessage(const QString &message)
-{
-    emit signNetworkConsoleOutput(message);
 }
 
