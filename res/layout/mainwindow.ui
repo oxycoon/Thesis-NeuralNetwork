@@ -251,7 +251,7 @@
           <x>0</x>
           <y>0</y>
           <width>757</width>
-          <height>449</height>
+          <height>450</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_6">
@@ -320,7 +320,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="tab_error">
             <property name="minimumSize">
@@ -364,6 +364,13 @@
              <string>Accuracy</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_12">
+             <item row="1" column="0">
+              <widget class="QScrollBar" name="horizontalScrollBar_accuracy">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
              <item row="0" column="0">
               <widget class="QCustomPlot" name="customplot_accuracy" native="true">
                <property name="minimumSize">
@@ -374,11 +381,75 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
-              <widget class="QScrollBar" name="horizontalScrollBar_accuracy">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_graphdisplaysettings">
+            <attribute name="title">
+             <string>Display settings</string>
+            </attribute>
+            <layout class="QGridLayout" name="gridLayout_16">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item row="0" column="0">
+              <widget class="QScrollArea" name="scrollArea_2">
+               <property name="maximumSize">
+                <size>
+                 <width>400</width>
+                 <height>420</height>
+                </size>
                </property>
+               <property name="widgetResizable">
+                <bool>true</bool>
+               </property>
+               <widget class="QWidget" name="scrollAreaWidgetContents_graphdisplaysettings">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>0</y>
+                  <width>361</width>
+                  <height>418</height>
+                 </rect>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>361</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_15">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="horizontalSpacing">
+                  <number>5</number>
+                 </property>
+                 <property name="verticalSpacing">
+                  <number>2</number>
+                 </property>
+                </layout>
+               </widget>
               </widget>
              </item>
             </layout>

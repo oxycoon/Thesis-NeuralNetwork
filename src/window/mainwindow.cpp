@@ -288,56 +288,60 @@ void MainWindow::signRecievedConsoleOutput(const QString &message)
 
 void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const double trainingError, const double trainingAccuracy, const double testingError, const double testingAccuracy)
 {
-    /*bool checker = false;
-    int index;
-    for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
+    bool graphExists = false;
+    int index_graph; // graph index
+    if(_idsForNetworkGraphs.size() > 0)
     {
-        if(_idsForNetworkGraphs[i] == id)
+        for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
         {
-            checker = true;
-            break;
-            index = 2*i;
-        }
-    }
-    if(!checker)
-    {
-        _idsForNetworkGraphs.push_back(id);
-        index = 2 * (_idsForNetworkGraphs.size() - 1);
-
-        int index2;
-        for(int i = 0; i < _networkList.size(); i++)
-        {
-            if(_networkList[i]->getNetworkID() == id)
+            if(_idsForNetworkGraphs[i] == id)
             {
-                index2 = i;
+                graphExists = true;
+                index_graph = 2*i;
                 break;
             }
         }
+    }
 
-        QString accTraName = QString::fromStdString(_networkList[index2]->getNetworkName()) +
+    int index_network; //network index
+    for(int i = 0; i < _networkList.size(); i++)
+    {
+        if(_networkList[i]->getNetworkID() == id)
+        {
+            index_network = i;
+            break;
+        }
+    }
+
+    if(!graphExists)
+    {
+        _idsForNetworkGraphs.push_back(id);
+        index_graph = 2 * (_idsForNetworkGraphs.size() - 1);
+
+        QString accTraName = QString::fromStdString(_networkList[index_network]->getNetworkName()) +
                             " training accuracy";
-        QString accTesName = QString::fromStdString(_networkList[index2]->getNetworkName()) +
+        QString accTesName = QString::fromStdString(_networkList[index_network]->getNetworkName()) +
                             " testing accuracy";
-        QString errTraName = QString::fromStdString(_networkList[index2]->getNetworkName()) +
+
+        _ui->customplot_accuracy->addGraph();
+        _ui->customplot_accuracy->addGraph();
+        _ui->customplot_accuracy->graph(index_graph)->setPen(QPen(Qt::red));
+        _ui->customplot_accuracy->graph(index_graph)->setName(accTraName);
+        _ui->customplot_accuracy->graph(index_graph+1)->setName(accTesName);
+
+        QString errTraName = QString::fromStdString(_networkList[index_network]->getNetworkName()) +
                             " training error";
-        QString errTesName = QString::fromStdString(_networkList[index2]->getNetworkName()) +
+        QString errTesName = QString::fromStdString(_networkList[index_network]->getNetworkName()) +
                             " testing error";
-
-        _ui->customplot_accuracy->addGraph();
-        _ui->customplot_accuracy->addGraph();
-        _ui->customplot_accuracy->graph(index)->setPen(QPen(Qt::red));
-        _ui->customplot_accuracy->graph(index)->setName(accTraName);
-        _ui->customplot_accuracy->graph(index+1)->setName(accTesName);
-
         _ui->customplot_error->addGraph();
         _ui->customplot_error->addGraph();
-        _ui->customplot_error->graph(index)->setPen(QPen(Qt::red));
-        _ui->customplot_error->graph(index)->setName(errTraName);
-        _ui->customplot_error->graph(index+1)->setName(errTesName);
-    }*/
+        _ui->customplot_error->graph(index_graph)->setPen(QPen(Qt::red));
+        _ui->customplot_error->graph(index_graph)->setName(errTraName);
+        _ui->customplot_error->graph(index_graph+1)->setName(errTesName);
+    }
 
     //TODO: PLOT INTO GRAPH
-    if(_ui->customplot_accuracy->graphCount() < 2*(_currentGraphNetwork+1))
+    /*if(_ui->customplot_accuracy->graphCount() < 2*(_currentGraphNetwork+1))
     {
         _ui->customplot_accuracy->addGraph();
         _ui->customplot_accuracy->addGraph();
@@ -353,7 +357,8 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
         _ui->customplot_error->graph(_currentGraphNetwork)->setPen(QPen(Qt::red));
         _ui->customplot_error->graph(_currentGraphNetwork)->setName("Training Error");
         _ui->customplot_error->graph(_currentGraphNetwork+1)->setName("Testing Error");
-    }
+    }*/
+
     if(epoch > _ui->customplot_accuracy->xAxis->range().upper)
     {
          _ui->customplot_accuracy->xAxis->setRange(0.0, epoch);
@@ -365,8 +370,9 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
          }
           _ui->customplot_accuracy->xAxis->setRange(minRange, epoch);
           _ui->horizontalScrollBar_accuracy->setRange(0,epoch);
-          _ui->horizontalScrollBar_accuracy->setValue(epoch);
+
     }
+    _ui->horizontalScrollBar_accuracy->setValue(epoch);
 
     if(epoch > _ui->customplot_error->xAxis->range().upper)
     {
@@ -377,16 +383,22 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
         }
          _ui->customplot_error->xAxis->setRange(minRange, epoch);
          _ui->horizontalScrollBar_error->setRange(0,epoch);
-         _ui->horizontalScrollBar_error->setValue(epoch);
+
     }
+    _ui->horizontalScrollBar_error->setValue(epoch);
+
+    _ui->customplot_accuracy->graph(index_graph)->addData(epoch, trainingAccuracy);
+    _ui->customplot_accuracy->graph(index_graph+1)->addData(epoch, testingAccuracy);
+
+    _ui->customplot_error->graph(index_graph)->addData(epoch, trainingError*100);
+    _ui->customplot_error->graph(index_graph+1)->addData(epoch, testingError*100);
 
 
-
-    _ui->customplot_accuracy->graph(_currentGraphNetwork)->addData(epoch, trainingAccuracy);
+    /*_ui->customplot_accuracy->graph(_currentGraphNetwork)->addData(epoch, trainingAccuracy);
     _ui->customplot_accuracy->graph(_currentGraphNetwork+1)->addData(epoch, testingAccuracy);
 
     _ui->customplot_error->graph(_currentGraphNetwork)->addData(epoch, trainingError*100);
-    _ui->customplot_error->graph(_currentGraphNetwork+1)->addData(epoch, testingError*100);
+    _ui->customplot_error->graph(_currentGraphNetwork+1)->addData(epoch, testingError*100);*/
 
     _ui->customplot_accuracy->replot();
     _ui->customplot_error->replot();
@@ -532,16 +544,34 @@ void MainWindow::on_pushButton_training_start_clicked()
 
 void MainWindow::on_pushButton_training_reset_clicked()
 {
-    int i = _ui->listWidget_training_networks->currentRow();
+    int networkIndex = _ui->listWidget_training_networks->currentRow();
+    _networkList[networkIndex]->resetNetwork();
 
-    _networkList[i]->resetNetwork();
+    if(_idsForNetworkGraphs.size() > 0)
+    {
+        int graph_index = 0; //TODO FIND CORRECT GRAPH INDEX
+        int networkId = _networkList[networkIndex]->getNetworkID();
 
-    _ui->customplot_accuracy->xAxis->setRange(0,100);
-    _ui->customplot_error->xAxis->setRange(0,100);
-    _ui->customplot_accuracy->clearGraphs();
-    _ui->customplot_error->clearGraphs();
-    _ui->customplot_accuracy->replot();
-    _ui->customplot_error->replot();
+        for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
+        {
+            if(_idsForNetworkGraphs[i] == networkId)
+            {
+                graph_index = 2*i;
+                _idsForNetworkGraphs.erase(_idsForNetworkGraphs.begin() + i);
+                break;
+            }
+        }
+        _ui->customplot_accuracy->xAxis->setRange(0,100);
+        _ui->customplot_error->xAxis->setRange(0,100);
+
+        _ui->customplot_accuracy->removeGraph(graph_index+1);
+        _ui->customplot_accuracy->removeGraph(graph_index);
+        _ui->customplot_error->removeGraph(graph_index+1);
+        _ui->customplot_error->removeGraph(graph_index);
+
+        _ui->customplot_accuracy->replot();
+        _ui->customplot_error->replot();
+    }
 }
 
 void MainWindow::on_pushButton_clicked()
