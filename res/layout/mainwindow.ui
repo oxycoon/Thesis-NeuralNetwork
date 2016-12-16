@@ -24,7 +24,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_fileexplorer">
        <attribute name="title">
@@ -36,24 +36,26 @@
         </item>
         <item row="0" column="1">
          <widget class="QListView" name="filelistview">
+          <property name="maximumSize">
+           <size>
+            <width>250</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="alternatingRowColors">
            <bool>false</bool>
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QPushButton" name="button_addFile">
-            <property name="text">
-             <string>Add selected files</string>
-            </property>
-            <property name="checkable">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="button_addFile">
+          <property name="text">
+           <string>Add selected files</string>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

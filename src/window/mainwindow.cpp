@@ -85,7 +85,7 @@ std::vector<QString> MainWindow::getNetworkNames()
 
 void MainWindow::setupGUIElements()
 {
-    QString sPath = "../";
+    QString sPath = "C:/";
     _dirModel = new QFileSystemModel(this);
     _dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
     _fileModel = new QFileSystemModel(this);
@@ -95,8 +95,11 @@ void MainWindow::setupGUIElements()
 
     _ui->dirtreeview->setModel(_dirModel);
     _ui->filelistview->setModel(_fileModel);
-    _ui->dirtreeview->setRootIndex(_dirModel->setRootPath(sPath));
-    _ui->filelistview->setRootIndex(_fileModel->setRootPath(sPath));
+    _dirModel->setRootPath(sPath);
+    //_ui->dirtreeview->setRootIndex(_dirModel->setRootPath(sPath));
+    //_ui->dirtreeview->expand(_dirModel->index(QString("/")));
+    _ui->dirtreeview->scrollTo(_dirModel->setRootPath("/"));
+    _ui->filelistview->setRootIndex(_fileModel->setRootPath(QString("/")));
 
 
     _ui->customplot_accuracy->yAxis->setRange(100.0, 0.0);

@@ -17,6 +17,16 @@
 #include "include/enum/datatype.h"
 #include "include/qcustomplot/qcustomplot.h"
 
+/*
+ * Developer's note:
+ *
+ *  When compiling the application one might have to
+ *  edit ui_mainwindow.h line 38 to:
+ *      #include "include/qcustomplot/qcustomplot.h"
+ *  from
+ *      #include "qcustomplot.h"
+ */
+
 namespace Ui {
 class MainWindow;
 }
