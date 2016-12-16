@@ -99,7 +99,7 @@ void MainWindow::setupGUIElements()
     //_ui->dirtreeview->setRootIndex(_dirModel->setRootPath(sPath));
     //_ui->dirtreeview->expand(_dirModel->index(QString("/")));
     _ui->dirtreeview->scrollTo(_dirModel->setRootPath("/"));
-    _ui->filelistview->setRootIndex(_fileModel->setRootPath(QString("/")));
+    _ui->filelistview->setRootIndex(_fileModel->setRootPath(QString("docs/")));
 
 
     _ui->customplot_accuracy->yAxis->setRange(100.0, 0.0);
@@ -121,26 +121,52 @@ void MainWindow::loadDataCollectionFiles()
             this, &MainWindow::signRecievedConsoleOutput);
     collection->setName("Default data collection");
 
-    _reader->readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/05_1_1_1477049323104.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/06_1_1_1477050706950.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/07_1_1_1477051538022.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/08_1_1_1477052157282.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/09_1_1_1477052835575.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/10_1_1_1477053563351.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/01_2_1_1477041118424.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/02_2_1_1477045059709.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/03_2_1_1477046007930.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/05_2_2_1477049591901.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/06_2_1_1477050768609.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    if(!IS_RELEASE)
+    {
+        _reader->readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("../res/docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("../res/docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("../res/docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("../res/docs/05_1_1_1477049323104.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("../res/docs/06_1_1_1477050706950.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("../res/docs/07_1_1_1477051538022.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("../res/docs/08_1_1_1477052157282.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("../res/docs/09_1_1_1477052835575.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("../res/docs/10_1_1_1477053563351.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("../res/docs/01_2_1_1477041118424.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("../res/docs/02_2_1_1477045059709.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("../res/docs/03_2_1_1477046007930.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("../res/docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("../res/docs/05_2_2_1477049591901.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("../res/docs/06_2_1_1477050768609.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("../res/docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("../res/docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("../res/docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("../res/docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    }
+    else
+    {
+        _reader->readCSVFile("docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("docs/05_1_1_1477049323104.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("docs/06_1_1_1477050706950.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("docs/07_1_1_1477051538022.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("docs/08_1_1_1477052157282.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("docs/09_1_1_1477052835575.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("docs/10_1_1_1477053563351.csv", 10, ",", Exercise::WALKING,collection);
+        _reader->readCSVFile("docs/01_2_1_1477041118424.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("docs/02_2_1_1477045059709.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("docs/03_2_1_1477046007930.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("docs/05_2_2_1477049591901.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("docs/06_2_1_1477050768609.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        _reader->readCSVFile("docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    }
 
     collection->createTrainingTestSets(5, 15);
     _collections.push_back(collection);
@@ -201,48 +227,50 @@ void MainWindow::on_button_addFile_clicked()
 
     foreach(const QModelIndex &index, list)
     {
-        _selectedFile._fpath = _fileModel->fileInfo(index).absoluteFilePath();
-        _selectedFile._fname = _fileModel->fileInfo(index).fileName();
-
-        bool checker = false;
-        for(int i = 0; i < _fileNames.size(); i++)
+        if(_fileModel->fileInfo(index).completeSuffix() == QString("csv"))
         {
-            if(_selectedFile._fpath == _fileNames[i]._fpath)
-                checker = true;
-        }
-        if(!checker)
-        {
-            _fileNames.push_back(_selectedFile);
+            _selectedFile._fpath = _fileModel->fileInfo(index).absoluteFilePath();
+            _selectedFile._fname = _fileModel->fileInfo(index).fileName();
+            bool checker = false;
+            for(int i = 0; i < _fileNames.size(); i++)
+            {
+                if(_selectedFile._fpath == _fileNames[i]._fpath)
+                    checker = true;
+            }
+            if(!checker)
+            {
+                _fileNames.push_back(_selectedFile);
 
-            QString numString = QString::number(_fileNames.size()-1);
-            QString comboName = "comboBox_collection_" + numString;
-            QString checkName = "checkbox_collection_" + numString;
-            QString lineeName = "lineedit_collection_" + numString;
+                QString numString = QString::number(_fileNames.size()-1);
+                QString comboName = "comboBox_collection_" + numString;
+                QString checkName = "checkbox_collection_" + numString;
+                QString lineeName = "lineedit_collection_" + numString;
 
-            QComboBox *box = new QComboBox(this);
-            box->setObjectName(comboName);
-            box->insertItem(0,"Walking");
-            box->insertItem(1,"Falling Forward");
-            box->insertItem(2,"Walk up stairs");
-            box->insertItem(3,"Sitting down");
-            box->insertItem(4,"Pick up item sitting");
-            box->insertItem(5,"Pick up item standing");
+                QComboBox *box = new QComboBox(this);
+                box->setObjectName(comboName);
+                box->insertItem(0,"Walking");
+                box->insertItem(1,"Falling Forward");
+                box->insertItem(2,"Walk up stairs");
+                box->insertItem(3,"Sitting down");
+                box->insertItem(4,"Pick up item sitting");
+                box->insertItem(5,"Pick up item standing");
 
-            QCheckBox *check = new QCheckBox(this);
-            check->setObjectName(checkName);
+                QCheckBox *check = new QCheckBox(this);
+                check->setObjectName(checkName);
 
-            QLineEdit *line = new QLineEdit(this);
-            line->setObjectName(lineeName);
-            line->setReadOnly(true);
-            line->setText(_selectedFile._fname);
+                QLineEdit *line = new QLineEdit(this);
+                line->setObjectName(lineeName);
+                line->setReadOnly(true);
+                line->setText(_selectedFile._fname);
 
-            _ui->gridLayout_2->addWidget(check, _fileNames.size()-1, 0, 1, 1);
-            _ui->gridLayout_2->addWidget(line, _fileNames.size()-1, 1, 1, 1);
-            _ui->gridLayout_2->addWidget(box, _fileNames.size()-1, 2, 1, 1);
+                _ui->gridLayout_2->addWidget(check, _fileNames.size()-1, 0, 1, 1);
+                _ui->gridLayout_2->addWidget(line, _fileNames.size()-1, 1, 1, 1);
+                _ui->gridLayout_2->addWidget(box, _fileNames.size()-1, 2, 1, 1);
 
-            _comboboxCollection.push_back(box);
-            _checkboxCollection.push_back(check);
-            _lineeditCollection.push_back(line);
+                _comboboxCollection.push_back(box);
+                _checkboxCollection.push_back(check);
+                _lineeditCollection.push_back(line);
+            }
         }
     }
 }

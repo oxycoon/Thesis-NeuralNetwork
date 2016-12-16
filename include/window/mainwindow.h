@@ -27,6 +27,8 @@
  *      #include "qcustomplot.h"
  */
 
+#define IS_RELEASE true
+
 namespace Ui {
 class MainWindow;
 }
