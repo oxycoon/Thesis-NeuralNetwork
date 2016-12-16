@@ -70,7 +70,6 @@ protected slots:
 
 private slots:
     void on_dirtreeview_clicked(const QModelIndex &index);
-    void on_filelistview_clicked(const QModelIndex &index);
     void on_button_addFile_clicked();
     void on_pushButton_network_create_clicked();
     void on_pushButton_network_edit_clicked();
@@ -86,8 +85,6 @@ private slots:
     void on_pushButton_training_start_clicked();
 
     void on_pushButton_training_reset_clicked();
-
-    void on_pushButton_clicked();
 
     void on_horizontalScrollBar_error_valueChanged(int value);
     void on_horizontalScrollBar_accuracy_valueChanged(int value);
@@ -107,6 +104,7 @@ private slots:
     void signRecievedFileReadComplete(const QString &message);
     void signRecievedConsoleOutput(const QString &message);
     void on_pushButton_graphdisplaysettings_clicked();
+    void on_pushButton_training_stop_clicked();
 };
 
 #endif // MAINWINDOW_H

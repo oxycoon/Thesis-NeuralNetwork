@@ -206,6 +206,7 @@ void MainWindow::on_dirtreeview_clicked(const QModelIndex &index)
     _ui->filelistview->setRootIndex(_fileModel->setRootPath(sPath));
 }
 
+
 void MainWindow::on_button_addFile_clicked()
 {
     QModelIndexList list = _ui->filelistview->selectionModel()->selectedIndexes();
@@ -615,12 +616,6 @@ void MainWindow::on_pushButton_training_reset_clicked()
     removeGraphElements(networkIndex);
 }
 
-void MainWindow::on_pushButton_clicked()
-{
-    int i = _ui->listWidget_training_networks->currentRow();
-    _networkList[i]->doTraining(false);
-}
-
 void MainWindow::on_horizontalScrollBar_error_valueChanged(int value)
 {
     _ui->customplot_error->xAxis->setRange(value, 100, Qt::AlignLeft);
@@ -661,4 +656,10 @@ void MainWindow::on_pushButton_graphdisplaysettings_clicked()
     }
     _ui->customplot_error->replot();
     _ui->customplot_accuracy->replot();
+}
+
+void MainWindow::on_pushButton_training_stop_clicked()
+{
+    int i = _ui->listWidget_training_networks->currentRow();
+    _networkList[i]->doTraining(false);
 }
