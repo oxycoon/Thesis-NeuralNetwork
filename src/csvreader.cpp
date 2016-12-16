@@ -213,10 +213,10 @@ bool CSVReader::readCSVFile(const char *path, int entries,
     }
     else
     {
-        QString message = "File " + QString::fromStdString(path) + " not found!";
+        /*QString message = "File " + QString::fromStdString(path) + " not found!";
         emit signFileReadComplete(message);
         emit signFileReadConsoleOutput(message);
-        std::cout << message.toStdString() << std::endl;
+        std::cout << message.toStdString() << std::endl;*/
         return false;
     }
 }
@@ -293,20 +293,6 @@ DataEntry* CSVReader::readLine(const std::string &line, Exercise ex)
         token = std::strtok(NULL, _separator);
         i++;
     }
-
-    //PRINT FOR DEBUGGING
-    /*std::cout << "Time: [" << timestamp << "] pattern: [";
-    for (int i=0; i < pattern.size(); i++)
-    {
-        std::cout << pattern[i] << ",";
-    }
-
-    std::cout << "] types: [";
-    for (int i = 0; i < type.size(); i++)
-    {
-        std::cout << type[i] << ",";
-    }
-    std::cout << "]" << std::endl;*/
     return new DataEntry(pattern, type, ex);
 }
 

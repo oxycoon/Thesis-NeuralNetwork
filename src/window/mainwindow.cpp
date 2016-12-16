@@ -96,7 +96,7 @@ void MainWindow::loadDefaultDataCollections()
             this, &MainWindow::signRecievedConsoleOutput);
     collection->setName("Default data collection");
 
-    /*_reader->readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
     _reader->readCSVFile("../res/docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
     _reader->readCSVFile("../res/docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
     _reader->readCSVFile("../res/docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection);
@@ -115,10 +115,9 @@ void MainWindow::loadDefaultDataCollections()
     _reader->readCSVFile("../res/docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
     _reader->readCSVFile("../res/docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
     _reader->readCSVFile("../res/docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);*/
+    _reader->readCSVFile("../res/docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
 
-    std::cout << "Reading files" << std::endl;
-    _reader->readCSVFile("docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
+    /*_reader->readCSVFile("docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
     _reader->readCSVFile("docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
     _reader->readCSVFile("docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
     _reader->readCSVFile("docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection);
@@ -137,7 +136,7 @@ void MainWindow::loadDefaultDataCollections()
     _reader->readCSVFile("docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
     _reader->readCSVFile("docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
     _reader->readCSVFile("docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);*/
 
     collection->createTrainingTestSets(5, 15);
 
