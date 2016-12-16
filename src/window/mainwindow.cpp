@@ -18,11 +18,76 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_reader, &CSVReader::signFileReadComplete, this, &MainWindow::signRecievedFileReadComplete);
     connect(_reader, &CSVReader::signFileReadConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
 
-    setupUIElements();
-    loadDefaultDataCollections();
-    loadDefaultNetworks();
+    QString sPath = "../";
+    _dirModel = new QFileSystemModel(this);
+    _dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
+    _fileModel = new QFileSystemModel(this);
+    _fileModel->setFilter(QDir::NoDotAndDotDot | QDir::Files);
+
+    _ui->filelistview->setSelectionMode( QAbstractItemView::ExtendedSelection );
+
+    _ui->dirtreeview->setModel(_dirModel);
+    _ui->filelistview->setModel(_fileModel);
+    _ui->dirtreeview->setRootIndex(_dirModel->setRootPath(sPath));
+    _ui->filelistview->setRootIndex(_fileModel->setRootPath(sPath));
 
     _pool = QThreadPool::globalInstance();
+
+    _ui->customplot_accuracy->yAxis->setRange(100.0, 0.0);
+    _ui->customplot_error->yAxis->setRange(100.0, 0.0);
+    _ui->customplot_accuracy->xAxis->setRange(0.0, 100);
+    _ui->customplot_error->xAxis->setRange(0.0, 100);
+    _ui->customplot_accuracy->yAxis->setLabel("Accuracy%");
+    _ui->customplot_accuracy->xAxis->setLabel("Epoch");
+    _ui->customplot_error->yAxis->setLabel("Error%");
+    _ui->customplot_error->xAxis->setLabel("Epoch");
+
+    _ui->horizontalScrollBar_error->setRange(0,100);
+
+    DataCollection* collection = new DataCollection();
+    connect(collection, &DataCollection::signDataCollectionConsoleOutput,
+            this, &MainWindow::signRecievedConsoleOutput);
+    collection->setName("Default data collection");
+
+    //TODO: create function to load several default collections
+    _reader->readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/05_1_1_1477049323104.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/06_1_1_1477050706950.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/07_1_1_1477051538022.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/08_1_1_1477052157282.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/09_1_1_1477052835575.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/10_1_1_1477053563351.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/01_2_1_1477041118424.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/02_2_1_1477045059709.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/03_2_1_1477046007930.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/05_2_2_1477049591901.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/06_2_1_1477050768609.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+
+
+
+    QuadraticCost* cost = new QuadraticCost();
+    Network* net = new Network(16, {16,6}, 2, cost, DataType::ACCELEROMETER, "DefaultAccelerometer");
+    connect(net, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net->initNetwork();
+    net->setAutoDelete(false);
+
+    _networkList.push_back(net);
+    _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
+    _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
+
+    collection->createTrainingTestSets(5, 15);
+    _collections.push_back(collection);
+
+    _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
 }
 
 MainWindow::~MainWindow()
@@ -69,10 +134,6 @@ MainWindow::~MainWindow()
     delete _reader;
 }
 
-//========================================
-//  Private help functions
-//========================================
-
 std::vector<QString> MainWindow::getNetworkNames()
 {
     std::vector<QString> result;
@@ -84,136 +145,60 @@ std::vector<QString> MainWindow::getNetworkNames()
     return result;
 }
 
-/**
- * @brief MainWindow::loadDefaultDataCollections
- *
- *  Loads the default
- */
-void MainWindow::loadDefaultDataCollections()
+void MainWindow::removeGraphElements(int networkIndex)
 {
-    DataCollection* collection = new DataCollection();
-    connect(collection, &DataCollection::signDataCollectionConsoleOutput,
-            this, &MainWindow::signRecievedConsoleOutput);
-    collection->setName("Default data collection");
+    if(_idsForNetworkGraphs.size() > 0)
+    {
+        int graph_index = 0;
+        int networkId = _networkList[networkIndex]->getNetworkID();
 
-    _reader->readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/05_1_1_1477049323104.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/06_1_1_1477050706950.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/07_1_1_1477051538022.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/08_1_1_1477052157282.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/09_1_1_1477052835575.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/10_1_1_1477053563351.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/01_2_1_1477041118424.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/02_2_1_1477045059709.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/03_2_1_1477046007930.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/05_2_1_1477049591901.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/06_2_1_1477050768609.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+        for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
+        {
+            if(_idsForNetworkGraphs[i] == networkId)
+            {
+                graph_index = 2*i;
+                _idsForNetworkGraphs.erase(_idsForNetworkGraphs.begin() + i);
+                break;
+            }
+        }
 
-    /*_reader->readCSVFile("docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("docs/05_1_1_1477049323104.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("docs/06_1_1_1477050706950.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("docs/07_1_1_1477051538022.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("docs/08_1_1_1477052157282.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("docs/09_1_1_1477052835575.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("docs/10_1_1_1477053563351.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("docs/01_2_1_1477041118424.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("docs/02_2_1_1477045059709.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("docs/03_2_1_1477046007930.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("docs/05_2_1_1477049591901.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("docs/06_2_1_1477050768609.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);*/
+        _ui->gridLayout_graphdisplay->removeWidget(_checkboxGraphDisplay[graph_index]);
+        _ui->gridLayout_graphdisplay->removeWidget(_checkboxGraphDisplay[graph_index+1]);
+        _ui->gridLayout_graphdisplay->removeWidget(_comboboxGraphDisplay[graph_index]);
+        _ui->gridLayout_graphdisplay->removeWidget(_comboboxGraphDisplay[graph_index+1]);
+        _ui->gridLayout_graphdisplay->removeWidget(_lineeditGraphDisplay[graph_index]);
+        _ui->gridLayout_graphdisplay->removeWidget(_lineeditGraphDisplay[graph_index+1]);
 
-    collection->createTrainingTestSets(5, 15);
+        delete _lineeditGraphDisplay[graph_index];
+        delete _comboboxGraphDisplay[graph_index];
+        delete _checkboxGraphDisplay[graph_index];
+        delete _lineeditGraphDisplay[graph_index+1];
+        delete _comboboxGraphDisplay[graph_index+1];
+        delete _checkboxGraphDisplay[graph_index+1];
 
-    _collections.push_back(collection);
+        _lineeditGraphDisplay.erase(_lineeditGraphDisplay.begin() + graph_index);
+        _comboboxGraphDisplay.erase(_comboboxGraphDisplay.begin() + graph_index);
+        _checkboxGraphDisplay.erase(_checkboxGraphDisplay.begin() + graph_index);
+        _lineeditGraphDisplay.erase(_lineeditGraphDisplay.begin() + graph_index);
+        _comboboxGraphDisplay.erase(_comboboxGraphDisplay.begin() + graph_index);
+        _checkboxGraphDisplay.erase(_checkboxGraphDisplay.begin() + graph_index);
 
-    _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
-
+        _ui->customplot_accuracy->removeGraph(graph_index+1);
+        _ui->customplot_accuracy->removeGraph(graph_index);
+        _ui->customplot_error->removeGraph(graph_index+1);
+        _ui->customplot_error->removeGraph(graph_index);
+        if(_ui->customplot_accuracy->graphCount() == 0)
+        {
+            _ui->customplot_accuracy->xAxis->setRange(0, 100);
+        }
+        if(_ui->customplot_error->graphCount() == 0)
+        {
+            _ui->customplot_error->xAxis->setRange(0, 100);
+        }
+        _ui->customplot_accuracy->replot();
+        _ui->customplot_error->replot();
+    }
 }
-
-void MainWindow::loadDefaultNetworks()
-{
-    QuadraticCost* cost = new QuadraticCost();
-    Network* net = new Network(16, {16,6}, 2, cost, DataType::ACCELEROMETER, "DefaultAccelerometer");
-    connect(net, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
-    connect(net, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
-    net->initNetwork();
-    net->setAutoDelete(false);
-
-    _networkList.push_back(net);
-    _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
-    _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
-
-    QuadraticCost* cost2 = new QuadraticCost();
-    Network* net2 = new Network(16, {16,6}, 2, cost2, DataType::GYRO, "DefaultGyroscope");
-    connect(net2, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
-    connect(net2, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
-    net2->initNetwork();
-    net2->setAutoDelete(false);
-
-    _networkList.push_back(net2);
-    _ui->listWidget_networkList->addItem(QString::fromStdString(net2->getNetworkName()));
-    _ui->listWidget_training_networks->addItem(QString::fromStdString(net2->getNetworkName()));
-
-    QuadraticCost* cost3 = new QuadraticCost();
-    Network* net3 = new Network(16, {16,6}, 2, cost3, DataType::COMPASS, "DefaultCompass");
-    connect(net3, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
-    connect(net3, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
-    net3->initNetwork();
-    net3->setAutoDelete(false);
-
-    _networkList.push_back(net3);
-    _ui->listWidget_networkList->addItem(QString::fromStdString(net3->getNetworkName()));
-    _ui->listWidget_training_networks->addItem(QString::fromStdString(net3->getNetworkName()));
-}
-
-void MainWindow::setupUIElements()
-{
-    QString sPath = "../";
-    _dirModel = new QFileSystemModel(this);
-    _dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
-    _fileModel = new QFileSystemModel(this);
-    _fileModel->setFilter(QDir::NoDotAndDotDot | QDir::Files);
-
-    _ui->filelistview->setSelectionMode( QAbstractItemView::ExtendedSelection );
-
-    _ui->dirtreeview->setModel(_dirModel);
-    _ui->filelistview->setModel(_fileModel);
-    _ui->dirtreeview->setRootIndex(_dirModel->setRootPath(sPath));
-    _ui->filelistview->setRootIndex(_fileModel->setRootPath(sPath));
-
-
-
-    _ui->customplot_accuracy->yAxis->setRange(100.0, 0.0);
-    _ui->customplot_error->yAxis->setRange(100.0, 0.0);
-    _ui->customplot_accuracy->xAxis->setRange(0.0, 100);
-    _ui->customplot_error->xAxis->setRange(0.0, 100);
-    _ui->customplot_accuracy->yAxis->setLabel("Accuracy%");
-    _ui->customplot_accuracy->xAxis->setLabel("Epoch");
-    _ui->customplot_error->yAxis->setLabel("Error%");
-    _ui->customplot_error->xAxis->setLabel("Epoch");
-
-    _ui->horizontalScrollBar_error->setRange(0,100);
-}
-
-//========================================
-//  File explorer tab functions and slots
-//========================================
 
 void MainWindow::on_dirtreeview_clicked(const QModelIndex &index)
 {
@@ -273,75 +258,6 @@ void MainWindow::on_button_addFile_clicked()
     }
 }
 
-//========================================
-//  Data collection tab functions and slots
-//========================================
-
-void MainWindow::on_pushButton_doc_parse_clicked()
-{
-    std::vector<Exercise> exercises;
-    std::vector<QString> paths;
-
-    QString name = _ui->lineEdit_doc_name->text();
-
-    for(int i = 0; i < _comboboxCollection.size(); i++)
-    {
-        if(_checkboxCollection[i]->isChecked())
-        {
-            int tempEx = _comboboxCollection[i]->currentIndex();
-            Exercise ex;
-
-            switch(tempEx)
-            {
-            case 0: ex = Exercise::WALKING; break;
-            case 1: ex = Exercise::FALLING_FORWARD; break;
-            case 2: ex = Exercise::STAIRS_UP; break;
-            case 3: ex = Exercise::SITTING_DOWN; break;
-            case 4: ex = Exercise::PICKUP_ITEM_SITTING; break;
-            case 5: ex = Exercise::PICKUP_ITEM_STANDING; break;
-            default: ex = Exercise::UNKNOWN; break;
-            }
-            exercises.push_back(ex);
-            paths.push_back(_fileNames[i]._fpath);
-        }
-    }
-
-    DataCollection* collection = new DataCollection();
-    connect(collection, &DataCollection::signDataCollectionConsoleOutput,
-            this, &MainWindow::signRecievedConsoleOutput);
-    collection->setName(name.toStdString());
-    for(int i = 0; i < paths.size(); i++)
-    {
-        _reader->readCSVFile(paths[i].toStdString().c_str(), _ui->spinBox_doc_entries->value(),
-                             _ui->lineEdit_doc_separator->text().toStdString().c_str(), exercises[i], collection );
-    }
-    _collections.push_back(collection);
-}
-
-void MainWindow::on_pushButton_doc_createsets_clicked()
-{
-    int setSize = _ui->spinBox_doc_setSize->value();
-    double trainingSize = _ui->spinBox_doc_training->value();
-
-    _collections[_collections.size()-1]->createTrainingTestSets(setSize, trainingSize);
-    _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
-}
-
-void MainWindow::signRecievedFileReadComplete(const QString &message)
-{
-    _ui->text_parseConsole->appendPlainText(message);
-    _ui->consoleOutput->appendPlainText(message);
-}
-
-//========================================
-//  Network creation tab functions and slots
-//========================================
-
-void MainWindow::on_listWidget_networkList_itemClicked(QListWidgetItem *item)
-{
-    _selectedNetwork = _ui->listWidget_networkList->row(item);
-}
-
 void MainWindow::on_pushButton_network_create_clicked()
 {
     std::vector<QString> names = getNetworkNames();
@@ -351,45 +267,6 @@ void MainWindow::on_pushButton_network_create_clicked()
     connect(dialog, &NetworkCreationDialog::signNetworkCreation, this, &MainWindow::signRecievedNetworkCreation);
     connect(dialog, &NetworkCreationDialog::signNetworkCreationFromSubs, this, &MainWindow::signRecievedNetworkCreationFromSubs);
     dialog->show();
-}
-
-void MainWindow::on_pushButton_network_edit_clicked()
-{
-    if(_selectedNetwork != -1)
-    {
-        int input, output;
-        std::vector<int> hidden;
-        QString name;
-        DataType type;
-        CostCalc calc;
-
-        input = _networkList[_selectedNetwork]->getInputCount();
-        hidden = _networkList[_selectedNetwork]->getHiddenCount();
-        output = _networkList[_selectedNetwork]->getOutputCount();
-        name = QString::fromStdString(_networkList[_selectedNetwork]->getNetworkName());
-        type = _networkList[_selectedNetwork]->getNetworkType();
-        calc = _networkList[_selectedNetwork]->getNetworkCostCalc();
-
-        NetworkCreationDialog* dialog = new NetworkCreationDialog(this);
-        //connect(dialog, SIGNAL(signNetworkCreation(int,std::vector<int>,int,QString)), this, signNetworkCreationRecieved);
-        connect(dialog, &NetworkCreationDialog::signNetworkEdit, this, &MainWindow::signRecievedNetworkEdit);
-        dialog->editNetwork(_selectedNetwork, input, hidden, output, name, type, calc);
-        dialog->show();
-    }
-}
-
-void MainWindow::on_pushButton_network_delete_clicked()
-{
-    if(_selectedNetwork != -1)
-    {
-        _ui->listWidget_networkList->model()->removeRow(_selectedNetwork);
-        _ui->listWidget_training_networks->model()->removeRow(_selectedNetwork);
-
-        removeGraphElements(_selectedNetwork);
-
-        delete _networkList[_selectedNetwork];
-        _networkList.erase(_networkList.begin() + _selectedNetwork);
-    }
 }
 
 void MainWindow::signRecievedNetworkCreation(const int in,
@@ -446,154 +323,260 @@ void MainWindow::signRecievedNetworkEdit(const int index, const int in, const st
     _ui->listWidget_networkList->item(index)->setText(name);
 }
 
-//========================================
-//  Network training tab functions and slots
-//========================================
-
-void MainWindow::removeGraphElements(int networkIndex)
+void MainWindow::signRecievedFileReadComplete(const QString &message)
 {
+    _ui->text_parseConsole->appendPlainText(message);
+    _ui->consoleOutput->appendPlainText(message);
+}
+
+void MainWindow::signRecievedConsoleOutput(const QString &message)
+{
+    _ui->consoleOutput->appendPlainText(message);
+}
+
+void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const double trainingError, const double trainingAccuracy, const double testingError, const double testingAccuracy)
+{
+    bool graphExists = false;
+    int index_graph; // graph index
     if(_idsForNetworkGraphs.size() > 0)
     {
-        int graph_index = 0;
-        int networkId = _networkList[networkIndex]->getNetworkID();
-
-        bool hasGraph = false;
         for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
         {
-            if(_idsForNetworkGraphs[i] == networkId)
+            if(_idsForNetworkGraphs[i] == id)
             {
-                hasGraph = true;
-                graph_index = 2*i;
-                _idsForNetworkGraphs.erase(_idsForNetworkGraphs.begin() + i);
+                graphExists = true;
+                index_graph = 2*i;
                 break;
             }
         }
-        if(!hasGraph)
+    }
+
+    int index_network; //network index
+    for(int i = 0; i < _networkList.size(); i++)
+    {
+        if(_networkList[i]->getNetworkID() == id)
         {
-            return;
+            index_network = i;
+            break;
         }
+    }
 
-        _ui->gridLayout_graphdisplay->removeWidget(_checkboxGraphDisplay[graph_index]);
-        _ui->gridLayout_graphdisplay->removeWidget(_checkboxGraphDisplay[graph_index+1]);
-        _ui->gridLayout_graphdisplay->removeWidget(_comboboxGraphDisplay[graph_index]);
-        _ui->gridLayout_graphdisplay->removeWidget(_comboboxGraphDisplay[graph_index+1]);
-        _ui->gridLayout_graphdisplay->removeWidget(_lineeditGraphDisplay[graph_index]);
-        _ui->gridLayout_graphdisplay->removeWidget(_lineeditGraphDisplay[graph_index+1]);
+    if(!graphExists)
+    {
+        _idsForNetworkGraphs.push_back(id);
+        index_graph = 2 * (_idsForNetworkGraphs.size() - 1);
 
-        delete _lineeditGraphDisplay[graph_index];
-        delete _comboboxGraphDisplay[graph_index];
-        delete _checkboxGraphDisplay[graph_index];
-        delete _lineeditGraphDisplay[graph_index+1];
-        delete _comboboxGraphDisplay[graph_index+1];
-        delete _checkboxGraphDisplay[graph_index+1];
+        QString accTraName = QString::fromStdString(_networkList[index_network]->getNetworkName()) +
+                            " training accuracy";
+        QString accTesName = QString::fromStdString(_networkList[index_network]->getNetworkName()) +
+                            " testing accuracy";
 
-        _lineeditGraphDisplay.erase(_lineeditGraphDisplay.begin() + graph_index);
-        _comboboxGraphDisplay.erase(_comboboxGraphDisplay.begin() + graph_index);
-        _checkboxGraphDisplay.erase(_checkboxGraphDisplay.begin() + graph_index);
-        _lineeditGraphDisplay.erase(_lineeditGraphDisplay.begin() + graph_index);
-        _comboboxGraphDisplay.erase(_comboboxGraphDisplay.begin() + graph_index);
-        _checkboxGraphDisplay.erase(_checkboxGraphDisplay.begin() + graph_index);
+        _ui->customplot_accuracy->addGraph();
+        _ui->customplot_accuracy->addGraph();
+        _ui->customplot_accuracy->graph(index_graph)->setPen(QPen(Qt::red));
+        _ui->customplot_accuracy->graph(index_graph)->setName(accTraName);
+        _ui->customplot_accuracy->graph(index_graph+1)->setName(accTesName);
 
-        _ui->customplot_accuracy->removeGraph(graph_index+1);
-        _ui->customplot_accuracy->removeGraph(graph_index);
-        _ui->customplot_error->removeGraph(graph_index+1);
-        _ui->customplot_error->removeGraph(graph_index);
-        if(_ui->customplot_accuracy->graphCount() == 0)
+        QString errTraName = QString::fromStdString(_networkList[index_network]->getNetworkName()) +
+                            " training error";
+        QString errTesName = QString::fromStdString(_networkList[index_network]->getNetworkName()) +
+                            " testing error";
+        _ui->customplot_error->addGraph();
+        _ui->customplot_error->addGraph();
+        _ui->customplot_error->graph(index_graph)->setPen(QPen(Qt::red));
+        _ui->customplot_error->graph(index_graph)->setName(errTraName);
+        _ui->customplot_error->graph(index_graph+1)->setName(errTesName);
+
+        QStringList colours = {"Red", "Green", "Blue", "Cyan", "Magenta", "Yellow", "Black"};
+
+        QString checkboxNameTest = "checkbox_test_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+        QString comboboxNameTest = "combobox_test_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+        QString lineeditNameTest = "lineedit_test_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+        QString checkboxNameTrai = "checkbox_training_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+        QString comboboxNameTrai = "combobox_training_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+        QString lineeditNameTrai = "lineedit_training_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+
+
+        QCheckBox* checkbox_test = new QCheckBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        checkbox_test->setObjectName(checkboxNameTest);
+        checkbox_test->setText("");
+        checkbox_test->setChecked(true);
+
+        QLineEdit* lineedit_test = new QLineEdit(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        lineedit_test->setObjectName(lineeditNameTest);
+        lineedit_test->setReadOnly(true);
+        lineedit_test->setText(QString::fromStdString(_networkList[index_network]->getNetworkName()) + " Testing");
+
+        QComboBox* combobox_test = new QComboBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        combobox_test->setObjectName(comboboxNameTest);
+        combobox_test->insertItems(0, colours);
+        combobox_test->setCurrentIndex(2);
+
+        QCheckBox* checkbox_trai = new QCheckBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        checkbox_trai->setObjectName(checkboxNameTrai);
+        checkbox_trai->setText("");
+        checkbox_trai->setChecked(true);
+
+        QLineEdit* lineedit_trai = new QLineEdit(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        lineedit_trai->setObjectName(lineeditNameTrai);
+        lineedit_trai->setReadOnly(true);
+        lineedit_trai->setText(QString::fromStdString(_networkList[index_network]->getNetworkName()) + " Training");
+
+        QComboBox* combobox_trai = new QComboBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        combobox_trai->setObjectName(comboboxNameTrai);
+        combobox_trai->insertItems(0, colours);
+
+
+        _ui->gridLayout_graphdisplay->addWidget(lineedit_trai, index_graph+1, 0, 1, 1);
+        _ui->gridLayout_graphdisplay->addWidget(combobox_trai, index_graph+1, 1, 1, 1);
+        _ui->gridLayout_graphdisplay->addWidget(checkbox_trai, index_graph+1, 2, 1, 1);
+        _ui->gridLayout_graphdisplay->addWidget(lineedit_test, index_graph+2, 0, 1, 1);
+        _ui->gridLayout_graphdisplay->addWidget(combobox_test, index_graph+2, 1, 1, 1);
+        _ui->gridLayout_graphdisplay->addWidget(checkbox_test, index_graph+2, 2, 1, 1);
+
+        _comboboxGraphDisplay.push_back(combobox_trai);
+        _comboboxGraphDisplay.push_back(combobox_test);
+        _lineeditGraphDisplay.push_back(lineedit_trai);
+        _lineeditGraphDisplay.push_back(lineedit_test);
+        _checkboxGraphDisplay.push_back(checkbox_trai);
+        _checkboxGraphDisplay.push_back(checkbox_test);
+    }
+
+    if(epoch > _ui->customplot_accuracy->xAxis->range().upper)
+    {
+         _ui->customplot_accuracy->xAxis->setRange(0.0, epoch);
+
+         int minRange = 0;
+         if(epoch - 100 > 0)
+         {
+             minRange = epoch - 100;
+         }
+          _ui->customplot_accuracy->xAxis->setRange(minRange, epoch);
+          _ui->horizontalScrollBar_accuracy->setRange(0,epoch);
+    }
+    _ui->horizontalScrollBar_accuracy->setValue(epoch-100);
+
+    if(epoch > _ui->customplot_error->xAxis->range().upper)
+    {
+        int minRange = 0;
+        if(epoch - 100 > 0)
         {
-            _ui->customplot_accuracy->xAxis->setRange(0, 100);
+            minRange = epoch - 100;
         }
-        if(_ui->customplot_error->graphCount() == 0)
-        {
-            _ui->customplot_error->xAxis->setRange(0, 100);
-        }
-        _ui->customplot_accuracy->replot();
-        _ui->customplot_error->replot();
+         _ui->customplot_error->xAxis->setRange(minRange, epoch);
+         _ui->horizontalScrollBar_error->setRange(0,epoch);
+
+    }
+    _ui->horizontalScrollBar_error->setValue(epoch-100);
+
+    _ui->customplot_accuracy->graph(index_graph)->addData(epoch, trainingAccuracy);
+    _ui->customplot_accuracy->graph(index_graph+1)->addData(epoch, testingAccuracy);
+
+    _ui->customplot_error->graph(index_graph)->addData(epoch, trainingError*100);
+    _ui->customplot_error->graph(index_graph+1)->addData(epoch, testingError*100);
+
+    _ui->customplot_accuracy->replot();
+    _ui->customplot_error->replot();
+
+}
+
+void MainWindow::on_listWidget_networkList_itemClicked(QListWidgetItem *item)
+{
+    _selectedNetwork = _ui->listWidget_networkList->row(item);
+}
+
+void MainWindow::on_pushButton_network_edit_clicked()
+{
+    if(_selectedNetwork != -1)
+    {
+        int input, output;
+        std::vector<int> hidden;
+        QString name;
+        DataType type;
+        CostCalc calc;
+
+        input = _networkList[_selectedNetwork]->getInputCount();
+        hidden = _networkList[_selectedNetwork]->getHiddenCount();
+        output = _networkList[_selectedNetwork]->getOutputCount();
+        name = QString::fromStdString(_networkList[_selectedNetwork]->getNetworkName());
+        type = _networkList[_selectedNetwork]->getNetworkType();
+        calc = _networkList[_selectedNetwork]->getNetworkCostCalc();
+
+        NetworkCreationDialog* dialog = new NetworkCreationDialog(this);
+        //connect(dialog, SIGNAL(signNetworkCreation(int,std::vector<int>,int,QString)), this, signNetworkCreationRecieved);
+        connect(dialog, &NetworkCreationDialog::signNetworkEdit, this, &MainWindow::signRecievedNetworkEdit);
+        dialog->editNetwork(_selectedNetwork, input, hidden, output, name, type, calc);
+        dialog->show();
     }
 }
 
-void MainWindow::createGraph(int networkIndex, int networkid)
-{    
-    _idsForNetworkGraphs.push_back(networkid);
-    int index_graph = 2 * (_idsForNetworkGraphs.size() - 1);
+void MainWindow::on_pushButton_network_delete_clicked()
+{
+    if(_selectedNetwork != -1)
+    {
+        _ui->listWidget_networkList->model()->removeRow(_selectedNetwork);
+        _ui->listWidget_training_networks->model()->removeRow(_selectedNetwork);
 
-    QString accTraName = QString::fromStdString(_networkList[networkIndex]->getNetworkName()) +
-                        " training accuracy";
-    QString accTesName = QString::fromStdString(_networkList[networkIndex]->getNetworkName()) +
-                        " testing accuracy";
+        removeGraphElements(_selectedNetwork);
 
-    _ui->customplot_accuracy->addGraph();
-    _ui->customplot_accuracy->addGraph();
-    _ui->customplot_accuracy->graph(index_graph)->setPen(QPen(Qt::red));
-    _ui->customplot_accuracy->graph(index_graph)->setName(accTraName);
-    _ui->customplot_accuracy->graph(index_graph+1)->setName(accTesName);
-
-    QString errTraName = QString::fromStdString(_networkList[networkIndex]->getNetworkName()) +
-                        " training error";
-    QString errTesName = QString::fromStdString(_networkList[networkIndex]->getNetworkName()) +
-                        " testing error";
-    _ui->customplot_error->addGraph();
-    _ui->customplot_error->addGraph();
-    _ui->customplot_error->graph(index_graph)->setPen(QPen(Qt::red));
-    _ui->customplot_error->graph(index_graph)->setName(errTraName);
-    _ui->customplot_error->graph(index_graph+1)->setName(errTesName);
-
-    QStringList colours = {"Red", "Green", "Blue", "Cyan", "Magenta", "Yellow", "Black"};
-
-    QString checkboxNameTest = "checkbox_test_" + QString::fromStdString(_networkList[networkIndex]->getNetworkName());
-    QString comboboxNameTest = "combobox_test_" + QString::fromStdString(_networkList[networkIndex]->getNetworkName());
-    QString lineeditNameTest = "lineedit_test_" + QString::fromStdString(_networkList[networkIndex]->getNetworkName());
-    QString checkboxNameTrai = "checkbox_training_" + QString::fromStdString(_networkList[networkIndex]->getNetworkName());
-    QString comboboxNameTrai = "combobox_training_" + QString::fromStdString(_networkList[networkIndex]->getNetworkName());
-    QString lineeditNameTrai = "lineedit_training_" + QString::fromStdString(_networkList[networkIndex]->getNetworkName());
-
-
-    QCheckBox* checkbox_test = new QCheckBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
-    checkbox_test->setObjectName(checkboxNameTest);
-    checkbox_test->setText("");
-    checkbox_test->setChecked(true);
-
-    QLineEdit* lineedit_test = new QLineEdit(_ui->scrollAreaWidgetContents_graphdisplaysettings);
-    lineedit_test->setObjectName(lineeditNameTest);
-    lineedit_test->setReadOnly(true);
-    lineedit_test->setText(QString::fromStdString(_networkList[networkIndex]->getNetworkName()) + " Testing");
-
-    QComboBox* combobox_test = new QComboBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
-    combobox_test->setObjectName(comboboxNameTest);
-    combobox_test->insertItems(0, colours);
-    combobox_test->setCurrentIndex(2);
-
-    QCheckBox* checkbox_trai = new QCheckBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
-    checkbox_trai->setObjectName(checkboxNameTrai);
-    checkbox_trai->setText("");
-    checkbox_trai->setChecked(true);
-
-    QLineEdit* lineedit_trai = new QLineEdit(_ui->scrollAreaWidgetContents_graphdisplaysettings);
-    lineedit_trai->setObjectName(lineeditNameTrai);
-    lineedit_trai->setReadOnly(true);
-    lineedit_trai->setText(QString::fromStdString(_networkList[networkIndex]->getNetworkName()) + " Training");
-
-    QComboBox* combobox_trai = new QComboBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
-    combobox_trai->setObjectName(comboboxNameTrai);
-    combobox_trai->insertItems(0, colours);
-
-    _ui->gridLayout_graphdisplay->addWidget(lineedit_trai, index_graph+1, 0, 1, 1);
-    _ui->gridLayout_graphdisplay->addWidget(combobox_trai, index_graph+1, 1, 1, 1);
-    _ui->gridLayout_graphdisplay->addWidget(checkbox_trai, index_graph+1, 2, 1, 1);
-    _ui->gridLayout_graphdisplay->addWidget(lineedit_test, index_graph+2, 0, 1, 1);
-    _ui->gridLayout_graphdisplay->addWidget(combobox_test, index_graph+2, 1, 1, 1);
-    _ui->gridLayout_graphdisplay->addWidget(checkbox_test, index_graph+2, 2, 1, 1);
-
-    _comboboxGraphDisplay.push_back(combobox_trai);
-    _comboboxGraphDisplay.push_back(combobox_test);
-    _lineeditGraphDisplay.push_back(lineedit_trai);
-    _lineeditGraphDisplay.push_back(lineedit_test);
-    _checkboxGraphDisplay.push_back(checkbox_trai);
-    _checkboxGraphDisplay.push_back(checkbox_test);
+        delete _networkList[_selectedNetwork];
+        _networkList.erase(_networkList.begin() + _selectedNetwork);
+    }
 }
 
 void MainWindow::on_checkBox_enableNoise_toggled(bool checked)
 {
     _ui->spinBox_noiselevel->setEnabled(checked);
+}
+
+void MainWindow::on_pushButton_doc_parse_clicked()
+{
+    std::vector<Exercise> exercises;
+    std::vector<QString> paths;
+
+    QString name = _ui->lineEdit_doc_name->text();
+
+    for(int i = 0; i < _comboboxCollection.size(); i++)
+    {
+        if(_checkboxCollection[i]->isChecked())
+        {
+            int tempEx = _comboboxCollection[i]->currentIndex();
+            Exercise ex;
+
+            switch(tempEx)
+            {
+            case 0: ex = Exercise::WALKING; break;
+            case 1: ex = Exercise::FALLING_FORWARD; break;
+            case 2: ex = Exercise::STAIRS_UP; break;
+            case 3: ex = Exercise::SITTING_DOWN; break;
+            case 4: ex = Exercise::PICKUP_ITEM_SITTING; break;
+            case 5: ex = Exercise::PICKUP_ITEM_STANDING; break;
+            default: ex = Exercise::UNKNOWN; break;
+            }
+            exercises.push_back(ex);
+            paths.push_back(_fileNames[i]._fpath);
+        }
+    }
+
+    DataCollection* collection = new DataCollection();
+    connect(collection, &DataCollection::signDataCollectionConsoleOutput,
+            this, &MainWindow::signRecievedConsoleOutput);
+    collection->setName(name.toStdString());
+    for(int i = 0; i < paths.size(); i++)
+    {
+        _reader->readCSVFile(paths[i].toStdString().c_str(), _ui->spinBox_doc_entries->value(),
+                             _ui->lineEdit_doc_separator->text().toStdString().c_str(), exercises[i], collection );
+    }
+    _collections.push_back(collection);
+}
+
+void MainWindow::on_pushButton_doc_createsets_clicked()
+{
+    int setSize = _ui->spinBox_doc_setSize->value();
+    double trainingSize = _ui->spinBox_doc_training->value();
+
+    _collections[_collections.size()-1]->createTrainingTestSets(setSize, trainingSize);
+    _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
 }
 
 void MainWindow::on_pushButton_training_start_clicked()
@@ -621,28 +604,6 @@ void MainWindow::on_pushButton_training_start_clicked()
         _networkList[i]->setDataCollection(_collections[_ui->listWidget_training_collections->currentRow()]);
         _networkList[i]->doTraining(true);
 
-
-        bool graphExists = false;
-        int networkId = _networkList[i]->getNetworkID();
-        int index_graph; // graph index
-        if(_idsForNetworkGraphs.size() > 0)
-        {
-            for(int j = 0; j < _idsForNetworkGraphs.size(); j++)
-            {
-                if(_idsForNetworkGraphs[j] == networkId)
-                {
-                    graphExists = true;
-                    index_graph = 2*j;
-                    break;
-                }
-            }
-        }
-
-        if(!graphExists)
-        {
-            createGraph(i, networkId);
-        }
-
         _pool->start(_networkList[i]);
     }
 }
@@ -654,7 +615,7 @@ void MainWindow::on_pushButton_training_reset_clicked()
     removeGraphElements(networkIndex);
 }
 
-void MainWindow::on_pushButton_training_stop_clicked()
+void MainWindow::on_pushButton_clicked()
 {
     int i = _ui->listWidget_training_networks->currentRow();
     _networkList[i]->doTraining(false);
@@ -701,104 +662,3 @@ void MainWindow::on_pushButton_graphdisplaysettings_clicked()
     _ui->customplot_error->replot();
     _ui->customplot_accuracy->replot();
 }
-
-void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const double trainingError, const double trainingAccuracy, const double testingError, const double testingAccuracy)
-{
-    bool graphExists = false;
-    int index_graph; // graph index
-    if(_idsForNetworkGraphs.size() > 0)
-    {
-        for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
-        {
-            if(_idsForNetworkGraphs[i] == id)
-            {
-                graphExists = true;
-                index_graph = 2*i;
-                break;
-            }
-        }
-    }
-
-    int index_network; //network index
-    for(int i = 0; i < _networkList.size(); i++)
-    {
-        if(_networkList[i]->getNetworkID() == id)
-        {
-            index_network = i;
-            break;
-        }
-    }
-
-    if(!graphExists)
-    {
-        createGraph(index_network, id);
-    }
-
-    if(epoch > _ui->customplot_accuracy->xAxis->range().upper)
-    {
-         _ui->customplot_accuracy->xAxis->setRange(0.0, epoch);
-
-         int minRange = 0;
-         if(epoch - 100 > 0)
-         {
-             minRange = epoch - 100;
-         }
-          _ui->customplot_accuracy->xAxis->setRange(minRange, epoch);
-          _ui->horizontalScrollBar_accuracy->setRange(0,epoch);
-    }
-    _ui->horizontalScrollBar_accuracy->setValue(epoch-100);
-
-    if(epoch > _ui->customplot_error->xAxis->range().upper)
-    {
-        int minRange = 0;
-        if(epoch - 100 > 0)
-        {
-            minRange = epoch - 100;
-        }
-         _ui->customplot_error->xAxis->setRange(minRange, epoch);
-         _ui->horizontalScrollBar_error->setRange(0,epoch);
-
-    }
-    _ui->horizontalScrollBar_error->setValue(epoch-100);
-
-    _ui->customplot_accuracy->graph(index_graph)->addData(epoch, trainingAccuracy);
-    _ui->customplot_accuracy->graph(index_graph+1)->addData(epoch, testingAccuracy);
-
-    _ui->customplot_error->graph(index_graph)->addData(epoch, trainingError*100);
-    _ui->customplot_error->graph(index_graph+1)->addData(epoch, testingError*100);
-
-    _ui->customplot_accuracy->replot();
-    _ui->customplot_error->replot();
-}
-
-//========================================
-//  Console tab functions and slots
-//========================================
-
-void MainWindow::signRecievedConsoleOutput(const QString &message)
-{
-    _ui->consoleOutput->appendPlainText(message);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

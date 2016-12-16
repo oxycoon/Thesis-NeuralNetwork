@@ -213,10 +213,12 @@ bool CSVReader::readCSVFile(const char *path, int entries,
     }
     else
     {
+
         /*QString message = "File " + QString::fromStdString(path) + " not found!";
         emit signFileReadComplete(message);
         emit signFileReadConsoleOutput(message);
         std::cout << message.toStdString() << std::endl;*/
+
         return false;
     }
 }
