@@ -50,5 +50,3 @@ Temporary Items
 build*/
 *.user
 *.csv
-deploy/
-*.zip
