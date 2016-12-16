@@ -227,6 +227,56 @@ void MainWindow::on_button_addFile_clicked()
 //  Data collection tab functions and slots
 //==========================================================
 
+void MainWindow::on_pushButton_doc_parse_clicked()
+{
+    std::vector<Exercise> exercises;
+    std::vector<QString> paths;
+
+    QString name = _ui->lineEdit_doc_name->text();
+
+    for(int i = 0; i < _comboboxCollection.size(); i++)
+    {
+        if(_checkboxCollection[i]->isChecked())
+        {
+            int tempEx = _comboboxCollection[i]->currentIndex();
+            Exercise ex;
+
+            switch(tempEx)
+            {
+            case 0: ex = Exercise::WALKING; break;
+            case 1: ex = Exercise::FALLING_FORWARD; break;
+            case 2: ex = Exercise::STAIRS_UP; break;
+            case 3: ex = Exercise::SITTING_DOWN; break;
+            case 4: ex = Exercise::PICKUP_ITEM_SITTING; break;
+            case 5: ex = Exercise::PICKUP_ITEM_STANDING; break;
+            default: ex = Exercise::UNKNOWN; break;
+            }
+            exercises.push_back(ex);
+            paths.push_back(_fileNames[i]._fpath);
+        }
+    }
+
+    DataCollection* collection = new DataCollection();
+    connect(collection, &DataCollection::signDataCollectionConsoleOutput,
+            this, &MainWindow::signRecievedConsoleOutput);
+    collection->setName(name.toStdString());
+    for(int i = 0; i < paths.size(); i++)
+    {
+        _reader->readCSVFile(paths[i].toStdString().c_str(), _ui->spinBox_doc_entries->value(),
+                             _ui->lineEdit_doc_separator->text().toStdString().c_str(), exercises[i], collection );
+    }
+    _collections.push_back(collection);
+}
+
+void MainWindow::on_pushButton_doc_createsets_clicked()
+{
+    int setSize = _ui->spinBox_doc_setSize->value();
+    double trainingSize = _ui->spinBox_doc_training->value();
+
+    _collections[_collections.size()-1]->createTrainingTestSets(setSize, trainingSize);
+    _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
+}
+
 void MainWindow::signRecievedFileReadComplete(const QString &message)
 {
     _ui->text_parseConsole->appendPlainText(message);
@@ -237,6 +287,11 @@ void MainWindow::signRecievedFileReadComplete(const QString &message)
 //  Network Creation tab functions and slots
 //==========================================================
 
+void MainWindow::on_listWidget_networkList_itemClicked(QListWidgetItem *item)
+{
+    _selectedNetwork = _ui->listWidget_networkList->row(item);
+}
+
 void MainWindow::on_pushButton_network_create_clicked()
 {
     std::vector<QString> names = getNetworkNames();
@@ -246,6 +301,45 @@ void MainWindow::on_pushButton_network_create_clicked()
     connect(dialog, &NetworkCreationDialog::signNetworkCreation, this, &MainWindow::signRecievedNetworkCreation);
     connect(dialog, &NetworkCreationDialog::signNetworkCreationFromSubs, this, &MainWindow::signRecievedNetworkCreationFromSubs);
     dialog->show();
+}
+
+void MainWindow::on_pushButton_network_edit_clicked()
+{
+    if(_selectedNetwork != -1)
+    {
+        int input, output;
+        std::vector<int> hidden;
+        QString name;
+        DataType type;
+        CostCalc calc;
+
+        input = _networkList[_selectedNetwork]->getInputCount();
+        hidden = _networkList[_selectedNetwork]->getHiddenCount();
+        output = _networkList[_selectedNetwork]->getOutputCount();
+        name = QString::fromStdString(_networkList[_selectedNetwork]->getNetworkName());
+        type = _networkList[_selectedNetwork]->getNetworkType();
+        calc = _networkList[_selectedNetwork]->getNetworkCostCalc();
+
+        NetworkCreationDialog* dialog = new NetworkCreationDialog(this);
+        //connect(dialog, SIGNAL(signNetworkCreation(int,std::vector<int>,int,QString)), this, signNetworkCreationRecieved);
+        connect(dialog, &NetworkCreationDialog::signNetworkEdit, this, &MainWindow::signRecievedNetworkEdit);
+        dialog->editNetwork(_selectedNetwork, input, hidden, output, name, type, calc);
+        dialog->show();
+    }
+}
+
+void MainWindow::on_pushButton_network_delete_clicked()
+{
+    if(_selectedNetwork != -1)
+    {
+        _ui->listWidget_networkList->model()->removeRow(_selectedNetwork);
+        _ui->listWidget_training_networks->model()->removeRow(_selectedNetwork);
+
+        removeGraphElements(_selectedNetwork);
+
+        delete _networkList[_selectedNetwork];
+        _networkList.erase(_networkList.begin() + _selectedNetwork);
+    }
 }
 
 void MainWindow::signRecievedNetworkCreation(const int in,
@@ -306,15 +400,94 @@ void MainWindow::signRecievedNetworkEdit(const int index, const int in, const st
 //  Network Training tab functions and slots
 //==========================================================
 
-//==========================================================
-//  Console tab functions and slots
-//==========================================================
-
-void MainWindow::signRecievedConsoleOutput(const QString &message)
+void MainWindow::on_checkBox_enableNoise_toggled(bool checked)
 {
-    _ui->consoleOutput->appendPlainText(message);
+    _ui->spinBox_noiselevel->setEnabled(checked);
 }
 
+void MainWindow::on_pushButton_training_start_clicked()
+{
+    if(_ui->listWidget_training_collections->count() > 0 &&
+            _ui->listWidget_training_networks->count() > 0 &&
+            _ui->listWidget_training_collections->selectedItems().size() != 0 &&
+             _ui->listWidget_training_networks->selectedItems().size() != 0 )
+    {
+        double momentum = _ui->doubleSpinBox_momentum->value();
+        double learningrate = _ui->doubleSpinBox_learningRate->value();
+        double targetaccuracy = _ui->doubleSpinBox_targetaccuracy->value();
+        double gaussiandeviation = _ui->spinBox_noiselevel->value() * 0.01;
+        int epoch = _ui->spinBox_maxepochs->value();
+        bool usenoise = _ui->checkBox_enableNoise->isChecked();
+        bool trainsubs = _ui->checkBox_trainsubsfirst->isChecked();
+        int i = _ui->listWidget_training_networks->currentRow();
+
+        _networkList[i]->setLearningParameters(learningrate, momentum);
+        _networkList[i]->setMaxEpochs(epoch);
+        _networkList[i]->setTargetAccuracy(targetaccuracy);
+        _networkList[i]->enableNoise(usenoise);
+        _networkList[i]->setNoiseParameters(gaussiandeviation);
+        _networkList[i]->setTrainSubNetworksFirst(trainsubs);
+        _networkList[i]->setDataCollection(_collections[_ui->listWidget_training_collections->currentRow()]);
+        _networkList[i]->doTraining(true);
+
+        _pool->start(_networkList[i]);
+    }
+}
+
+void MainWindow::on_pushButton_training_reset_clicked()
+{
+    int networkIndex = _ui->listWidget_training_networks->currentRow();
+    _networkList[networkIndex]->resetNetwork();
+    removeGraphElements(networkIndex);
+}
+
+void MainWindow::on_pushButton_training_stop_clicked()
+{
+    int i = _ui->listWidget_training_networks->currentRow();
+    _networkList[i]->doTraining(false);
+}
+
+void MainWindow::on_pushButton_graphdisplaysettings_clicked()
+{
+    for(int i = 0; i < _checkboxGraphDisplay.size(); i++)
+    {
+        _ui->customplot_accuracy->graph(i)->setVisible(_checkboxGraphDisplay[i]->isChecked());
+        _ui->customplot_error->graph(i)->setVisible(_checkboxGraphDisplay[i]->isChecked());
+    }
+
+    for(int i = 0; i < _comboboxGraphDisplay.size(); i++)
+    {
+        int index = _comboboxGraphDisplay[i]->currentIndex();
+        QColor colour;
+
+        switch(index)
+        {
+        case 0: colour = Qt::red; break;
+        case 1: colour = Qt::green; break;
+        case 2: colour = Qt::blue; break;
+        case 3: colour = Qt::cyan; break;
+        case 4: colour = Qt::magenta; break;
+        case 5: colour = Qt::yellow; break;
+        default: colour = Qt::black; break;
+        }
+        _ui->customplot_accuracy->graph(i)->setPen(colour);
+        _ui->customplot_error->graph(i)->setPen(colour);
+    }
+    _ui->customplot_error->replot();
+    _ui->customplot_accuracy->replot();
+}
+
+void MainWindow::on_horizontalScrollBar_error_valueChanged(int value)
+{
+    _ui->customplot_error->xAxis->setRange(value, 100, Qt::AlignLeft);
+    _ui->customplot_error->replot();
+}
+
+void MainWindow::on_horizontalScrollBar_accuracy_valueChanged(int value)
+{
+    _ui->customplot_accuracy->xAxis->setRange(value, 100, Qt::AlignLeft);
+    _ui->customplot_accuracy->replot();
+}
 
 void MainWindow::removeGraphElements(int networkIndex)
 {
@@ -323,14 +496,20 @@ void MainWindow::removeGraphElements(int networkIndex)
         int graph_index = 0;
         int networkId = _networkList[networkIndex]->getNetworkID();
 
+        bool hasGraph = false;
         for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
         {
             if(_idsForNetworkGraphs[i] == networkId)
             {
+                hasGraph = true;
                 graph_index = 2*i;
                 _idsForNetworkGraphs.erase(_idsForNetworkGraphs.begin() + i);
                 break;
             }
+        }
+        if(!hasGraph)
+        {
+            return;
         }
 
         _ui->gridLayout_graphdisplay->removeWidget(_checkboxGraphDisplay[graph_index]);
@@ -451,8 +630,6 @@ void MainWindow::createGraph(int networkIndex, int networkId)
     _checkboxGraphDisplay.push_back(checkbox_test);
 }
 
-
-
 void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const double trainingError, const double trainingAccuracy, const double testingError, const double testingAccuracy)
 {
     bool graphExists = false;
@@ -523,185 +700,25 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
 
 }
 
-void MainWindow::on_listWidget_networkList_itemClicked(QListWidgetItem *item)
+//==========================================================
+//  Console tab functions and slots
+//==========================================================
+
+void MainWindow::signRecievedConsoleOutput(const QString &message)
 {
-    _selectedNetwork = _ui->listWidget_networkList->row(item);
+    _ui->consoleOutput->appendPlainText(message);
 }
 
-void MainWindow::on_pushButton_network_edit_clicked()
-{
-    if(_selectedNetwork != -1)
-    {
-        int input, output;
-        std::vector<int> hidden;
-        QString name;
-        DataType type;
-        CostCalc calc;
 
-        input = _networkList[_selectedNetwork]->getInputCount();
-        hidden = _networkList[_selectedNetwork]->getHiddenCount();
-        output = _networkList[_selectedNetwork]->getOutputCount();
-        name = QString::fromStdString(_networkList[_selectedNetwork]->getNetworkName());
-        type = _networkList[_selectedNetwork]->getNetworkType();
-        calc = _networkList[_selectedNetwork]->getNetworkCostCalc();
 
-        NetworkCreationDialog* dialog = new NetworkCreationDialog(this);
-        //connect(dialog, SIGNAL(signNetworkCreation(int,std::vector<int>,int,QString)), this, signNetworkCreationRecieved);
-        connect(dialog, &NetworkCreationDialog::signNetworkEdit, this, &MainWindow::signRecievedNetworkEdit);
-        dialog->editNetwork(_selectedNetwork, input, hidden, output, name, type, calc);
-        dialog->show();
-    }
-}
 
-void MainWindow::on_pushButton_network_delete_clicked()
-{
-    if(_selectedNetwork != -1)
-    {
-        _ui->listWidget_networkList->model()->removeRow(_selectedNetwork);
-        _ui->listWidget_training_networks->model()->removeRow(_selectedNetwork);
 
-        removeGraphElements(_selectedNetwork);
 
-        delete _networkList[_selectedNetwork];
-        _networkList.erase(_networkList.begin() + _selectedNetwork);
-    }
-}
 
-void MainWindow::on_checkBox_enableNoise_toggled(bool checked)
-{
-    _ui->spinBox_noiselevel->setEnabled(checked);
-}
 
-void MainWindow::on_pushButton_doc_parse_clicked()
-{
-    std::vector<Exercise> exercises;
-    std::vector<QString> paths;
 
-    QString name = _ui->lineEdit_doc_name->text();
 
-    for(int i = 0; i < _comboboxCollection.size(); i++)
-    {
-        if(_checkboxCollection[i]->isChecked())
-        {
-            int tempEx = _comboboxCollection[i]->currentIndex();
-            Exercise ex;
 
-            switch(tempEx)
-            {
-            case 0: ex = Exercise::WALKING; break;
-            case 1: ex = Exercise::FALLING_FORWARD; break;
-            case 2: ex = Exercise::STAIRS_UP; break;
-            case 3: ex = Exercise::SITTING_DOWN; break;
-            case 4: ex = Exercise::PICKUP_ITEM_SITTING; break;
-            case 5: ex = Exercise::PICKUP_ITEM_STANDING; break;
-            default: ex = Exercise::UNKNOWN; break;
-            }
-            exercises.push_back(ex);
-            paths.push_back(_fileNames[i]._fpath);
-        }
-    }
 
-    DataCollection* collection = new DataCollection();
-    connect(collection, &DataCollection::signDataCollectionConsoleOutput,
-            this, &MainWindow::signRecievedConsoleOutput);
-    collection->setName(name.toStdString());
-    for(int i = 0; i < paths.size(); i++)
-    {
-        _reader->readCSVFile(paths[i].toStdString().c_str(), _ui->spinBox_doc_entries->value(),
-                             _ui->lineEdit_doc_separator->text().toStdString().c_str(), exercises[i], collection );
-    }
-    _collections.push_back(collection);
-}
 
-void MainWindow::on_pushButton_doc_createsets_clicked()
-{
-    int setSize = _ui->spinBox_doc_setSize->value();
-    double trainingSize = _ui->spinBox_doc_training->value();
 
-    _collections[_collections.size()-1]->createTrainingTestSets(setSize, trainingSize);
-    _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
-}
-
-void MainWindow::on_pushButton_training_start_clicked()
-{
-    if(_ui->listWidget_training_collections->count() > 0 &&
-            _ui->listWidget_training_networks->count() > 0 &&
-            _ui->listWidget_training_collections->selectedItems().size() != 0 &&
-             _ui->listWidget_training_networks->selectedItems().size() != 0 )
-    {
-        double momentum = _ui->doubleSpinBox_momentum->value();
-        double learningrate = _ui->doubleSpinBox_learningRate->value();
-        double targetaccuracy = _ui->doubleSpinBox_targetaccuracy->value();
-        double gaussiandeviation = _ui->spinBox_noiselevel->value() * 0.01;
-        int epoch = _ui->spinBox_maxepochs->value();
-        bool usenoise = _ui->checkBox_enableNoise->isChecked();
-        bool trainsubs = _ui->checkBox_trainsubsfirst->isChecked();
-        int i = _ui->listWidget_training_networks->currentRow();
-
-        _networkList[i]->setLearningParameters(learningrate, momentum);
-        _networkList[i]->setMaxEpochs(epoch);
-        _networkList[i]->setTargetAccuracy(targetaccuracy);
-        _networkList[i]->enableNoise(usenoise);
-        _networkList[i]->setNoiseParameters(gaussiandeviation);
-        _networkList[i]->setTrainSubNetworksFirst(trainsubs);
-        _networkList[i]->setDataCollection(_collections[_ui->listWidget_training_collections->currentRow()]);
-        _networkList[i]->doTraining(true);
-
-        _pool->start(_networkList[i]);
-    }
-}
-
-void MainWindow::on_pushButton_training_reset_clicked()
-{
-    int networkIndex = _ui->listWidget_training_networks->currentRow();
-    _networkList[networkIndex]->resetNetwork();
-    removeGraphElements(networkIndex);
-}
-
-void MainWindow::on_horizontalScrollBar_error_valueChanged(int value)
-{
-    _ui->customplot_error->xAxis->setRange(value, 100, Qt::AlignLeft);
-    _ui->customplot_error->replot();
-}
-
-void MainWindow::on_horizontalScrollBar_accuracy_valueChanged(int value)
-{
-    _ui->customplot_accuracy->xAxis->setRange(value, 100, Qt::AlignLeft);
-    _ui->customplot_accuracy->replot();
-}
-
-void MainWindow::on_pushButton_graphdisplaysettings_clicked()
-{
-    for(int i = 0; i < _checkboxGraphDisplay.size(); i++)
-    {
-        _ui->customplot_accuracy->graph(i)->setVisible(_checkboxGraphDisplay[i]->isChecked());
-        _ui->customplot_error->graph(i)->setVisible(_checkboxGraphDisplay[i]->isChecked());
-    }
-
-    for(int i = 0; i < _comboboxGraphDisplay.size(); i++)
-    {
-        int index = _comboboxGraphDisplay[i]->currentIndex();
-        QColor colour;
-
-        switch(index)
-        {
-        case 0: colour = Qt::red; break;
-        case 1: colour = Qt::green; break;
-        case 2: colour = Qt::blue; break;
-        case 3: colour = Qt::cyan; break;
-        case 4: colour = Qt::magenta; break;
-        case 5: colour = Qt::yellow; break;
-        default: colour = Qt::black; break;
-        }
-        _ui->customplot_accuracy->graph(i)->setPen(colour);
-        _ui->customplot_error->graph(i)->setPen(colour);
-    }
-    _ui->customplot_error->replot();
-    _ui->customplot_accuracy->replot();
-}
-
-void MainWindow::on_pushButton_training_stop_clicked()
-{
-    int i = _ui->listWidget_training_networks->currentRow();
-    _networkList[i]->doTraining(false);
-}
