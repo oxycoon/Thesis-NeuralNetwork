@@ -150,7 +150,6 @@ void MainWindow::loadDataCollectionFiles()
 
 void MainWindow::loadDefaultNetworks()
 {
-    //TODO: Fix the rest of the networks
     QuadraticCost* cost = new QuadraticCost();
     Network* net = new Network(16, {16,6}, 2, cost, DataType::ACCELEROMETER, "DefaultAccelerometer");
     connect(net, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
@@ -161,6 +160,28 @@ void MainWindow::loadDefaultNetworks()
     _networkList.push_back(net);
     _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
+
+    QuadraticCost* cost2 = new QuadraticCost();
+    Network* net2 = new Network(16, {16,6}, 2, cost2, DataType::GYRO, "DefaultGyroscope");
+    connect(net2, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net2, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net2->initNetwork();
+    net2->setAutoDelete(false);
+
+    _networkList.push_back(net2);
+    _ui->listWidget_networkList->addItem(QString::fromStdString(net2->getNetworkName()));
+    _ui->listWidget_training_networks->addItem(QString::fromStdString(net2->getNetworkName()));
+
+    QuadraticCost* cost3 = new QuadraticCost();
+    Network* net3 = new Network(16, {16,6}, 2, cost3, DataType::COMPASS, "DefaultCompass");
+    connect(net3, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net3, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net3->initNetwork();
+    net3->setAutoDelete(false);
+
+    _networkList.push_back(net3);
+    _ui->listWidget_networkList->addItem(QString::fromStdString(net3->getNetworkName()));
+    _ui->listWidget_training_networks->addItem(QString::fromStdString(net3->getNetworkName()));
 
 }
 
