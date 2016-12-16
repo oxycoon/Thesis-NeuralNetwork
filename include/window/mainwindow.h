@@ -63,6 +63,8 @@ private:
     std::vector<QString>    getNetworkNames();
 
     void        removeGraphElements(int networkIndex);
+    void        createGraph(int networkIndex, int networkId);
+
     void        loadDataCollectionFiles();
     void        loadDefaultNetworks();
     void        setupGUIElements();
