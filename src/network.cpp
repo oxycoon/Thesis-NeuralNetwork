@@ -524,7 +524,6 @@ void Network::runTraining(DataCollection *set)
             _subNetworks[i]->runTraining(set);
         }
     }
-    _trainingSetError = 0;
 
     //Runs training using training set for training and generalized set for testing
     while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs && _doTraining)
@@ -578,7 +577,7 @@ void Network::runTraining(DataCollection *set)
 
 
         //Stops the training set if the generalization set's error starts increasing.
-        //TODO Stop condition
+         //TODO Stop condition
         /*if(oldTSMSE < _testingSetError)
         {
             std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;

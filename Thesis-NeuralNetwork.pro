@@ -10,7 +10,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets datavisualization printsupport
 
 TARGET = Thesis-NeuralNetwork
 TEMPLATE = app
-CONFIG += qt
+CONFIG += qt debug
+
 
 SOURCES += app/main.cpp \
     src/window/mainwindow.cpp \
@@ -52,5 +53,5 @@ FORMS    += res/layout/mainwindow.ui \
 win32 {
     INCLUDEPATH += C:/boost_1_62_0_msvc
     LIBS += -LC:/boost_1_62_0_msvc/lib64-msvc-12.0 \
-            -lboost_regex-vc120-mt-1_62
+            -lboost_regex-vc120-mt-gd-1_62
 }
