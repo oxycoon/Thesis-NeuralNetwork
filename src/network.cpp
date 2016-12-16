@@ -443,70 +443,6 @@ void Network::initNetworkFromSub(std::vector<Network*> inputs)
     emit signNetworkConsoleOutput(message);
 }
 
-/**
- * @brief Network::runTraining
- * @param trainingSet
- * @param testSet
- * @param validationSet
- *
- *  Trains the network with the given training sets.
- */
-/*void Network::runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &testSet, const std::vector<DataEntry*> &validationSet)
-{
-    std::cout << "Neural network training starting " << std::endl
-              << "======================================================================" << std::endl
-              << "Learning rate: " << _learningRate << ", Momentum: " << _momentum << ", Max epochs: " << _maxEpochs
-                    << ", Target accuracy: " << _targetAccuracy << "%" << std::endl
-              << "Input: " << _countInput << ", Hidden: " << _countHidden << ", Output: " << _countOutput << std::endl
-              << "======================================================================" << std::endl;
-
-    _epoch = 0;
-
-    //Runs training using training set for training and generalized set for testing
-    while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs)
-    {
-        //std::cout << "New epoch, epoch #" << _epoch << std::endl;
-
-        double oldTrA = _trainingSetAccuracy;
-        double oldTSA = _testingSetAccuracy;
-        double oldTSMSE = _testingSetError;
-
-        //Train the network with the training set
-        runTrainingEpoch(trainingSet);
-
-        //Gets the generalized set accuracy and MSE
-        _testingSetAccuracy = getSetAccuracy(testSet);
-        _testingSetError = getSetMSE(testSet);
-
-        //Checks for changes in the training and generalization set's accuracy, prints if there's a change
-        if(std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy) )
-        {
-            std::cout << "Epoch: " << _epoch;
-            std::cout << " | Training set accuracy: " << _trainingSetAccuracy << "%, MSE: " << _trainingSetError;
-            std::cout << " | Generalized set accuracy: " << _testingSetAccuracy << "%, MSE: " << _testingSetError << std::endl;
-        }
-        //Increases epoch for next iteration.
-        _epoch++;
-
-        //Stops the training set if the generalization set's error starts increasing.
-        if(oldTSMSE < _testingSetError)
-        {
-            std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;
-            break;
-        }
-    }
-    //std::cout << "Epochs ran: " << _epoch << std::endl;
-
-    //Run validation set
-    _validationSetAccuracy = getSetAccuracy(validationSet);
-    _validationSetError = getSetMSE(validationSet);
-
-    std::cout << std::endl << "Training Complete!!! - > Elapsed Epochs: " << _epoch << std::endl;
-    std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
-    std::cout << " Validation Set MSE: " << _validationSetError << std::endl << std::endl;
-    std::cout << "Closing system." << std::endl;
-}*/
-
 void Network::runTraining(DataCollection *set)
 {
     /*std::cout << "Neural network training starting " << std::endl
@@ -588,16 +524,12 @@ void Network::runTraining(DataCollection *set)
 
     if(WRITE_RESULTS_TO_FILE)
     {
-        std::string name = _networkName + "_result.csv";
+        std::string name =  _networkName + "_result.csv";
         FileWriter writer;
-        writer.writeFile(name, results.toString());
+        writer.writeFile(name, results.toString(), "results/");
     }
     emit signNetworkTrainingComplete();
 
-    /*std::cout << std::endl << "Training Complete!!! - > Elapsed Epochs: " << _epoch << std::endl;
-    std::cout << " Validation Set Accuracy: " << _validationSetAccuracy << std::endl;
-    std::cout << " Validation Set MSE: " << _validationSetError << std::endl << std::endl;
-    std::cout << "Closing system." << std::endl;*/
 }
 
 void Network::run()

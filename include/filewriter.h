@@ -9,7 +9,7 @@ public:
     FileWriter();
 
 
-    bool writeFile(std::string fileName, std::string contents);
+    bool writeFile(std::string fileName, std::string contents, std::string folder = "./");
 };
 
 #endif // FILEWRITER_H
