@@ -249,7 +249,6 @@ void NetworkCreationDialog::updateHiddenLayerSection()
             ui->gridLayout_hidden2->addWidget(box2,i,1,1,1);
             ui->gridLayout_hidden2->addWidget(cbox2,i,2,1,1);
 
-
             _hiddenLabel.push_back(label);
             _hiddenLineEdit.push_back(box);
             _hiddenComboBox.push_back(cbox);

@@ -49,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::signRecievedConsoleOutput);
     collection->setName("Default data collection");
 
+    //TODO: create function to load several default collections
     _reader->readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
     _reader->readCSVFile("../res/docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
     _reader->readCSVFile("../res/docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
@@ -83,8 +84,6 @@ MainWindow::MainWindow(QWidget *parent) :
     _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
 
-
-
     collection->createTrainingTestSets(5, 15);
     _collections.push_back(collection);
 
@@ -93,6 +92,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    for(int i = 0; i < _networkList.size(); i++)
+    {
+        _networkList[i]->doTraining(false);
+        removeGraphElements(i);
+    }
+    _pool->waitForDone();
+
+    for(int i = 0; i < _networkList.size(); i++)
+    {
+        delete _networkList[i];
+    }
+    _networkList.clear();
+
     for(int i = 0; i < _checkboxCollection.size(); i++)
     {
         delete _checkboxCollection[i];
@@ -111,11 +123,12 @@ MainWindow::~MainWindow()
     }
     _lineeditCollection.clear();
 
-    /*for(int i = 0; i < _collections.size(); i++)
+    for(int i = 0; i < _collections.size(); i++)
     {
         delete _collections[i];
     }
-    _collections.clear();*/
+    _collections.clear();
+    _pool->clear();
 
     delete _ui;
     delete _reader;
@@ -130,6 +143,61 @@ std::vector<QString> MainWindow::getNetworkNames()
         result.push_back(QString::fromStdString(_networkList.at(i)->getNetworkName()));
     }
     return result;
+}
+
+void MainWindow::removeGraphElements(int networkIndex)
+{
+    if(_idsForNetworkGraphs.size() > 0)
+    {
+        int graph_index = 0;
+        int networkId = _networkList[networkIndex]->getNetworkID();
+
+        for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
+        {
+            if(_idsForNetworkGraphs[i] == networkId)
+            {
+                graph_index = 2*i;
+                _idsForNetworkGraphs.erase(_idsForNetworkGraphs.begin() + i);
+                break;
+            }
+        }
+
+        _ui->gridLayout_graphdisplay->removeWidget(_checkboxGraphDisplay[graph_index]);
+        _ui->gridLayout_graphdisplay->removeWidget(_checkboxGraphDisplay[graph_index+1]);
+        _ui->gridLayout_graphdisplay->removeWidget(_comboboxGraphDisplay[graph_index]);
+        _ui->gridLayout_graphdisplay->removeWidget(_comboboxGraphDisplay[graph_index+1]);
+        _ui->gridLayout_graphdisplay->removeWidget(_lineeditGraphDisplay[graph_index]);
+        _ui->gridLayout_graphdisplay->removeWidget(_lineeditGraphDisplay[graph_index+1]);
+
+        delete _lineeditGraphDisplay[graph_index];
+        delete _comboboxGraphDisplay[graph_index];
+        delete _checkboxGraphDisplay[graph_index];
+        delete _lineeditGraphDisplay[graph_index+1];
+        delete _comboboxGraphDisplay[graph_index+1];
+        delete _checkboxGraphDisplay[graph_index+1];
+
+        _lineeditGraphDisplay.erase(_lineeditGraphDisplay.begin() + graph_index);
+        _comboboxGraphDisplay.erase(_comboboxGraphDisplay.begin() + graph_index);
+        _checkboxGraphDisplay.erase(_checkboxGraphDisplay.begin() + graph_index);
+        _lineeditGraphDisplay.erase(_lineeditGraphDisplay.begin() + graph_index);
+        _comboboxGraphDisplay.erase(_comboboxGraphDisplay.begin() + graph_index);
+        _checkboxGraphDisplay.erase(_checkboxGraphDisplay.begin() + graph_index);
+
+        _ui->customplot_accuracy->removeGraph(graph_index+1);
+        _ui->customplot_accuracy->removeGraph(graph_index);
+        _ui->customplot_error->removeGraph(graph_index+1);
+        _ui->customplot_error->removeGraph(graph_index);
+        if(_ui->customplot_accuracy->graphCount() == 0)
+        {
+            _ui->customplot_accuracy->xAxis->setRange(0, 100);
+        }
+        if(_ui->customplot_error->graphCount() == 0)
+        {
+            _ui->customplot_error->xAxis->setRange(0, 100);
+        }
+        _ui->customplot_accuracy->replot();
+        _ui->customplot_error->replot();
+    }
 }
 
 void MainWindow::on_dirtreeview_clicked(const QModelIndex &index)
@@ -258,21 +326,7 @@ void MainWindow::signRecievedNetworkEdit(const int index, const int in, const st
     else if(calc == CostCalc::CrossEntropy) costCalculator = new CrossEntropyCost();
 
     _networkList[index]->editNetwork(in, hidden, out, name.toStdString(), type, costCalculator);
-
-    /*delete _networkList[index];
-    _networkList[index] = new Network(in, hidden, out, costCalculator, type, name.toStdString());
-    _networkList[index]->initNetwork();
-    _networkList[index]->setAutoDelete(false);
-
-    connect(_networkList[index], &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
-    connect(_networkList[index], &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);*/
-
     _ui->listWidget_networkList->item(index)->setText(name);
-}
-
-void MainWindow::signRecievedNetworkTrainingComplete()
-{
-    _currentGraphNetwork++;
 }
 
 void MainWindow::signRecievedFileReadComplete(const QString &message)
@@ -338,6 +392,60 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
         _ui->customplot_error->graph(index_graph)->setPen(QPen(Qt::red));
         _ui->customplot_error->graph(index_graph)->setName(errTraName);
         _ui->customplot_error->graph(index_graph+1)->setName(errTesName);
+
+        QStringList colours = {"Red", "Green", "Blue", "Cyan", "Magenta", "Yellow", "Black"};
+
+        QString checkboxNameTest = "checkbox_test_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+        QString comboboxNameTest = "combobox_test_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+        QString lineeditNameTest = "lineedit_test_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+        QString checkboxNameTrai = "checkbox_training_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+        QString comboboxNameTrai = "combobox_training_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+        QString lineeditNameTrai = "lineedit_training_" + QString::fromStdString(_networkList[index_network]->getNetworkName());
+
+
+        QCheckBox* checkbox_test = new QCheckBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        checkbox_test->setObjectName(checkboxNameTest);
+        checkbox_test->setText("");
+        checkbox_test->setChecked(true);
+
+        QLineEdit* lineedit_test = new QLineEdit(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        lineedit_test->setObjectName(lineeditNameTest);
+        lineedit_test->setReadOnly(true);
+        lineedit_test->setText(QString::fromStdString(_networkList[index_network]->getNetworkName()) + " Testing");
+
+        QComboBox* combobox_test = new QComboBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        combobox_test->setObjectName(comboboxNameTest);
+        combobox_test->insertItems(0, colours);
+        combobox_test->setCurrentIndex(2);
+
+        QCheckBox* checkbox_trai = new QCheckBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        checkbox_trai->setObjectName(checkboxNameTrai);
+        checkbox_trai->setText("");
+        checkbox_trai->setChecked(true);
+
+        QLineEdit* lineedit_trai = new QLineEdit(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        lineedit_trai->setObjectName(lineeditNameTrai);
+        lineedit_trai->setReadOnly(true);
+        lineedit_trai->setText(QString::fromStdString(_networkList[index_network]->getNetworkName()) + " Training");
+
+        QComboBox* combobox_trai = new QComboBox(_ui->scrollAreaWidgetContents_graphdisplaysettings);
+        combobox_trai->setObjectName(comboboxNameTrai);
+        combobox_trai->insertItems(0, colours);
+
+
+        _ui->gridLayout_graphdisplay->addWidget(lineedit_trai, index_graph+1, 0, 1, 1);
+        _ui->gridLayout_graphdisplay->addWidget(combobox_trai, index_graph+1, 1, 1, 1);
+        _ui->gridLayout_graphdisplay->addWidget(checkbox_trai, index_graph+1, 2, 1, 1);
+        _ui->gridLayout_graphdisplay->addWidget(lineedit_test, index_graph+2, 0, 1, 1);
+        _ui->gridLayout_graphdisplay->addWidget(combobox_test, index_graph+2, 1, 1, 1);
+        _ui->gridLayout_graphdisplay->addWidget(checkbox_test, index_graph+2, 2, 1, 1);
+
+        _comboboxGraphDisplay.push_back(combobox_trai);
+        _comboboxGraphDisplay.push_back(combobox_test);
+        _lineeditGraphDisplay.push_back(lineedit_trai);
+        _lineeditGraphDisplay.push_back(lineedit_test);
+        _checkboxGraphDisplay.push_back(checkbox_trai);
+        _checkboxGraphDisplay.push_back(checkbox_test);
     }
 
     if(epoch > _ui->customplot_accuracy->xAxis->range().upper)
@@ -412,11 +520,13 @@ void MainWindow::on_pushButton_network_delete_clicked()
 {
     if(_selectedNetwork != -1)
     {
-        std::cout << "Elements in list: " << _networkList.size() << std::endl;
         _ui->listWidget_networkList->model()->removeRow(_selectedNetwork);
+        _ui->listWidget_training_networks->model()->removeRow(_selectedNetwork);
+
+        removeGraphElements(_selectedNetwork);
+
         delete _networkList[_selectedNetwork];
         _networkList.erase(_networkList.begin() + _selectedNetwork);
-        std::cout << "Elements in list: " << _networkList.size() << std::endl;
     }
 }
 
@@ -477,26 +587,18 @@ void MainWindow::on_pushButton_doc_createsets_clicked()
 
 void MainWindow::on_pushButton_training_start_clicked()
 {
-    double momentum = _ui->doubleSpinBox_momentum->value();
-    double learningrate = _ui->doubleSpinBox_learningRate->value();
-    double targetaccuracy = _ui->doubleSpinBox_targetaccuracy->value();
-    double gaussiandeviation = _ui->spinBox_noiselevel->value() * 0.01;
-    int epoch = _ui->spinBox_maxepochs->value();
-    bool usenoise = _ui->checkBox_enableNoise->isChecked();
-    bool trainsubs = _ui->checkBox_trainsubsfirst->isChecked();
-
-    /*_ui->customplot_accuracy->xAxis->setRange(0.0, epoch);
-    _ui->customplot_error->xAxis->setRange(0.0, epoch);*/
-    _ui->customplot_accuracy->replot();
-    _ui->customplot_error->replot();
-
-    _currentGraphNetwork = 0;
-
     if(_ui->listWidget_training_collections->count() > 0 &&
             _ui->listWidget_training_networks->count() > 0 &&
             _ui->listWidget_training_collections->selectedItems().size() != 0 &&
              _ui->listWidget_training_networks->selectedItems().size() != 0 )
     {
+        double momentum = _ui->doubleSpinBox_momentum->value();
+        double learningrate = _ui->doubleSpinBox_learningRate->value();
+        double targetaccuracy = _ui->doubleSpinBox_targetaccuracy->value();
+        double gaussiandeviation = _ui->spinBox_noiselevel->value() * 0.01;
+        int epoch = _ui->spinBox_maxepochs->value();
+        bool usenoise = _ui->checkBox_enableNoise->isChecked();
+        bool trainsubs = _ui->checkBox_trainsubsfirst->isChecked();
         int i = _ui->listWidget_training_networks->currentRow();
 
         _networkList[i]->setLearningParameters(learningrate, momentum);
@@ -505,76 +607,64 @@ void MainWindow::on_pushButton_training_start_clicked()
         _networkList[i]->enableNoise(usenoise);
         _networkList[i]->setNoiseParameters(gaussiandeviation);
         _networkList[i]->setTrainSubNetworksFirst(trainsubs);
-
         _networkList[i]->setDataCollection(_collections[_ui->listWidget_training_collections->currentRow()]);
         _networkList[i]->doTraining(true);
 
-        _currentGraphNetwork = 0;
         _pool->start(_networkList[i]);
     }
-
 }
 
 void MainWindow::on_pushButton_training_reset_clicked()
 {
     int networkIndex = _ui->listWidget_training_networks->currentRow();
     _networkList[networkIndex]->resetNetwork();
-
-    if(_idsForNetworkGraphs.size() > 0)
-    {
-        int graph_index = 0;
-        int networkId = _networkList[networkIndex]->getNetworkID();
-
-        for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
-        {
-            if(_idsForNetworkGraphs[i] == networkId)
-            {
-                graph_index = 2*i;
-                _idsForNetworkGraphs.erase(_idsForNetworkGraphs.begin() + i);
-                break;
-            }
-        }
-
-        _ui->customplot_accuracy->removeGraph(graph_index+1);
-        _ui->customplot_accuracy->removeGraph(graph_index);
-        _ui->customplot_error->removeGraph(graph_index+1);
-        _ui->customplot_error->removeGraph(graph_index);
-
-        if(_ui->customplot_accuracy->graphCount() == 0)
-        {
-            _ui->customplot_accuracy->xAxis->setRange(0, 100);
-        }
-        if(_ui->customplot_error->graphCount() == 0)
-        {
-            _ui->customplot_error->xAxis->setRange(0, 100);
-        }
-
-        _ui->customplot_accuracy->replot();
-        _ui->customplot_error->replot();
-    }
+    removeGraphElements(networkIndex);
 }
 
 void MainWindow::on_pushButton_clicked()
 {
     int i = _ui->listWidget_training_networks->currentRow();
-
     _networkList[i]->doTraining(false);
 }
 
 void MainWindow::on_horizontalScrollBar_error_valueChanged(int value)
 {
-    //if(qAbs(_ui->customplot_error->xAxis->range().lower - (value)) > 1)
-    //{
-        _ui->customplot_error->xAxis->setRange(value, 100, Qt::AlignLeft);
-        _ui->customplot_error->replot();
-    //}
+    _ui->customplot_error->xAxis->setRange(value, 100, Qt::AlignLeft);
+    _ui->customplot_error->replot();
 }
 
 void MainWindow::on_horizontalScrollBar_accuracy_valueChanged(int value)
 {
-    //if(qAbs(_ui->customplot_error->xAxis->range().lower - (value)) > 10)
-    //{
-        _ui->customplot_accuracy->xAxis->setRange(value, 100, Qt::AlignLeft);
-        _ui->customplot_accuracy->replot();
-    //}
+    _ui->customplot_accuracy->xAxis->setRange(value, 100, Qt::AlignLeft);
+    _ui->customplot_accuracy->replot();
+}
+
+void MainWindow::on_pushButton_graphdisplaysettings_clicked()
+{
+    for(int i = 0; i < _checkboxGraphDisplay.size(); i++)
+    {
+        _ui->customplot_accuracy->graph(i)->setVisible(_checkboxGraphDisplay[i]->isChecked());
+        _ui->customplot_error->graph(i)->setVisible(_checkboxGraphDisplay[i]->isChecked());
+    }
+
+    for(int i = 0; i < _comboboxGraphDisplay.size(); i++)
+    {
+        int index = _comboboxGraphDisplay[i]->currentIndex();
+        QColor colour;
+
+        switch(index)
+        {
+        case 0: colour = Qt::red; break;
+        case 1: colour = Qt::green; break;
+        case 2: colour = Qt::blue; break;
+        case 3: colour = Qt::cyan; break;
+        case 4: colour = Qt::magenta; break;
+        case 5: colour = Qt::yellow; break;
+        default: colour = Qt::black; break;
+        }
+        _ui->customplot_accuracy->graph(i)->setPen(colour);
+        _ui->customplot_error->graph(i)->setPen(colour);
+    }
+    _ui->customplot_error->replot();
+    _ui->customplot_accuracy->replot();
 }

@@ -24,7 +24,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_fileexplorer">
        <attribute name="title">
@@ -320,7 +320,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tab_error">
             <property name="minimumSize">
@@ -384,6 +384,12 @@
             </layout>
            </widget>
            <widget class="QWidget" name="tab_graphdisplaysettings">
+            <property name="minimumSize">
+             <size>
+              <width>400</width>
+              <height>420</height>
+             </size>
+            </property>
             <attribute name="title">
              <string>Display settings</string>
             </attribute>
@@ -400,7 +406,10 @@
              <property name="bottomMargin">
               <number>0</number>
              </property>
-             <property name="spacing">
+             <property name="horizontalSpacing">
+              <number>5</number>
+             </property>
+             <property name="verticalSpacing">
               <number>0</number>
              </property>
              <item row="0" column="0">
@@ -419,7 +428,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>361</width>
+                  <width>357</width>
                   <height>418</height>
                  </rect>
                 </property>
@@ -431,16 +440,16 @@
                 </property>
                 <layout class="QGridLayout" name="gridLayout_15">
                  <property name="leftMargin">
-                  <number>0</number>
+                  <number>5</number>
                  </property>
                  <property name="topMargin">
-                  <number>0</number>
+                  <number>5</number>
                  </property>
                  <property name="rightMargin">
-                  <number>0</number>
+                  <number>5</number>
                  </property>
                  <property name="bottomMargin">
-                  <number>0</number>
+                  <number>5</number>
                  </property>
                  <property name="horizontalSpacing">
                   <number>5</number>
@@ -448,8 +457,68 @@
                  <property name="verticalSpacing">
                   <number>2</number>
                  </property>
+                 <item row="0" column="0">
+                  <layout class="QGridLayout" name="gridLayout_graphdisplay">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_16">
+                     <property name="text">
+                      <string>Name</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLabel" name="label_18">
+                     <property name="maximumSize">
+                      <size>
+                       <width>50</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>Show</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="label_17">
+                     <property name="maximumSize">
+                      <size>
+                       <width>60</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>Colour</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
                 </layout>
                </widget>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="pushButton_graphdisplaysettings">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Update 
+Settings</string>
+               </property>
               </widget>
              </item>
             </layout>

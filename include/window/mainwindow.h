@@ -40,22 +40,29 @@ private:
     std::vector<QCheckBox*>     _checkboxCollection;
     std::vector<QLineEdit*>     _lineeditCollection;
 
+    std::vector<QComboBox*>     _comboboxGraphDisplay;
+    std::vector<QCheckBox*>     _checkboxGraphDisplay;
+    std::vector<QLineEdit*>     _lineeditGraphDisplay;
+
+    QFileSystemModel*       _dirModel;
+    QFileSystemModel*       _fileModel;
+
     FileName            _selectedFile;
     int                 _selectedNetwork;
 
     std::vector<int>    _idsForNetworkGraphs;
-    int                 _currentGraphNetwork = 0;
 
     std::vector<DataCollection*>    _collections;
     std::vector<FileName>           _fileNames;
     std::vector<Network*>           _networkList;
 
-    QFileSystemModel*       _dirModel;
-    QFileSystemModel*       _fileModel;
+
 
     QThreadPool*            _pool;
 
     std::vector<QString>    getNetworkNames();
+
+    void        removeGraphElements(int networkIndex);
 
 public slots:
 
@@ -68,25 +75,7 @@ private slots:
     void on_pushButton_network_create_clicked();
     void on_pushButton_network_edit_clicked();
     void on_pushButton_network_delete_clicked();
-
     void on_listWidget_networkList_itemClicked(QListWidgetItem *item);
-
-
-
-
-    void signRecievedNetworkCreation(const int in, const std::vector<int> hidden,
-                                     const int out, const QString name, const DataType type,
-                                     const CostCalc calc);
-    void signRecievedNetworkCreationFromSubs(std::vector<int> indexes, std::vector<int> hidden,
-                                             int output, QString name, CostCalc calc);
-    void signRecievedNetworkEdit(const int index, const int in, const std::vector<int> hidden,
-                                     const int out, const QString name, const DataType type,
-                                     const CostCalc calc);
-    void signRecievedNetworkTrainingComplete();
-    void signRecievedFileReadComplete(const QString &message);
-    void signRecievedConsoleOutput(const QString &message);
-    void signRecievedEpochComplete(const int id, const int epoch, const double trainingError, const double trainingAccuracy,
-                                   const double testingError, const double testingAccuracy);
 
 
     void on_checkBox_enableNoise_toggled(bool checked);
@@ -101,19 +90,23 @@ private slots:
     void on_pushButton_clicked();
 
     void on_horizontalScrollBar_error_valueChanged(int value);
-
     void on_horizontalScrollBar_accuracy_valueChanged(int value);
 
-signals:
-    /*void      signViewportChanged( const QString& name, const QRectF& size );
-    void      signMousePressed( const QString& name, QMouseEvent* event );
-    void      signMouseReleased( const QString& name, QMouseEvent* event );
-    void      signMouseDoubleClicked( const QString& name, QMouseEvent* event );
-    void      signKeyPressed( const QString& name, QKeyEvent* event );
-    void      signKeyReleased( const QString& name, QKeyEvent* event );
-    void      signWheelEventOccurred( const QString& name, QWheelEvent* event);
-    void      signMouseMoved( const QString& name, QMouseEvent* event );*/
-    void    signStopTraining();
+
+
+    void signRecievedNetworkCreation(const int in, const std::vector<int> hidden,
+                                     const int out, const QString name, const DataType type,
+                                     const CostCalc calc);
+    void signRecievedNetworkCreationFromSubs(std::vector<int> indexes, std::vector<int> hidden,
+                                             int output, QString name, CostCalc calc);
+    void signRecievedNetworkEdit(const int index, const int in, const std::vector<int> hidden,
+                                     const int out, const QString name, const DataType type,
+                                     const CostCalc calc);
+    void signRecievedEpochComplete(const int id, const int epoch, const double trainingError, const double trainingAccuracy,
+                                   const double testingError, const double testingAccuracy);
+    void signRecievedFileReadComplete(const QString &message);
+    void signRecievedConsoleOutput(const QString &message);
+    void on_pushButton_graphdisplaysettings_clicked();
 };
 
 #endif // MAINWINDOW_H
