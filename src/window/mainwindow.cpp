@@ -44,21 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     _ui->horizontalScrollBar_error->setRange(0,100);
 
-
-
-
-    QuadraticCost* cost = new QuadraticCost();
-    Network* net = new Network(16, {16,6}, 2, cost, DataType::ACCELEROMETER, "DefaultAccelerometer");
-    connect(net, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
-    connect(net, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
-    net->initNetwork();
-    net->setAutoDelete(false);
-
-    _networkList.push_back(net);
-    _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
-    _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
-
     loadDataCollectionFiles();
+    loadDefaultNetworks();
 }
 
 MainWindow::~MainWindow()
@@ -178,7 +165,6 @@ void MainWindow::loadDataCollectionFiles()
             this, &MainWindow::signRecievedConsoleOutput);
     collection->setName("Default data collection");
 
-    //TODO: create function to load several default collections
     _reader->readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
     _reader->readCSVFile("../res/docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
     _reader->readCSVFile("../res/docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
@@ -204,6 +190,22 @@ void MainWindow::loadDataCollectionFiles()
     _collections.push_back(collection);
 
     _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
+}
+
+void MainWindow::loadDefaultNetworks()
+{
+    //TODO: Fix the rest of the networks
+    QuadraticCost* cost = new QuadraticCost();
+    Network* net = new Network(16, {16,6}, 2, cost, DataType::ACCELEROMETER, "DefaultAccelerometer");
+    connect(net, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net->initNetwork();
+    net->setAutoDelete(false);
+
+    _networkList.push_back(net);
+    _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
+    _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
+
 }
 
 void MainWindow::on_dirtreeview_clicked(const QModelIndex &index)

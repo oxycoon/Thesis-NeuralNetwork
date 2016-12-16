@@ -64,6 +64,7 @@ private:
 
     void        removeGraphElements(int networkIndex);
     void        loadDataCollectionFiles();
+    void        loadDefaultNetworks();
 
 public slots:
 
