@@ -18,32 +18,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_reader, &CSVReader::signFileReadComplete, this, &MainWindow::signRecievedFileReadComplete);
     connect(_reader, &CSVReader::signFileReadConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
 
-    QString sPath = "../";
-    _dirModel = new QFileSystemModel(this);
-    _dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
-    _fileModel = new QFileSystemModel(this);
-    _fileModel->setFilter(QDir::NoDotAndDotDot | QDir::Files);
 
-    _ui->filelistview->setSelectionMode( QAbstractItemView::ExtendedSelection );
 
-    _ui->dirtreeview->setModel(_dirModel);
-    _ui->filelistview->setModel(_fileModel);
-    _ui->dirtreeview->setRootIndex(_dirModel->setRootPath(sPath));
-    _ui->filelistview->setRootIndex(_fileModel->setRootPath(sPath));
 
     _pool = QThreadPool::globalInstance();
 
-    _ui->customplot_accuracy->yAxis->setRange(100.0, 0.0);
-    _ui->customplot_error->yAxis->setRange(100.0, 0.0);
-    _ui->customplot_accuracy->xAxis->setRange(0.0, 100);
-    _ui->customplot_error->xAxis->setRange(0.0, 100);
-    _ui->customplot_accuracy->yAxis->setLabel("Accuracy%");
-    _ui->customplot_accuracy->xAxis->setLabel("Epoch");
-    _ui->customplot_error->yAxis->setLabel("Error%");
-    _ui->customplot_error->xAxis->setLabel("Epoch");
-
-    _ui->horizontalScrollBar_error->setRange(0,100);
-
+    setupGUIElements();
     loadDataCollectionFiles();
     loadDefaultNetworks();
 }
@@ -206,6 +186,34 @@ void MainWindow::loadDefaultNetworks()
     _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
 
+}
+
+void MainWindow::setupGUIElements()
+{
+    QString sPath = "../";
+    _dirModel = new QFileSystemModel(this);
+    _dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
+    _fileModel = new QFileSystemModel(this);
+    _fileModel->setFilter(QDir::NoDotAndDotDot | QDir::Files);
+
+    _ui->filelistview->setSelectionMode( QAbstractItemView::ExtendedSelection );
+
+    _ui->dirtreeview->setModel(_dirModel);
+    _ui->filelistview->setModel(_fileModel);
+    _ui->dirtreeview->setRootIndex(_dirModel->setRootPath(sPath));
+    _ui->filelistview->setRootIndex(_fileModel->setRootPath(sPath));
+
+
+    _ui->customplot_accuracy->yAxis->setRange(100.0, 0.0);
+    _ui->customplot_error->yAxis->setRange(100.0, 0.0);
+    _ui->customplot_accuracy->xAxis->setRange(0.0, 100);
+    _ui->customplot_error->xAxis->setRange(0.0, 100);
+    _ui->customplot_accuracy->yAxis->setLabel("Accuracy%");
+    _ui->customplot_accuracy->xAxis->setLabel("Epoch");
+    _ui->customplot_error->yAxis->setLabel("Error%");
+    _ui->customplot_error->xAxis->setLabel("Epoch");
+
+    _ui->horizontalScrollBar_error->setRange(0,100);
 }
 
 void MainWindow::on_dirtreeview_clicked(const QModelIndex &index)
