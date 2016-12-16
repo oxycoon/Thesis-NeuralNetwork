@@ -430,6 +430,8 @@ void MainWindow::on_pushButton_training_start_clicked()
         _networkList[i]->setDataCollection(_collections[_ui->listWidget_training_collections->currentRow()]);
         _networkList[i]->doTraining(true);
 
+        createGraph(i, _networkList[i]->getNetworkID());
+
         _pool->start(_networkList[i]);
     }
 }
