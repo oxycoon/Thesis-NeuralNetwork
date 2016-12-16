@@ -44,32 +44,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     _ui->horizontalScrollBar_error->setRange(0,100);
 
-    DataCollection* collection = new DataCollection();
-    connect(collection, &DataCollection::signDataCollectionConsoleOutput,
-            this, &MainWindow::signRecievedConsoleOutput);
-    collection->setName("Default data collection");
-
-    //TODO: create function to load several default collections
-    _reader->readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/05_1_1_1477049323104.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/06_1_1_1477050706950.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/07_1_1_1477051538022.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/08_1_1_1477052157282.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/09_1_1_1477052835575.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/10_1_1_1477053563351.csv", 10, ",", Exercise::WALKING,collection);
-    _reader->readCSVFile("../res/docs/01_2_1_1477041118424.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/02_2_1_1477045059709.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/03_2_1_1477046007930.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/05_2_2_1477049591901.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/06_2_1_1477050768609.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
-    _reader->readCSVFile("../res/docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
 
 
 
@@ -84,10 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
 
-    collection->createTrainingTestSets(5, 15);
-    _collections.push_back(collection);
-
-    _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
+    loadDataCollectionFiles();
 }
 
 MainWindow::~MainWindow()
@@ -198,6 +169,41 @@ void MainWindow::removeGraphElements(int networkIndex)
         _ui->customplot_accuracy->replot();
         _ui->customplot_error->replot();
     }
+}
+
+void MainWindow::loadDataCollectionFiles()
+{
+    DataCollection* collection = new DataCollection();
+    connect(collection, &DataCollection::signDataCollectionConsoleOutput,
+            this, &MainWindow::signRecievedConsoleOutput);
+    collection->setName("Default data collection");
+
+    //TODO: create function to load several default collections
+    _reader->readCSVFile("../res/docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/05_1_1_1477049323104.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/06_1_1_1477050706950.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/07_1_1_1477051538022.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/08_1_1_1477052157282.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/09_1_1_1477052835575.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/10_1_1_1477053563351.csv", 10, ",", Exercise::WALKING,collection);
+    _reader->readCSVFile("../res/docs/01_2_1_1477041118424.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/02_2_1_1477045059709.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/03_2_1_1477046007930.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/05_2_2_1477049591901.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/06_2_1_1477050768609.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+    _reader->readCSVFile("../res/docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection);
+
+    collection->createTrainingTestSets(5, 15);
+    _collections.push_back(collection);
+
+    _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
 }
 
 void MainWindow::on_dirtreeview_clicked(const QModelIndex &index)

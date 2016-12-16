@@ -63,6 +63,7 @@ private:
     std::vector<QString>    getNetworkNames();
 
     void        removeGraphElements(int networkIndex);
+    void        loadDataCollectionFiles();
 
 public slots:
 
