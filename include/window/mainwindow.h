@@ -30,47 +30,42 @@ public:
     ~MainWindow();
 
 private:
-    Ui::MainWindow*         _ui;
+    QThreadPool*            _pool;
     CSVReader*              _reader;
 
     //-----------------------------
     // UI Elements
     //-----------------------------
+    Ui::MainWindow*             _ui;
     std::vector<QComboBox*>     _comboboxCollection;
     std::vector<QCheckBox*>     _checkboxCollection;
     std::vector<QLineEdit*>     _lineeditCollection;
-
     std::vector<QComboBox*>     _comboboxGraphDisplay;
     std::vector<QCheckBox*>     _checkboxGraphDisplay;
     std::vector<QLineEdit*>     _lineeditGraphDisplay;
-
-    QFileSystemModel*       _dirModel;
-    QFileSystemModel*       _fileModel;
+    QFileSystemModel*           _dirModel;
+    QFileSystemModel*           _fileModel;
 
     FileName            _selectedFile;
     int                 _selectedNetwork;
 
-    std::vector<int>    _idsForNetworkGraphs;
-
+    std::vector<int>                _idsForNetworkGraphs;
     std::vector<DataCollection*>    _collections;
     std::vector<FileName>           _fileNames;
     std::vector<Network*>           _networkList;
 
 
 
-    QThreadPool*            _pool;
-
     std::vector<QString>    getNetworkNames();
+    void                    loadDefaultDataCollections();
+    void                    loadDefaultNetworks();
+    void                    setupUIElements();
 
     void        removeGraphElements(int networkIndex);
-
-public slots:
-
-protected slots:
+    void        createGraph(int networkIndex, int networkid);
 
 private slots:
     void on_dirtreeview_clicked(const QModelIndex &index);
-    void on_filelistview_clicked(const QModelIndex &index);
     void on_button_addFile_clicked();
     void on_pushButton_network_create_clicked();
     void on_pushButton_network_edit_clicked();
@@ -84,11 +79,11 @@ private slots:
     void on_pushButton_doc_createsets_clicked();
 
     void on_pushButton_training_start_clicked();
-
     void on_pushButton_training_reset_clicked();
+    void on_pushButton_training_stop_clicked();
 
-    void on_pushButton_clicked();
 
+    void on_pushButton_graphdisplaysettings_clicked();
     void on_horizontalScrollBar_error_valueChanged(int value);
     void on_horizontalScrollBar_accuracy_valueChanged(int value);
 
@@ -106,7 +101,8 @@ private slots:
                                    const double testingError, const double testingAccuracy);
     void signRecievedFileReadComplete(const QString &message);
     void signRecievedConsoleOutput(const QString &message);
-    void on_pushButton_graphdisplaysettings_clicked();
+
+
 };
 
 #endif // MAINWINDOW_H
