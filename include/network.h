@@ -134,6 +134,7 @@ private:
     bool            _useBatch;
     bool            _trainSubnetsFirst;
     bool            _useNoise;
+    bool            _isTrained;
     double          _noiseMean;
     double          _noiseDeviation;
 

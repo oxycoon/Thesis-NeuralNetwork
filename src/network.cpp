@@ -223,37 +223,6 @@ void Network::editNetwork(int in, std::vector<int> hidden, int out, std::string 
     initNetwork();
 }
 
-/*void Network::editNetwork(int in, std::vector<int> hidden, int out, std::string name, DataType type, Cost *calc)
-{
-    for(auto it = _input.begin(); it != _input.end(); it++)
-    {
-        delete *it;
-    }
-    _input.clear();
-
-    for(int i = 0; i < _numHiddenLayers; i++)
-    {
-        for(auto it = _hidden[i].begin(); it != _hidden[i].end(); it++)
-        {
-            delete *it;
-        }
-        _hidden[i].clear();
-    }
-    _hidden.clear();
-
-    for(auto it = _output.begin(); it != _output.end(); it++)
-    {
-        delete *it;
-    }
-    _output.clear();
-
-    _hiddenErrorGradient.clear();
-    _outputErrorGradient.clear();
-    delete _costCalculator;
-
-    Network(in, hidden, out, calc, type, name);
-}*/
-
 //================================================
 //                  Getters
 //================================================
@@ -364,7 +333,7 @@ void Network::resetNetwork()
             _subNetworks[i]->resetNetwork();
         }
     }
-
+    _isTrained = false;
     emit signNetworkConsoleOutput(QString::fromStdString(_networkName) + " network reset!");
 }
 
@@ -383,6 +352,7 @@ void Network::initNetwork()
     _momentum = MOMENTUM;
 
     _useBatch = false;
+    _isTrained = false;
 
     _distribution = std::normal_distribution<double>(GAUSSIAN_MEAN, GAUSSIAN_DEVIATON);
 
@@ -427,6 +397,7 @@ void Network::initNetworkFromSub(std::vector<Network*> inputs)
     _noiseMean = GAUSSIAN_MEAN;
     _noiseDeviation = GAUSSIAN_DEVIATON;
 
+    _isTrained = false;
     _trainSubnetsFirst = true;
     _useBatch = false;
     _distribution = std::normal_distribution<double>(_noiseMean, _noiseDeviation);
@@ -460,76 +431,77 @@ void Network::runTraining(DataCollection *set)
             _subNetworks[i]->runTraining(set);
         }
     }
-
-    //Runs training using training set for training and generalized set for testing
-    while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs && _doTraining)
+    if(!_isTrained)
     {
-        //std::cout << "New epoch, epoch #" << _epoch << std::endl;
-
-        double oldTrA = _trainingSetAccuracy;
-        double oldTSA = _testingSetAccuracy;
-        double oldTSMSE = _testingSetError;
-
-        //Train the network with the training set
-        runTrainingEpoch(set->getTrainingSet());
-
-        //Gets the generalized set accuracy and MSE
-        _testingSetAccuracy = getSetAccuracy(set->getTestSet());
-        _testingSetError = getSetError(set->getTestSet());
-
-        results.addResult(ResultType::TMSE, _trainingSetError);
-        results.addResult(ResultType::TA, _trainingSetAccuracy);
-        results.addResult(ResultType::VMSE, _testingSetError);
-        results.addResult(ResultType::VA, _testingSetAccuracy);
-
-        //Increases epoch for next iteration.
-        _epoch++;
-
-        emit signNetworkEpochComplete(_id, _epoch, _trainingSetError, _trainingSetAccuracy,
-                                      _testingSetError, _testingSetAccuracy);
-
-        //Checks for changes in the training and generalization set's accuracy, prints if there's a change
-        if(PRINT_EPOCH_DATA)
+        //Runs training using training set for training and generalized set for testing
+        while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs && _doTraining)
         {
-            QString message;
-            message.append("Epoch: " + QString::number(_epoch));
-            message.append(" | Training set accuracy: " + QString::number(_trainingSetAccuracy) + "%, MSE: " + QString::number(_trainingSetError));
-            message.append(" | Generalized set accuracy: " + QString::number(_testingSetAccuracy) + "%, MSE: " + QString::number(_testingSetError));
-            if(PRINT_EPOCH_DATA_ON_UPDATE_ONLY)
+            //std::cout << "New epoch, epoch #" << _epoch << std::endl;
+
+            double oldTrA = _trainingSetAccuracy;
+            double oldTSA = _testingSetAccuracy;
+            double oldTSMSE = _testingSetError;
+
+            //Train the network with the training set
+            runTrainingEpoch(set->getTrainingSet());
+
+            //Gets the generalized set accuracy and MSE
+            _testingSetAccuracy = getSetAccuracy(set->getTestSet());
+            _testingSetError = getSetError(set->getTestSet());
+
+            results.addResult(ResultType::TMSE, _trainingSetError);
+            results.addResult(ResultType::TA, _trainingSetAccuracy);
+            results.addResult(ResultType::VMSE, _testingSetError);
+            results.addResult(ResultType::VA, _testingSetAccuracy);
+
+            //Increases epoch for next iteration.
+            _epoch++;
+
+            emit signNetworkEpochComplete(_id, _epoch, _trainingSetError, _trainingSetAccuracy,
+                                          _testingSetError, _testingSetAccuracy);
+
+            //Checks for changes in the training and generalization set's accuracy, prints if there's a change
+            if(PRINT_EPOCH_DATA)
             {
-                if((std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy)))
+                QString message;
+                message.append("Epoch: " + QString::number(_epoch));
+                message.append(" | Training set accuracy: " + QString::number(_trainingSetAccuracy) + "%, MSE: " + QString::number(_trainingSetError));
+                message.append(" | Generalized set accuracy: " + QString::number(_testingSetAccuracy) + "%, MSE: " + QString::number(_testingSetError));
+                if(PRINT_EPOCH_DATA_ON_UPDATE_ONLY)
+                {
+                    if((std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy)))
+                    {
+                        emit signNetworkConsoleOutput(message);
+                        std::cout << message.toStdString() << std::endl;
+                    }
+                }
+                else
                 {
                     emit signNetworkConsoleOutput(message);
                     std::cout << message.toStdString() << std::endl;
                 }
             }
-            else
+
+
+
+            //Stops the training set if the generalization set's error starts increasing.
+             //TODO Stop condition
+            /*if(oldTSMSE < _testingSetError)
             {
-                emit signNetworkConsoleOutput(message);
-                std::cout << message.toStdString() << std::endl;
-            }
+                std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;
+                break;
+            }*/
         }
-
-
-
-        //Stops the training set if the generalization set's error starts increasing.
-         //TODO Stop condition
-        /*if(oldTSMSE < _testingSetError)
+        //std::cout << "Epochs ran: " << _epoch << std::endl;
+        _isTrained = true;
+        if(WRITE_RESULTS_TO_FILE)
         {
-            std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;
-            break;
-        }*/
+            std::string name =  _networkName + "_result.csv";
+            FileWriter writer;
+            writer.writeFile(name, results.toString(), "results/");
+        }
+        emit signNetworkTrainingComplete();
     }
-    //std::cout << "Epochs ran: " << _epoch << std::endl;
-
-    if(WRITE_RESULTS_TO_FILE)
-    {
-        std::string name =  _networkName + "_result.csv";
-        FileWriter writer;
-        writer.writeFile(name, results.toString(), "results/");
-    }
-    emit signNetworkTrainingComplete();
-
 }
 
 void Network::run()
