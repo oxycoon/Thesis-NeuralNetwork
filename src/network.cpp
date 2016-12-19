@@ -271,14 +271,14 @@ CostCalc Network::getNetworkCostCalc() const
 
 std::string Network::getNetworkName() const
 {
-    std::string result = _networkName;
+    /*std::string result = _networkName;
 
     int depth = getNetworkDepth();
     for(int i = 0; i < depth; i++)
     {
         result.append("*");
-    }
-    return result;
+    }*/
+    return _networkName;
 }
 
 bool Network::hasSubNetworks() const
