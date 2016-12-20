@@ -161,6 +161,7 @@ void Neuron::initializeDeltas(int deltas)
 {
     _deltaCount = deltas;
     _deltas = std::vector<double>(deltas);
+    _optimalDeltas = std::vector<double>(deltas);
     for(int i = 0; i < _deltaCount; i++)
     {
         _deltas[i] = 0.0;
