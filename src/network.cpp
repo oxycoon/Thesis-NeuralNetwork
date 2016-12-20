@@ -1102,8 +1102,8 @@ double Network::calculateHiddenErrorGradient(int layer, int index)
  */
 int Network::roundOutput(double output)
 {
-    if(output < 0.1) return 0;
-    else if(output > 0.9) return 1;
+    if(output < 0.2) return 0;
+    else if(output > 0.8) return 1;
     else return -1;
 }
 
