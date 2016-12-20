@@ -149,9 +149,11 @@ void Neuron::initializeWeights(int weights)
 {
     _weightCount = weights;
     _weights = std::vector<double>(weights);
+    _optimalWeights = std::vector<double>(weights);
     for(int i = 0; i < weights; i++)
     {
         _weights[i] = 0.0;
+        _optimalWeights[i] = 0.0;
     }
 }
 
@@ -162,5 +164,30 @@ void Neuron::initializeDeltas(int deltas)
     for(int i = 0; i < _deltaCount; i++)
     {
         _deltas[i] = 0.0;
+        _optimalDeltas[i] = 0.0;
+    }
+}
+
+void Neuron::saveOptimals()
+{
+    for(int i = 0; i < _weightCount; i++)
+    {
+        _optimalWeights[i] = _weights[i];
+    }
+    for(int i = 0; i < _deltaCount; i++)
+    {
+        _optimalDeltas[i] = _deltas[i];
+    }
+}
+
+void Neuron::restoreOptimals()
+{
+    for(int i = 0; i < _weightCount; i++)
+    {
+        _weights[i] = _optimalWeights[i];
+    }
+    for(int i = 0; i < _deltaCount; i++)
+    {
+        _deltas[i] = _optimalDeltas[i];
     }
 }

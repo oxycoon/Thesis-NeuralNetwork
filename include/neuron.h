@@ -29,6 +29,8 @@ public:
 
     void                    initializeWeights(int weights);
     void                    initializeDeltas(int deltas);
+    void                    saveOptimals();
+    void                    restoreOptimals();
 
 private:
     /**
@@ -67,6 +69,20 @@ private:
      *  Number of deltas in this neuron.
      */
     int _deltaCount;
+
+    /**
+     * @brief _optimalWeights
+     *
+     *  Holds the best weights found.
+     */
+    std::vector<double> _optimalWeights;
+
+    /**
+     * @brief _optimalWeights
+     *
+     *  Holds the best deltas found.
+     */
+    std::vector<double> _optimalDeltas;
 };
 
 #endif // NEURON_H

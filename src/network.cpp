@@ -433,6 +433,9 @@ void Network::runTraining(DataCollection *set)
     }
     if(!_isTrained)
     {
+        double bestTSMSE = 1.0;
+        int increaseCount = 0;
+
         //Runs training using training set for training and generalized set for testing
         while((_trainingSetAccuracy < _targetAccuracy || _testingSetAccuracy < _targetAccuracy) && _epoch < _maxEpochs && _doTraining)
         {
@@ -481,16 +484,51 @@ void Network::runTraining(DataCollection *set)
                     std::cout << message.toStdString() << std::endl;
                 }
             }
-
-
+            //Saves best weights for network
+            if(bestTSMSE > _testingSetError)
+            {
+                for(int i = 0; i < _countInput; i++)
+                {
+                    _input[i]->saveOptimals();
+                }
+                for(int i = 0; i < _numHiddenLayers; i++)
+                {
+                    for(int j = 0; j < _countHidden[i]; j++)
+                    {
+                        _hidden[i][j]->saveOptimals();
+                    }
+                }
+                bestTSMSE = _testingSetError;
+            }
 
             //Stops the training set if the generalization set's error starts increasing.
-             //TODO Stop condition
-            /*if(oldTSMSE < _testingSetError)
+            if(increaseCount >= -1)
             {
-                std::cout << "TESTING SET ERROR INCREASING! STOPPING!" << std::endl;
+                increaseCount--;
+            }
+            if(oldTSMSE < _testingSetError)
+            {
+                increaseCount += 2;
+            }
+
+            if(increaseCount >= 10)
+            {
+                for(int i = 0; i < _countInput; i++)
+                {
+                    _input[i]->restoreOptimals();
+                }
+                for(int i = 0; i < _numHiddenLayers; i++)
+                {
+                    for(int j = 0; j < _countHidden[i]; j++)
+                    {
+                        _hidden[i][j]->restoreOptimals();
+                    }
+                }
+                QString message("Error for network " + QString::fromStdString(_networkName) +
+                                " has increased for 10 epochs in a row. Restoring to best possible weights.");
+                emit signNetworkConsoleOutput(message);
                 break;
-            }*/
+            }
         }
         //std::cout << "Epochs ran: " << _epoch << std::endl;
         _isTrained = true;

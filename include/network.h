@@ -63,6 +63,7 @@ public:
     int                     getNetworkID() const;
 
 
+
     void resetNetwork();
     void initNetwork();
     void initNetworkFromSub(std::vector<Network*> inputs);
