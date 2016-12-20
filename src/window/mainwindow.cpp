@@ -707,9 +707,10 @@ void MainWindow::createGraph(int networkIndex, int networkId)
         for(int i = 0; i < temp.size(); i++)
         {
             int exists = hasGraph(temp[i]->getNetworkID());
+
             if(exists == -1)
             {
-                createGraph(-1, exists);
+                createGraph(-1, temp[i]->getNetworkID());
             }
         }
     }

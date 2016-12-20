@@ -463,27 +463,6 @@ void Network::runTraining(DataCollection *set)
             emit signNetworkEpochComplete(_id, _epoch, _trainingSetError, _trainingSetAccuracy,
                                           _testingSetError, _testingSetAccuracy);
 
-            //Checks for changes in the training and generalization set's accuracy, prints if there's a change
-            if(PRINT_EPOCH_DATA)
-            {
-                QString message;
-                message.append("Epoch: " + QString::number(_epoch));
-                message.append(" | Training set accuracy: " + QString::number(_trainingSetAccuracy) + "%, MSE: " + QString::number(_trainingSetError));
-                message.append(" | Generalized set accuracy: " + QString::number(_testingSetAccuracy) + "%, MSE: " + QString::number(_testingSetError));
-                if(PRINT_EPOCH_DATA_ON_UPDATE_ONLY)
-                {
-                    if((std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy)))
-                    {
-                        emit signNetworkConsoleOutput(message);
-                        std::cout << message.toStdString() << std::endl;
-                    }
-                }
-                else
-                {
-                    emit signNetworkConsoleOutput(message);
-                    std::cout << message.toStdString() << std::endl;
-                }
-            }
             //Saves best weights for network
             if(bestTSMSE > _testingSetError)
             {
@@ -502,13 +481,42 @@ void Network::runTraining(DataCollection *set)
             }
 
             //Stops the training set if the generalization set's error starts increasing.
+            bool errorIncreasing = false;
             if(increaseCount >= -1)
             {
                 increaseCount--;
             }
             if(oldTSMSE < _testingSetError)
             {
-                increaseCount += 2;
+                if(1 - (oldTSMSE/_testingSetError) > 0.001)
+                {
+                    increaseCount += 2;
+                    errorIncreasing = true;
+                }
+            }
+
+            //Checks for changes in the training and generalization set's accuracy, prints if there's a change
+            if(PRINT_EPOCH_DATA)
+            {
+                QString message;
+                message.append("Epoch: " + QString::number(_epoch));
+                message.append(" | Training set accuracy: " + QString::number(_trainingSetAccuracy) + "%, MSE: " + QString::number(_trainingSetError));
+                message.append(" | Generalized set accuracy: " + QString::number(_testingSetAccuracy) + "%, MSE: " + QString::number(_testingSetError) + " |");
+                if(errorIncreasing)
+                    message.append(" Error is increasing!!! Count at " + QString::number(increaseCount));
+                if(PRINT_EPOCH_DATA_ON_UPDATE_ONLY)
+                {
+                    if((std::ceil(oldTrA) != std::ceil(_trainingSetAccuracy) || std::ceil(oldTSA) != std::ceil(_testingSetAccuracy)))
+                    {
+                        emit signNetworkConsoleOutput(message);
+                        std::cout << message.toStdString() << std::endl;
+                    }
+                }
+                else
+                {
+                    emit signNetworkConsoleOutput(message);
+                    std::cout << message.toStdString() << std::endl;
+                }
             }
 
             if(increaseCount >= 10)
@@ -525,7 +533,7 @@ void Network::runTraining(DataCollection *set)
                     }
                 }
                 QString message("Error for network " + QString::fromStdString(_networkName) +
-                                " has increased for 10 epochs in a row. Restoring to best possible weights.");
+                                " too much. Restoring to best possible weights.");
                 emit signNetworkConsoleOutput(message);
                 break;
             }
