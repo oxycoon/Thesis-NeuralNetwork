@@ -76,14 +76,11 @@ private:
 
     void        removeGraphElements(int networkIndex);
     void        createGraph(int networkIndex, int networkId);
+    int         hasGraph(int networkId);
 
     void        loadDataCollectionFiles();
     void        loadDefaultNetworks();
     void        setupGUIElements();
-
-public slots:
-
-protected slots:
 
 private slots:
     void on_dirtreeview_clicked(const QModelIndex &index);
@@ -122,6 +119,7 @@ private slots:
     void signRecievedConsoleOutput(const QString &message);
     void on_pushButton_graphdisplaysettings_clicked();
     void on_pushButton_training_stop_clicked();
+    void on_pushButton_console_clear_clicked();
 };
 
 #endif // MAINWINDOW_H

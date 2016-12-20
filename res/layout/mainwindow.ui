@@ -810,6 +810,13 @@ first</string>
          <item row="0" column="0">
           <widget class="QPlainTextEdit" name="consoleOutput"/>
          </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pushButton_console_clear">
+           <property name="text">
+            <string>Clear console</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </widget>

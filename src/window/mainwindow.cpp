@@ -409,7 +409,6 @@ void MainWindow::on_pushButton_doc_createsets_clicked()
 void MainWindow::signRecievedFileReadComplete(const QString &message)
 {
     _ui->text_parseConsole->appendPlainText(message);
-    _ui->consoleOutput->appendPlainText(message);
 }
 
 //==========================================================
@@ -689,6 +688,32 @@ void MainWindow::removeGraphElements(int networkIndex)
 
 void MainWindow::createGraph(int networkIndex, int networkId)
 {
+    if(networkIndex == -1)
+    {
+        for(int i = 0; i < _networkList.size(); i++)
+        {
+            if(_networkList[i]->getNetworkID() == networkId)
+            {
+                networkIndex = i;
+                break;
+            }
+        }
+    }
+
+    if(_networkList[networkIndex]->hasSubNetworks())
+    {
+        std::vector<Network*> temp = _networkList[networkIndex]->getSubNetworks();
+
+        for(int i = 0; i < temp.size(); i++)
+        {
+            int exists = hasGraph(temp[i]->getNetworkID());
+            if(exists == -1)
+            {
+                createGraph(-1, exists);
+            }
+        }
+    }
+
     _idsForNetworkGraphs.push_back(networkId);
     int index_graph = 2 * (_idsForNetworkGraphs.size() - 1);
 
@@ -767,6 +792,27 @@ void MainWindow::createGraph(int networkIndex, int networkId)
     _checkboxGraphDisplay.push_back(checkbox_test);
 }
 
+int MainWindow::hasGraph(int networkId)
+{
+    if(_idsForNetworkGraphs.size() > 0)
+    {
+        int result = -1;
+        for(int i = 0; i < _idsForNetworkGraphs.size(); i++)
+        {
+            if(_idsForNetworkGraphs[i] == networkId)
+            {
+                result = i;
+                break;
+            }
+        }
+        return result;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
 void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const double trainingError, const double trainingAccuracy, const double testingError, const double testingAccuracy)
 {
     bool graphExists = false;
@@ -822,7 +868,6 @@ void MainWindow::signRecievedEpochComplete(const int id, const int epoch, const 
         }
          _ui->customplot_error->xAxis->setRange(minRange, epoch);
          _ui->horizontalScrollBar_error->setRange(0,epoch);
-
     }
     _ui->horizontalScrollBar_error->setValue(epoch-100);
 
@@ -846,16 +891,7 @@ void MainWindow::signRecievedConsoleOutput(const QString &message)
     _ui->consoleOutput->appendPlainText(message);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+void MainWindow::on_pushButton_console_clear_clicked()
+{
+    _ui->consoleOutput->clear();
+}
