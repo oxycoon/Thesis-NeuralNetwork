@@ -47,6 +47,11 @@ std::vector<DataSegment> DataCollection::getTrainingSet() const
     return _trainingSet;
 }
 
+std::vector<DataSegment> DataCollection::getFullSet() const
+{
+    return _fullSet;
+}
+
 std::string DataCollection::getName() const
 {
     return _name;
@@ -86,19 +91,36 @@ void DataCollection::createTrainingTestSets(int setSize, double trainingSize)
     for(int i = 0; i < trainingDataEnd; i++)
     {
         _trainingSet.push_back(temp[i]);
+        _fullSet.push_back(temp[i]);
     }
 
     for(int i = trainingDataEnd; i < temp.size(); i++)
     {
         _testSet.push_back(temp[i]);
+        _fullSet.push_back(temp[i]);
     }
 
     _trainingSetSize = _trainingSet.size();
     _testSetSize = _testSet.size();
 
+    int numFall, numNonFall;
+
+    for(int i = 0; i < _trainingSetSize; i++)
+    {
+        if(_trainingSet[i].getTarget(0) == 0)
+        {
+            numFall++;
+        }
+        else
+        {
+            numNonFall++;
+        }
+    }
 
     QString msg = "Training and testing sests successfully created.\n";
-    msg.append("--Training sets: " + QString::number(_trainingSetSize) + "\n");
+    msg.append("--Training sets: " + QString::number(_trainingSetSize) + "; "
+               + QString::number(numFall) + " fall cases, " + QString::number(numNonFall)
+               + " non fall cases.\n");
     msg.append("--Test sets: " + QString::number(_testSetSize) + "\n\n");
     emit signDataCollectionConsoleOutput(msg);
 }

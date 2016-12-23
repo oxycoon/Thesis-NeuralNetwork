@@ -223,6 +223,11 @@ void Network::editNetwork(int in, std::vector<int> hidden, int out, std::string 
     initNetwork();
 }
 
+void Network::doTesting(bool enable)
+{
+    _doTesting = enable;
+}
+
 //================================================
 //                  Getters
 //================================================
@@ -350,6 +355,7 @@ void Network::initNetwork()
     _targetAccuracy = TARGET_ACCURACY;
     _learningRate = LEARNING_RATE;
     _momentum = MOMENTUM;
+    _doTesting = false;
 
     _useBatch = false;
     _isTrained = false;
@@ -519,7 +525,7 @@ void Network::runTraining(DataCollection *set)
                 }
             }
 
-            if(increaseCount >= 10)
+            if(increaseCount >= 20)
             {
                 for(int i = 0; i < _countInput; i++)
                 {
@@ -550,9 +556,74 @@ void Network::runTraining(DataCollection *set)
     }
 }
 
+void Network::runTesting(DataCollection *set)
+{
+    double accuracy = 0;
+    double error = 0;
+    double numError = 0;
+
+    QString fileContent;
+
+    fileContent.append("Set,outcome,value,target\n");
+
+    std::vector<DataSegment> temp = set->getTestSet();
+
+    for(int i = 0; i < temp.size(); i++)
+    {
+        feedForward(temp[i].getDataOfType(_networkType,true));
+
+        bool isCorrect = true;
+        for(int j = 0; j < _countOutput; j++)
+        {
+            error += _costCalculator->calculateCost(_output[j]->getValue(),temp[i].getTarget(j));
+            fileContent.append(QString::number(i));
+            if(roundOutput(_output[j]->getValue()) != temp[i].getTarget(j))
+            {
+                isCorrect = false;
+                if(roundOutput(_output[j]->getValue()) == -1)
+                {
+                    fileContent.append(",unknown,");
+                }
+                else
+                {
+                    fileContent.append(",error,");
+                }
+            }
+            else
+            {
+                fileContent.append(",success,");
+            }
+            fileContent.append(QString::number(roundOutput(_output[j]->getValue()))+","+QString::number(temp[i].getTarget(j))+"\n");
+        }
+        if(!isCorrect)
+            numError++;
+    }
+
+    accuracy = 100.0 - (numError/temp.size() * 100);
+    error = error / (_countOutput * temp.size());
+
+
+    QString output;
+    output.append("accuracy,"+QString::number(accuracy)+",error,"+QString::number(error)+"\n");
+    output.append(fileContent);
+
+    if(WRITE_RESULTS_TO_FILE)
+    {
+        std::string name =  set->getName() + "_testing_result.csv";
+        FileWriter writer;
+        writer.writeFile(name, output.toStdString(), "results/");
+    }
+
+    emit signNetworkConsoleOutput(QString("Testing complete."));
+    emit signNetworkConsoleOutput(output);
+}
+
 void Network::run()
 {
-    runTraining(_dataCollection);
+    if(!_doTesting)
+        runTraining(_dataCollection);
+    else
+        runTesting(_dataCollection);
 }
 
 //================================================
@@ -1131,7 +1202,9 @@ double Network::getSetAccuracy(const std::vector<DataSegment> &set)
         for(int j = 0; j < _countOutput; j++)
         {
             if(roundOutput( _output[j]->getValue() ) != set[i].getTarget(j) )
+            {
                 isCorrect = false;
+            }
         }
         if(!isCorrect)
             errors++;

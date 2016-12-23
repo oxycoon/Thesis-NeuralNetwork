@@ -120,6 +120,7 @@ private slots:
     void on_pushButton_graphdisplaysettings_clicked();
     void on_pushButton_training_stop_clicked();
     void on_pushButton_console_clear_clicked();
+    void on_pushButton_training_test_clicked();
 };
 
 #endif // MAINWINDOW_H

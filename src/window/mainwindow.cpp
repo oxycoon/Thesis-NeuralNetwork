@@ -119,7 +119,7 @@ void MainWindow::loadDataCollectionFiles()
     DataCollection* collection = new DataCollection();
     connect(collection, &DataCollection::signDataCollectionConsoleOutput,
             this, &MainWindow::signRecievedConsoleOutput);
-    collection->setName("Default data collection");
+    collection->setName("First training run");
 
     if(!IS_RELEASE)
     {
@@ -177,7 +177,7 @@ void MainWindow::loadDataCollectionFiles()
         DataCollection* collection2 = new DataCollection();
         connect(collection2, &DataCollection::signDataCollectionConsoleOutput,
                 this, &MainWindow::signRecievedConsoleOutput);
-        collection2->setName("Default data collection 2");
+        collection2->setName("Refined network");
 
         _reader->readCSVFile("docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection2);
         _reader->readCSVFile("docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection2);
@@ -557,8 +557,10 @@ void MainWindow::on_pushButton_training_start_clicked()
         _networkList[i]->setTrainSubNetworksFirst(trainsubs);
         _networkList[i]->setDataCollection(_collections[_ui->listWidget_training_collections->currentRow()]);
         _networkList[i]->doTraining(true);
+        _networkList[i]->doTesting(false);
 
         createGraph(i, _networkList[i]->getNetworkID());
+
 
         _pool->start(_networkList[i]);
     }
@@ -575,6 +577,36 @@ void MainWindow::on_pushButton_training_stop_clicked()
 {
     int i = _ui->listWidget_training_networks->currentRow();
     _networkList[i]->doTraining(false);
+}
+
+void MainWindow::on_pushButton_training_test_clicked()
+{
+    if(_ui->listWidget_training_collections->count() > 0 &&
+            _ui->listWidget_training_networks->count() > 0 &&
+            _ui->listWidget_training_collections->selectedItems().size() != 0 &&
+             _ui->listWidget_training_networks->selectedItems().size() != 0 )
+    {
+        double momentum = _ui->doubleSpinBox_momentum->value();
+        double learningrate = _ui->doubleSpinBox_learningRate->value();
+        double targetaccuracy = _ui->doubleSpinBox_targetaccuracy->value();
+        double gaussiandeviation = _ui->spinBox_noiselevel->value() * 0.01;
+        int epoch = _ui->spinBox_maxepochs->value();
+        bool usenoise = _ui->checkBox_enableNoise->isChecked();
+        bool trainsubs = _ui->checkBox_trainsubsfirst->isChecked();
+        int i = _ui->listWidget_training_networks->currentRow();
+
+        _networkList[i]->setLearningParameters(learningrate, momentum);
+        _networkList[i]->setMaxEpochs(epoch);
+        _networkList[i]->setTargetAccuracy(targetaccuracy);
+        _networkList[i]->enableNoise(usenoise);
+        _networkList[i]->setNoiseParameters(gaussiandeviation);
+        _networkList[i]->setTrainSubNetworksFirst(trainsubs);
+        _networkList[i]->setDataCollection(_collections[_ui->listWidget_training_collections->currentRow()]);
+        _networkList[i]->doTraining(true);
+        _networkList[i]->doTesting(true);
+
+        _pool->start(_networkList[i]);
+    }
 }
 
 void MainWindow::on_pushButton_graphdisplaysettings_clicked()

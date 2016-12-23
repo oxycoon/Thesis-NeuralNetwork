@@ -48,6 +48,7 @@ public:
     void doTraining(bool enable);
     void editNetwork(int in, std::vector<int> hidden, int out,
                       std::string name, DataType type, Cost* calc);
+    void doTesting(bool enable);
 
     std::vector<Neuron*>    getOutputNeurons() const;
     std::vector<double>     getOutputResults() const;
@@ -64,12 +65,14 @@ public:
 
 
 
+
     void resetNetwork();
     void initNetwork();
     void initNetworkFromSub(std::vector<Network*> inputs);
 
     //void runTraining(const std::vector<DataEntry*> &trainingSet, const std::vector<DataEntry*> &generalizedSet, const std::vector<DataEntry*> &validationSet);
     void runTraining(DataCollection *set);
+    void runTesting(DataCollection *set);
 
     void run();
 
@@ -136,6 +139,7 @@ private:
     bool            _trainSubnetsFirst;
     bool            _useNoise;
     bool            _isTrained;
+    bool            _doTesting;
     double          _noiseMean;
     double          _noiseDeviation;
 

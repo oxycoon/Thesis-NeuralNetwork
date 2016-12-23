@@ -27,6 +27,7 @@ public:
     void                        setExercise(const Exercise ex);
     std::vector<DataSegment>    getTestSet() const;
     std::vector<DataSegment>    getTrainingSet() const;
+    std::vector<DataSegment>    getFullSet() const;
     std::string                 getName() const;
 
     void                        setName(const std::string name);
@@ -41,6 +42,7 @@ private:
     std::vector<DataEntry*>     _collection;
     std::vector<DataSegment>    _trainingSet;
     std::vector<DataSegment>    _testSet;
+    std::vector<DataSegment>    _fullSet;
 
     std::string                 _name;
 
