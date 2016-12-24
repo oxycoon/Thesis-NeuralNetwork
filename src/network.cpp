@@ -490,13 +490,13 @@ void Network::runTraining(DataCollection *set)
             bool errorIncreasing = false;
             if(increaseCount >= -1)
             {
-                increaseCount--;
+                //increaseCount--;
             }
             if(oldTSMSE < _testingSetError)
             {
                 if(1 - (oldTSMSE/_testingSetError) > 0.001)
                 {
-                    increaseCount += 2;
+                    increaseCount += 1;
                     errorIncreasing = true;
                 }
             }
@@ -525,7 +525,7 @@ void Network::runTraining(DataCollection *set)
                 }
             }
 
-            if(increaseCount >= 20)
+            /*if(increaseCount >= 20)
             {
                 for(int i = 0; i < _countInput; i++)
                 {
@@ -542,10 +542,26 @@ void Network::runTraining(DataCollection *set)
                                 " too much. Restoring to best possible weights.");
                 emit signNetworkConsoleOutput(message);
                 break;
-            }
+            }*/
         }
         //std::cout << "Epochs ran: " << _epoch << std::endl;
         _isTrained = true;
+
+        for(int i = 0; i < _countInput; i++)
+        {
+            _input[i]->restoreOptimals();
+        }
+        for(int i = 0; i < _numHiddenLayers; i++)
+        {
+            for(int j = 0; j < _countHidden[i]; j++)
+            {
+                _hidden[i][j]->restoreOptimals();
+            }
+        }
+
+
+
+
         if(WRITE_RESULTS_TO_FILE)
         {
             std::string name =  _networkName + "_result.csv";
@@ -1173,8 +1189,8 @@ double Network::calculateHiddenErrorGradient(int layer, int index)
  */
 int Network::roundOutput(double output)
 {
-    if(output < 0.2) return 0;
-    else if(output > 0.8) return 1;
+    if(output < 0.25) return 0;
+    else if(output > 0.75) return 1;
     else return -1;
 }
 
