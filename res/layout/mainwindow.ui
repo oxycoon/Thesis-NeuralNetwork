@@ -430,8 +430,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>108</width>
-                  <height>28</height>
+                  <width>343</width>
+                  <height>418</height>
                  </rect>
                 </property>
                 <property name="maximumSize">
@@ -586,7 +586,7 @@ Settings</string>
               </size>
              </property>
              <property name="value">
-              <double>90.000000000000000</double>
+              <double>80.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -742,7 +742,7 @@ first</string>
              </property>
              <property name="text">
               <string>Noise%
- (15% default)</string>
+ (10% default)</string>
              </property>
             </widget>
            </item>
@@ -768,10 +768,10 @@ first</string>
               </size>
              </property>
              <property name="maximum">
-              <number>100</number>
+              <number>30</number>
              </property>
              <property name="value">
-              <number>15</number>
+              <number>10</number>
              </property>
             </widget>
            </item>

@@ -248,6 +248,207 @@ void MainWindow::loadDataCollectionFiles()
         collection2->createTrainingTestSets(5, 15);
         _collections.push_back(collection2);
         _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
+
+        //ALL DATA BRACKET
+        {
+            DataCollection* collection3 = new DataCollection();
+            connect(collection3, &DataCollection::signDataCollectionConsoleOutput,
+                    this, &MainWindow::signRecievedConsoleOutput);
+            collection3->setName("All experiments");
+
+            _reader->readCSVFile("docs/01_1_1_1477041067745.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/01_1_2_1477041373851.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/01_1_3_1477041642758.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/01_2_1_1477041118424.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/01_2_2_1477041409610.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/01_2_3_1477041677536.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/01_3_1_1477041220590.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/01_3_2_1477041500980.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/01_3_3_1477041728380.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/01_4_1_1477041271435.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/01_4_2_1477041556972.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/01_4_3_1477041774187.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/01_5_1_1477041349163.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/01_5_2_1477041592254.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/01_5_3_1477041796471.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/01_6_1_1477041324858.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/01_6_2_1477041619147.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/01_6_3_1477041816852.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+
+            _reader->readCSVFile("docs/02_1_1_1477045014681.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/02_1_2_1477045414491.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/02_1_3_1477045649781.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/02_2_1_1477045059709.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/02_2_2_1477045442440.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/02_2_3_1477045738776.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/02_3_1_1477045328924.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/02_3_2_1477045528637.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/02_3_3_1477045781829.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/02_4_1_1477045386208.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/02_4_2_1477045575769.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/02_4_3_1477045827621.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/02_5_1_1477045200480.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/02_5_2_1477045600691.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/02_5_3_1477045859736.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/02_6_1_1477045231262.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/02_6_2_1477045625034.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/02_6_3_1477045885243.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+
+            _reader->readCSVFile("docs/03_1_1_1477045972595.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/03_1_2_1477046194366.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/03_1_3_1477046515117.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/03_2_1_1477046007930.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/03_2_2_1477046305590.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/03_2_3_1477046580120.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/03_3_1_1477046058881.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/03_3_2_1477046353556.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/03_3_3_1477046635202.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/03_4_1_1477046109686.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/03_4_2_1477046416593.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/03_4_3_1477046690063.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/03_5_1_1477046135953.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/03_5_2_1477046440039.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/03_5_3_1477046714582.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/03_6_1_1477046167179.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/03_6_2_1477046464098.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/03_6_3_1477046755793.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+
+            _reader->readCSVFile("docs/04_1_1_1477047900980.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/04_1_2_1477048097661.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/04_1_3_1477048794314.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/04_2_2_1477048129281.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/04_2_3_1477048909995.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/04_3_1_1477048319055.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/04_3_2_1477048178894.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/04_3_3_1477048949083.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/04_4_1_1477048025319.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/04_4_2_1477048228784.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/04_4_3_1477048992225.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/04_5_1_1477048045533.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/04_5_2_1477048260035.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/04_5_3_1477049014027.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/04_6_1_1477048070060.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/04_6_2_1477048281907.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/04_6_3_1477049041717.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+
+            _reader->readCSVFile("docs/05_1_1_1477049323104.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/05_1_2_1477049561661.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/05_1_3_1477049746406.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/05_2_2_1477049591901.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/05_2_3_1477049773169.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/05_3_1_1477049424551.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/05_3_2_1477049639224.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/05_3_3_1477049825829.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/05_4_1_1477049488661.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/05_4_2_1477049690857.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/05_4_3_1477049869306.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/05_5_1_1477049514138.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/05_5_2_1477049710714.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/05_5_3_1477049887256.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/05_6_1_1477049538067.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/05_6_2_1477049728322.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/05_6_3_1477049905366.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+
+            _reader->readCSVFile("docs/06_1_1_1477050706950.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/06_1_2_1477050962434.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/06_1_3_1477051184293.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/06_2_1_1477050768609.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/06_2_2_1477050990639.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/06_2_3_1477051252254.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/06_3_1_1477050833494.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/06_3_2_1477051051452.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/06_3_3_1477051305299.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/06_4_1_1477050878249.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/06_4_2_1477051100934.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/06_4_3_1477051351384.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/06_5_1_1477050900170.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/06_5_2_1477051123341.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/06_5_3_1477051373403.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/06_6_1_1477050926698.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/06_6_2_1477051154858.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/06_6_3_1477051405354.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+
+            _reader->readCSVFile("docs/07_1_1_1477051538022.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/07_1_1_1477051538022.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/07_1_3_1477051913923.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/07_2_2_1477051757654.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/07_2_3_1477051939931.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/07_3_1_1477051612410.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/07_3_2_1477051796715.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/07_3_3_1477051991634.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/07_4_1_1477051658876.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/07_4_2_1477051844660.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/07_4_3_1477052041996.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/07_5_1_1477051679326.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/07_5_2_1477051869951.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/07_5_3_1477052068625.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/07_6_1_1477051707590.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/07_6_2_1477051893545.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/07_6_3_1477052091582.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+
+            _reader->readCSVFile("docs/08_1_1_1477052157282.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/08_1_2_1477052345201.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/08_1_3_1477052567151.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/08_2_2_1477052378593.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/08_2_3_1477052599421.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/08_3_1_1477052231621.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/08_3_2_1477052429756.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/08_3_3_1477052650651.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/08_4_1_1477052282044.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/08_4_2_1477052485147.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/08_4_3_1477052699573.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/08_5_1_1477052302370.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/08_5_2_1477052509510.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/08_5_3_1477052722150.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/08_6_1_1477052326376.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/08_6_2_1477052542899.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/08_6_3_1477052739874.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+
+            _reader->readCSVFile("docs/09_1_1_1477052835575.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/09_1_2_1477053053952.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/09_1_3_1477053269953.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/09_2_2_1477053106636.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/09_2_3_1477053306515.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/09_3_1_1477052929641.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/09_3_2_1477053161415.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/09_3_3_1477053358165.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/09_4_1_1477052986450.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/09_4_2_1477053207798.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/09_4_3_1477053442443.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/09_5_1_1477053010324.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/09_5_2_1477053229534.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/09_5_3_1477053463101.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/09_6_1_1477053033307.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/09_6_2_1477053251133.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/09_6_3_1477053491923.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+
+            _reader->readCSVFile("docs/10_1_1_1477053563351.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/10_1_2_1477053774772.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/10_1_3_1477053970534.csv", 10, ",", Exercise::WALKING,collection3);
+            _reader->readCSVFile("docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/10_2_2_1477053816220.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/10_2_3_1477054000762.csv", 10, ",", Exercise::FALLING_FORWARD,collection3);
+            _reader->readCSVFile("docs/10_3_1_1477053667140.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/10_3_2_1477053875250.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/10_3_3_1477054056884.csv", 10, ",", Exercise::STAIRS_UP,collection3);
+            _reader->readCSVFile("docs/10_4_1_1477053712577.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/10_4_2_1477053913912.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/10_4_3_1477054120840.csv", 10, ",", Exercise::SITTING_DOWN,collection3);
+            _reader->readCSVFile("docs/10_5_1_1477053735599.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/10_5_2_1477053934806.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/10_5_3_1477054150663.csv", 10, ",", Exercise::PICKUP_ITEM_SITTING,collection3);
+            _reader->readCSVFile("docs/10_6_1_1477053754755.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/10_6_2_1477053952409.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+            _reader->readCSVFile("docs/10_6_3_1477054170574.csv", 10, ",", Exercise::PICKUP_ITEM_STANDING,collection3);
+
+            collection3->createTrainingTestSets(5, 15);
+            _collections.push_back(collection3);
+            _ui->listWidget_training_collections->addItem(QString::fromStdString(_collections[_collections.size()-1]->getName()));
+        }
     }
 }
 
@@ -708,10 +909,12 @@ void MainWindow::removeGraphElements(int networkIndex)
         if(_ui->customplot_accuracy->graphCount() == 0)
         {
             _ui->customplot_accuracy->xAxis->setRange(0, 100);
+            _ui->horizontalScrollBar_accuracy->setRange(0,100);
         }
         if(_ui->customplot_error->graphCount() == 0)
         {
             _ui->customplot_error->xAxis->setRange(0, 100);
+            _ui->horizontalScrollBar_error->setRange(0,100);
         }
         _ui->customplot_accuracy->replot();
         _ui->customplot_error->replot();
@@ -745,6 +948,11 @@ void MainWindow::createGraph(int networkIndex, int networkId)
                 createGraph(-1, temp[i]->getNetworkID());
             }
         }
+    }
+
+    if(hasGraph(networkId) != -1)
+    {
+        return;
     }
 
     _idsForNetworkGraphs.push_back(networkId);
