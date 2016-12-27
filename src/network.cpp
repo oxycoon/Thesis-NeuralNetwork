@@ -1010,7 +1010,7 @@ void Network::feedBackward(std::vector<double> targets)
     {
         for(int i = _numHiddenLayers-1; i >= 1; i--)
         {
-            for(int j = 0; j < _countHidden[i]; j++)
+            for(int j = 0; j <= _countHidden[i]; j++)
             {
                 _hiddenErrorGradient[i][j] = calculateHiddenErrorGradient(i,j);
 
@@ -1032,7 +1032,7 @@ void Network::feedBackward(std::vector<double> targets)
     }
 
     //Modify deltas between input and hidden
-    for(int i = 0; i < _countHidden[0]; i++)
+    for(int i = 0; i <= _countHidden[0]; i++)
     {
         _hiddenErrorGradient[0][i] = calculateHiddenErrorGradient(0, i);
 
