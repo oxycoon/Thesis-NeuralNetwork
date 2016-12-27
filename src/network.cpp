@@ -994,7 +994,7 @@ void Network::feedBackward(std::vector<double> targets)
     for(int i = 0; i < _countOutput; i++)
     {
         _outputErrorGradient[i] = calculateOutputErrorGradient(targets[i], _output[i]->getValue());
-        for(int j = 0; j < _countHidden[_numHiddenLayers-1]; j++)
+        for(int j = 0; j <= _countHidden[_numHiddenLayers-1]; j++)
         {
             if(!_useBatch)
             {
@@ -1017,7 +1017,7 @@ void Network::feedBackward(std::vector<double> targets)
             {
                 _hiddenErrorGradient[i][j] = calculateHiddenErrorGradient(i,j);
 
-                for(int k = 0; k < _countHidden[i-1]; k++)
+                for(int k = 0; k <= _countHidden[i-1]; k++)
                 {
                     if(!_useBatch)
                     {
@@ -1039,7 +1039,7 @@ void Network::feedBackward(std::vector<double> targets)
     {
         _hiddenErrorGradient[0][i] = calculateHiddenErrorGradient(0, i);
 
-        for(int j = 0; j < _countInput; j++)
+        for(int j = 0; j <= _countInput; j++)
         {
             if(!_useBatch)
             {
