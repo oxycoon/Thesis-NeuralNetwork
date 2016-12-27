@@ -53,7 +53,22 @@ bool Neuron::setDelta(unsigned int index, double delta)
     //Else set delta at index to input
     if(index < _deltaCount)
     {
+        setOldDelta(index, _deltas[index]);
         _deltas[index] = delta;
+        return true;
+    }
+    //Else fail
+    else
+        return false;
+}
+
+bool Neuron::setOldDelta(unsigned int index, double delta)
+{
+
+    //Else set delta at index to input
+    if(index < _deltaCount)
+    {
+        _oldDeltas[index] =  delta;
         return true;
     }
     //Else fail
@@ -91,6 +106,19 @@ std::vector<double> Neuron::getDeltas() const
 }
 
 double Neuron::getDelta(unsigned int index) const
+{
+    if(index < _deltaCount)
+        return _deltas[index];
+    else
+        return 0.0;
+}
+
+std::vector<double> Neuron::getOldDeltas() const
+{
+    return _oldDeltas;
+}
+
+double Neuron::getOldDelta(unsigned int index) const
 {
     if(index < _deltaCount)
         return _deltas[index];
@@ -166,6 +194,7 @@ void Neuron::initializeDeltas(int deltas)
     {
         _deltas[i] = 0.0;
         _optimalDeltas[i] = 0.0;
+        _oldDeltas[i] = 0.0;
     }
 }
 

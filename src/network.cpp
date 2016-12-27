@@ -559,9 +559,6 @@ void Network::runTraining(DataCollection *set)
             }
         }
 
-
-
-
         if(WRITE_RESULTS_TO_FILE)
         {
             std::string name =  _networkName + "_result.csv";
@@ -1013,7 +1010,7 @@ void Network::feedBackward(std::vector<double> targets)
     {
         for(int i = _numHiddenLayers-1; i >= 1; i--)
         {
-            for(int j = 0; j < _countHidden[i]; j++)
+            for(int j = 0; j <= _countHidden[i]; j++)
             {
                 _hiddenErrorGradient[i][j] = calculateHiddenErrorGradient(i,j);
 
@@ -1035,7 +1032,7 @@ void Network::feedBackward(std::vector<double> targets)
     }
 
     //Modify deltas between input and hidden
-    for(int i = 0; i < _countHidden[0]; i++)
+    for(int i = 0; i <= _countHidden[0]; i++)
     {
         _hiddenErrorGradient[0][i] = calculateHiddenErrorGradient(0, i);
 
@@ -1052,8 +1049,37 @@ void Network::feedBackward(std::vector<double> targets)
                                       _hiddenErrorGradient[0][i]);
             }
         }
-
     }
+
+    //Update deltas for biases
+    /*for(int i = 0; i < _numHiddenLayers; i++) // to current layer
+    {
+        for(int j = 0; j < _countHidden[i]; j++) // to next layer
+        {
+            if(i == 0) //between input and hidden
+            {
+                if(!_useBatch)
+                {
+                    _input[_countInput]->setDelta(j, _learningRate * _hidden[0][_countInput]->getValue() *
+                                                   _hiddenErrorGradient[0][j] + _momentum * _input[_countInput]->getDelta(j));
+                }
+                else
+                {
+                    _input[_countInput]->addToDelta(j, _learningRate * _input[_countInput]->getValue() *
+                                                   _hiddenErrorGradient[0][j]);
+                }
+            }
+            else // between hidden layers
+            {
+
+            }
+        }
+    }
+    for(int i = 0; i < _countOutput; i++)
+    {
+
+    }*/
+
 
     //If using stochastic learning, update weights now
     if(!_useBatch)
@@ -1088,7 +1114,7 @@ void Network::updateWeights()
     {
         for(int i = 0; i < _numHiddenLayers-1; i++)
         {
-            for(int j = 0; j < _countHidden[i]; j++)
+            for(int j = 0; j <= _countHidden[i]; j++)
             {
                 for(int k = 0; k < _countHidden[i+1]; k++)
                 {
@@ -1103,7 +1129,7 @@ void Network::updateWeights()
     }
 
     //Hidden to output weights
-    for(int i = 0; i < _countHidden[_numHiddenLayers-1]; i++)
+    for(int i = 0; i <= _countHidden[_numHiddenLayers-1]; i++)
     {
         for(int j = 0; j < _countOutput; j++)
         {
@@ -1119,7 +1145,7 @@ void Network::updateWeights()
 }
 
 /**
- * @brief Network::sigmoidPrimeFunction
+ * @brief Network:: PrimeFunction
  * @param x
  * @return Derivative Sigmoid function
  */
