@@ -567,6 +567,11 @@ void Network::runTraining(DataCollection *set)
         }
         emit signNetworkTrainingComplete();
     }
+    else
+    {
+        QString message = QString::fromStdString(_networkName) + " is already trained.";
+        emit signNetworkConsoleOutput(message);
+    }
 }
 
 void Network::runTesting(DataCollection *set)
