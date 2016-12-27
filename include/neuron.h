@@ -13,14 +13,11 @@ public:
     void                    setValue(double val);
     bool                    setWeight(unsigned int index, double weight);
     bool                    setDelta(unsigned int index, double delta);
-    bool                    setOldDelta(unsigned int index, double delta);
 
     std::vector<double>     getWeights() const;
     double                  getWeight(unsigned int index) const;
     std::vector<double>     getDeltas() const;
     double                  getDelta(unsigned int index) const;
-    std::vector<double>     getOldDeltas() const;
-    double                  getOldDelta(unsigned int index) const;
     double                  getValue() const;
 
     int                     getWeightCount() const;
@@ -58,13 +55,6 @@ private:
      *  Hidden neurons hold deltas towards the output layer.
      */
     std::vector<double> _deltas;
-
-    /**
-     * @brief _deltas
-     *
-     *  Deltas from previous epoch.
-     */
-    std::vector<double> _oldDeltas;
 
     /**
      * @brief _weightCount
