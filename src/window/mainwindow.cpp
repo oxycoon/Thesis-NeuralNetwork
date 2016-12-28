@@ -662,7 +662,7 @@ void MainWindow::on_pushButton_network_edit_clicked()
 
 void MainWindow::on_pushButton_network_delete_clicked()
 {
-    if(_selectedNetwork != -1)
+    if(_selectedNetwork != -1 && _networkList.size() > 0)
     {
         _ui->listWidget_networkList->model()->removeRow(_selectedNetwork);
         _ui->listWidget_training_networks->model()->removeRow(_selectedNetwork);
