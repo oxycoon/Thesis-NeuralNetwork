@@ -21,7 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupGUIElements();
     loadDataCollectionFiles();
-    loadDefaultNetworks();
+    loadFirstNetworks();
+    loadRefinedNetworks();
 }
 
 MainWindow::~MainWindow()
@@ -455,47 +456,48 @@ void MainWindow::loadDataCollectionFiles()
     }
 }
 
-void MainWindow::loadDefaultNetworks()
+void MainWindow::loadRefinedNetworks()
 {
+    std::vector<Network*> subNetworks;
+
     QuadraticCost* cost = new QuadraticCost();
-    Network* net = new Network(16, {16,6}, 2, cost, DataType::ACCELEROMETER, "DefaultAccelerometer");
+    Network* net = new Network(16, {16,6}, 2, cost, DataType::ACCELEROMETER, "RefinedAccelerometer");
     connect(net, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
     connect(net, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
     net->initNetwork();
     net->setAutoDelete(false);
 
     _networkList.push_back(net);
+    subNetworks.push_back(net);
     _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
 
     QuadraticCost* cost2 = new QuadraticCost();
-    Network* net2 = new Network(16, {16,6}, 2, cost2, DataType::GYRO, "DefaultGyroscope");
+    Network* net2 = new Network(16, {16,6}, 2, cost2, DataType::GYRO, "RefinedGyroscope");
     connect(net2, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
     connect(net2, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
     net2->initNetwork();
     net2->setAutoDelete(false);
 
     _networkList.push_back(net2);
+    subNetworks.push_back(net2);
     _ui->listWidget_networkList->addItem(QString::fromStdString(net2->getNetworkName()));
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net2->getNetworkName()));
 
     QuadraticCost* cost3 = new QuadraticCost();
-    Network* net3 = new Network(16, {2,3}, 2, cost3, DataType::COMPASS, "DefaultCompass");
+    Network* net3 = new Network(16, {2,3}, 2, cost3, DataType::COMPASS, "RefinedCompass");
     connect(net3, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
     connect(net3, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
     net3->initNetwork();
     net3->setAutoDelete(false);
 
     _networkList.push_back(net3);
+    subNetworks.push_back(net3);
     _ui->listWidget_networkList->addItem(QString::fromStdString(net3->getNetworkName()));
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net3->getNetworkName()));
 
     QuadraticCost* cost4 = new QuadraticCost();
-    std::vector<Network*> subNetworks;
-    subNetworks.push_back(_networkList[0]);
-    subNetworks.push_back(_networkList[1]);
-    subNetworks.push_back(_networkList[2]);
-    Network* net4 = new Network(subNetworks, {2,4}, 2, cost4, "DefaultTopNetwork");
+    Network* net4 = new Network(subNetworks, {2,4}, 2, cost4, "RefinedTopNetwork");
     connect(net4, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
     connect(net4, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
     net4->initNetworkFromSub(subNetworks);
@@ -504,8 +506,58 @@ void MainWindow::loadDefaultNetworks()
     _networkList.push_back(net4);
     _ui->listWidget_networkList->addItem(QString::fromStdString(net4->getNetworkName()));
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net4->getNetworkName()));
+}
 
+void MainWindow::loadFirstNetworks()
+{
+    std::vector<Network*> subNetworks;
 
+    QuadraticCost* cost = new QuadraticCost();
+    Network* net = new Network(16, {16,6}, 2, cost, DataType::ACCELEROMETER, "FirstAccelerometer");
+    connect(net, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net->initNetwork();
+    net->setAutoDelete(false);
+
+    _networkList.push_back(net);
+    subNetworks.push_back(net);
+    _ui->listWidget_networkList->addItem(QString::fromStdString(net->getNetworkName()));
+    _ui->listWidget_training_networks->addItem(QString::fromStdString(net->getNetworkName()));
+
+    QuadraticCost* cost2 = new QuadraticCost();
+    Network* net2 = new Network(16, {16,6}, 2, cost2, DataType::GYRO, "FirstGyroscope");
+    connect(net2, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net2, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net2->initNetwork();
+    net2->setAutoDelete(false);
+
+    _networkList.push_back(net2);
+    subNetworks.push_back(net2);
+    _ui->listWidget_networkList->addItem(QString::fromStdString(net2->getNetworkName()));
+    _ui->listWidget_training_networks->addItem(QString::fromStdString(net2->getNetworkName()));
+
+    QuadraticCost* cost3 = new QuadraticCost();
+    Network* net3 = new Network(16, {16,6}, 2, cost3, DataType::COMPASS, "FirstCompass");
+    connect(net3, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net3, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net3->initNetwork();
+    net3->setAutoDelete(false);
+
+    _networkList.push_back(net3);
+    subNetworks.push_back(net3);
+    _ui->listWidget_networkList->addItem(QString::fromStdString(net3->getNetworkName()));
+    _ui->listWidget_training_networks->addItem(QString::fromStdString(net3->getNetworkName()));
+
+    QuadraticCost* cost4 = new QuadraticCost();
+    Network* net4 = new Network(subNetworks, {16,6}, 2, cost4, "FirstTopNetwork");
+    connect(net4, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net4, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net4->initNetworkFromSub(subNetworks);
+    net4->setAutoDelete(false);
+
+    _networkList.push_back(net4);
+    _ui->listWidget_networkList->addItem(QString::fromStdString(net4->getNetworkName()));
+    _ui->listWidget_training_networks->addItem(QString::fromStdString(net4->getNetworkName()));
 }
 
 //==========================================================

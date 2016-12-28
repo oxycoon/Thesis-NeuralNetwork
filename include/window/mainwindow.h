@@ -79,7 +79,8 @@ private:
     int         hasGraph(int networkId);
 
     void        loadDataCollectionFiles();
-    void        loadDefaultNetworks();
+    void        loadRefinedNetworks();
+    void        loadFirstNetworks();
     void        setupGUIElements();
 
 private slots:
