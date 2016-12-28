@@ -195,13 +195,13 @@ void MainWindow::loadDataCollectionFiles()
             _reader->readCSVFile("docs/01_2_1_1477041118424.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
             _reader->readCSVFile("docs/02_2_1_1477045059709.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
             _reader->readCSVFile("docs/03_2_1_1477046007930.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
-            _reader->readCSVFile("docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
+            /*_reader->readCSVFile("docs/04_2_1_1477047930945.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
             _reader->readCSVFile("docs/05_2_2_1477049591901.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
             _reader->readCSVFile("docs/06_2_1_1477050768609.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
             _reader->readCSVFile("docs/07_2_1_1477051569123.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
             _reader->readCSVFile("docs/08_2_1_1477052185066.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
             _reader->readCSVFile("docs/09_2_1_1477052872435.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
-            _reader->readCSVFile("docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);
+            _reader->readCSVFile("docs/10_2_1_1477053609606.csv", 10, ",", Exercise::FALLING_FORWARD,collection2);*/
 
             _reader->readCSVFile("docs/01_3_1_1477041220590.csv", 10, ",", Exercise::STAIRS_UP,collection2);
             _reader->readCSVFile("docs/02_3_1_1477045328924.csv", 10, ",", Exercise::STAIRS_UP,collection2);
@@ -480,7 +480,7 @@ void MainWindow::loadDefaultNetworks()
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net2->getNetworkName()));
 
     QuadraticCost* cost3 = new QuadraticCost();
-    Network* net3 = new Network(16, {16,6}, 2, cost3, DataType::COMPASS, "DefaultCompass");
+    Network* net3 = new Network(16, {12,6}, 2, cost3, DataType::COMPASS, "DefaultCompass");
     connect(net3, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
     connect(net3, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
     net3->initNetwork();

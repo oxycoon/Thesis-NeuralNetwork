@@ -430,8 +430,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>343</width>
-                  <height>418</height>
+                  <width>108</width>
+                  <height>28</height>
                  </rect>
                 </property>
                 <property name="maximumSize">
@@ -599,10 +599,10 @@ Settings</string>
               </size>
              </property>
              <property name="decimals">
-              <number>3</number>
+              <number>5</number>
              </property>
              <property name="singleStep">
-              <double>0.001000000000000</double>
+              <double>0.000100000000000</double>
              </property>
              <property name="value">
               <double>0.010000000000000</double>

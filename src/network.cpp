@@ -205,7 +205,10 @@ void Network::doTraining(bool enable)
     {
         for(int i = 0; i < _subNetworks.size(); i++)
         {
-            _subNetworks[i]->doTraining(enable);
+            if(!_subNetworks[i]->isTrained())
+            {
+                _subNetworks[i]->doTraining(enable);
+            }
         }
     }
 }
@@ -319,6 +322,11 @@ int Network::getNetworkID() const
     return _id;
 }
 
+bool Network::isTrained() const
+{
+    return _isTrained;
+}
+
 //================================================
 //                  Public functions
 //================================================
@@ -430,11 +438,15 @@ void Network::runTraining(DataCollection *set)
               << "======================================================================" << std::endl;*/
     DataResults results;
     _epoch = 0;
+    int bestEpoch = 0;
     if(_trainSubnetsFirst && _subNetworks.size() > 0)
     {
         for(int i = 0; i < _subNetworks.size(); i++)
         {
-            _subNetworks[i]->runTraining(set);
+            if(!_subNetworks[i]->isTrained())
+            {
+                _subNetworks[i]->runTraining(set);
+            }
         }
     }
     if(!_isTrained)
@@ -484,6 +496,7 @@ void Network::runTraining(DataCollection *set)
                     }
                 }
                 bestTSMSE = _testingSetError;
+                bestEpoch = _epoch;
             }
 
             //Stops the training set if the generalization set's error starts increasing.
@@ -568,7 +581,10 @@ void Network::runTraining(DataCollection *set)
             FileWriter writer;
             writer.writeFile(name, results.toString(), "results/");
         }
+        QString message = "Training complete! Epochs ran: " + QString::number(_epoch) + ". Best error at: " + QString::number(bestEpoch) + "\n";
+        message.append("-- Best error: " + QString::number(bestTSMSE*100) +"%");
         emit signNetworkTrainingComplete();
+        emit signNetworkConsoleOutput(message);
     }
     else
     {

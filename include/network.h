@@ -62,6 +62,7 @@ public:
     std::vector<Network*>   getSubNetworks() const;
     int                     getNetworkDepth(int depth = 1) const;
     int                     getNetworkID() const;
+    bool                    isTrained() const;
 
 
 
