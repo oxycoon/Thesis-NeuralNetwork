@@ -490,6 +490,22 @@ void MainWindow::loadDefaultNetworks()
     _ui->listWidget_networkList->addItem(QString::fromStdString(net3->getNetworkName()));
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net3->getNetworkName()));
 
+    QuadraticCost* cost4 = new QuadraticCost();
+    std::vector<Network*> subNetworks;
+    subNetworks.push_back(_networkList[0]);
+    subNetworks.push_back(_networkList[1]);
+    subNetworks.push_back(_networkList[2]);
+    Network* net4 = new Network(subNetworks, {2,4}, 2, cost4, "DefaultTopNetwork");
+    connect(net4, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
+    connect(net4, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
+    net4->initNetworkFromSub(subNetworks);
+    net4->setAutoDelete(false);
+
+    _networkList.push_back(net4);
+    _ui->listWidget_networkList->addItem(QString::fromStdString(net4->getNetworkName()));
+    _ui->listWidget_training_networks->addItem(QString::fromStdString(net4->getNetworkName()));
+
+
 }
 
 //==========================================================

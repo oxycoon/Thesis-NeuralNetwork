@@ -586,7 +586,7 @@ void Network::runTraining(DataCollection *set)
 
         if(WRITE_RESULTS_TO_FILE)
         {
-            std::string name =  _networkName + "_result.csv";
+            std::string name =  _networkName + "_result_" + QString::number(bestEpoch).toStdString() + ".csv";
             FileWriter writer;
             writer.writeFile(name, results.toString(), "results/");
         }
@@ -655,7 +655,7 @@ void Network::runTesting(DataCollection *set)
 
     if(WRITE_RESULTS_TO_FILE)
     {
-        std::string name =  set->getName() + "_testing_result.csv";
+        std::string name = _networkName + "_" + set->getName() + "_testing_result.csv";
         FileWriter writer;
         writer.writeFile(name, output.toStdString(), "results/");
     }
