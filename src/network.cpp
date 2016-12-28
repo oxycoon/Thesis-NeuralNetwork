@@ -339,13 +339,13 @@ bool Network::isTrained() const
 void Network::resetNetwork()
 {
     initWeights();
-    if(hasSubNetworks())
+    /*if(hasSubNetworks())
     {
         for(int i = 0; i < _subNetworks.size(); i++)
         {
             _subNetworks[i]->resetNetwork();
         }
-    }
+    }*/
     _isTrained = false;
     emit signNetworkConsoleOutput(QString::fromStdString(_networkName) + " network reset!");
 }
@@ -445,6 +445,15 @@ void Network::runTraining(DataCollection *set)
         {
             if(!_subNetworks[i]->isTrained())
             {
+                _subNetworks[i]->setLearningParameters(_learningRate, _momentum);
+                _subNetworks[i]->setMaxEpochs(_maxEpochs);
+                _subNetworks[i]->setTargetAccuracy(_targetAccuracy);
+                _subNetworks[i]->enableNoise(_useNoise);
+                _subNetworks[i]->setNoiseParameters(_noiseDeviation, _noiseMean);
+                _subNetworks[i]->setTrainSubNetworksFirst(_trainSubnetsFirst);
+                _subNetworks[i]->setDataCollection(set);
+                _subNetworks[i]->doTraining(true);
+                _subNetworks[i]->doTesting(false);
                 _subNetworks[i]->runTraining(set);
             }
         }
