@@ -480,7 +480,7 @@ void MainWindow::loadDefaultNetworks()
     _ui->listWidget_training_networks->addItem(QString::fromStdString(net2->getNetworkName()));
 
     QuadraticCost* cost3 = new QuadraticCost();
-    Network* net3 = new Network(16, {12,6}, 2, cost3, DataType::COMPASS, "DefaultCompass");
+    Network* net3 = new Network(16, {2,3}, 2, cost3, DataType::COMPASS, "DefaultCompass");
     connect(net3, &Network::signNetworkConsoleOutput, this, &MainWindow::signRecievedConsoleOutput);
     connect(net3, &Network::signNetworkEpochComplete, this, &MainWindow::signRecievedEpochComplete);
     net3->initNetwork();
@@ -662,7 +662,8 @@ void MainWindow::on_pushButton_network_edit_clicked()
 
 void MainWindow::on_pushButton_network_delete_clicked()
 {
-    if(_selectedNetwork != -1 && _networkList.size() > 0)
+    if(_selectedNetwork != -1 && _networkList.size() > 0
+            && _selectedNetwork < _networkList.size())
     {
         _ui->listWidget_networkList->model()->removeRow(_selectedNetwork);
         _ui->listWidget_training_networks->model()->removeRow(_selectedNetwork);
